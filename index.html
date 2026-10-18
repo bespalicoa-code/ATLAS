@@ -345,7 +345,6 @@ $('scanFile').addEventListener('change',e=>{if(e.target.files.length)scanFiles(e
 $('classModal').addEventListener('paste',e=>{const f=e.clipboardData&&[...e.clipboardData.files].filter(x=>x.type.startsWith('image/'));if(f&&f.length){e.preventDefault();scanFiles(f)}});
 loadData();renderAll();renderQuiz();
 </script>
-  <script src="atlas_ai.js"></script>
 </body>
 
 </body>
