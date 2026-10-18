@@ -6,7 +6,7 @@
 (()=>{
 'use strict';
 const KEY='atlas-ai-v1',QKEY='atlas-ai-questions-v1';
-let S=Object.assign({key:'',model:'claude-sonnet-5-5',notes:false},readLocal(KEY,{}));
+let S=Object.assign({key:'',code:'',model:'claude-sonnet-5-5',notes:false},readLocal(KEY,{}));
 let genQs=[];
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
 const valid=q=>q&&typeof q.q==='string'&&q.q.trim()&&Array.isArray(q.a)&&q.a.length===4&&q.a.every(x=>typeof x==='string')&&Number.isInteger(q.c)&&q.c>=0&&q.c<4;
@@ -19,10 +19,15 @@ const deanon=t=>{const st=cls().students;return String(t).replace(/Elev(?:ul)? (
 
 // ---------- Apel către Claude ----------
 async function ask(system,user,maxTokens=1200){
-  if(!S.key)throw new Error('nokey');
+  if(!S.key)return askServer(system,user,maxTokens);
   const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'content-type':'application/json','x-api-key':S.key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:S.model,max_tokens:maxTokens,system,messages:[{role:'user',content:user}]})});
   if(!r.ok){let m='';try{m=(await r.json()).error.message}catch(e){}throw new Error(m||('HTTP '+r.status))}
   const d=await r.json();return (d.content||[]).map(b=>b.text||'').join('').trim()}
+// Fără cheie personală: cererea merge la funcția /api/ai de pe Vercel (OpenAI), unde cheia stă secretă.
+async function askServer(system,user,maxTokens){
+  let r;try{r=await fetch('/api/ai',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({system,user,maxTokens,code:S.code||''})})}catch(e){throw new Error('Failed to fetch')}
+  if(!r.ok){let m='';try{m=(await r.json()).error}catch(e){}if(r.status===404)m='serverul AI nu este instalat (lipsește api/ai.js)';throw new Error(m||('HTTP '+r.status))}
+  return String((await r.json()).text||'').trim()}
 async function run(btn,fn){const old=btn.textContent;btn.disabled=true;btn.textContent='Se generează…';
   try{await fn()}catch(e){showToast(e.message==='nokey'?'Adaugă mai întâi cheia API în secțiunea „Conexiune AI”.':e.message==='Failed to fetch'?'Nu m-am putut conecta la serviciul AI. Verifică internetul.':'Eroare AI: '+e.message,true)}
   finally{btn.disabled=false;btn.textContent=old}}
@@ -69,7 +74,9 @@ navBtn.addEventListener('click',()=>showPage('ai'));
 const sec=document.createElement('section');sec.className='page hidden';sec.id='aiPage';
 sec.innerHTML=`
 <div class="panel"><div class="panel-head"><div class="panel-heading"><div class="section-icon">🔑</div><div><h2>Conexiune AI</h2><p>Opțională: analiza locală funcționează și fără ea.</p></div></div><span class="ai-badge" id="aiState"></span></div><div class="ai-body">
- <div class="ai-key"><input type="password" id="aiKey" placeholder="Cheia ta API Anthropic (sk-ant-...)" autocomplete="off" aria-label="Cheia API"><select id="aiModel" aria-label="Model"><option value="claude-haiku-5-5">Haiku (rapid, ieftin)</option><option value="claude-sonnet-5-5">Sonnet (echilibrat)</option><option value="claude-opus-5-5">Opus (cel mai atent)</option></select><button class="btn primary" id="aiSaveKey" type="button">Salvează</button><button class="btn white" id="aiClearKey" type="button">Șterge cheia</button></div>
+ <div class="ai-key"><input type="password" id="aiCode" placeholder="Cod de acces (pentru AI-ul de pe server)" autocomplete="off" aria-label="Cod de acces"></div>
+ <p class="ai-note">Implicit, AI-ul rulează prin serverul site-ului (OpenAI). Dacă ai o cheie Anthropic proprie, o poți pune mai jos și va fi folosită în loc.</p>
+ <div class="ai-key" style="margin-top:10px"><input type="password" id="aiKey" placeholder="Opțional: cheia ta Anthropic (sk-ant-...)" autocomplete="off" aria-label="Cheia API"><select id="aiModel" aria-label="Model"><option value="claude-haiku-5-5">Haiku (rapid, ieftin)</option><option value="claude-sonnet-5-5">Sonnet (echilibrat)</option><option value="claude-opus-5-5">Opus (cel mai atent)</option></select><button class="btn primary" id="aiSaveKey" type="button">Salvează</button><button class="btn white" id="aiClearKey" type="button">Șterge cheia</button></div>
  <label class="ai-check"><input type="checkbox" id="aiNotes"> Trimite și motivele/observațiile de la puncte (pot conține informații personale)</label>
  <p class="ai-note">Cheia rămâne doar în browserul acestui dispozitiv. Către AI se trimit numai date anonimizate (Elev 1, Elev 2…): puncte, note, număr de înregistrări. Numele reale nu pleacă de pe dispozitiv; ele sunt puse la loc local, în răspuns. Pe un computer folosit și de alte persoane, șterge cheia după lucru.</p></div></div>
 
@@ -91,13 +98,13 @@ document.querySelector('.footer').before(sec);
 
 const $a=id=>document.getElementById(id);
 function refresh(){
-  $a('aiKey').value=S.key;$a('aiModel').value=S.model;$a('aiNotes').checked=!!S.notes;
-  $a('aiState').textContent=S.key?'AI conectat':'Doar analiză locală';
+  $a('aiKey').value=S.key;$a('aiCode').value=S.code||'';$a('aiModel').value=S.model;$a('aiNotes').checked=!!S.notes;
+  $a('aiState').textContent=S.key?'AI: cheia ta Anthropic':'AI: prin server';
   const cur=$a('aiStudent').value;$a('aiStudent').innerHTML=cls().students.map(s=>`<option value="${escapeHtml(s.id)}">${escapeHtml(s.name)}</option>`).join('');if(cls().students.some(s=>s.id===cur))$a('aiStudent').value=cur;
   ['aiAnalysis','aiRemarkOut','aiAskOut'].forEach(i=>$a(i).classList.add('hidden'))}
 
-$a('aiSaveKey').addEventListener('click',()=>{S.key=$a('aiKey').value.trim();S.model=$a('aiModel').value;S.notes=$a('aiNotes').checked;save();refresh();showToast(S.key?'Conexiunea AI a fost salvată.':'Introdu cheia API.',!S.key)});
-$a('aiClearKey').addEventListener('click',()=>{S.key='';save();refresh();showToast('Cheia a fost ștearsă din acest browser.')});
+$a('aiSaveKey').addEventListener('click',()=>{S.key=$a('aiKey').value.trim();S.code=$a('aiCode').value.trim();S.model=$a('aiModel').value;S.notes=$a('aiNotes').checked;save();refresh();showToast('Setările AI au fost salvate.')});
+$a('aiClearKey').addEventListener('click',()=>{S.key='';S.code='';save();refresh();showToast('Cheia și codul au fost șterse din acest browser.')});
 $a('aiNotes').addEventListener('change',e=>{S.notes=e.target.checked;save()});
 
 function showAnalysis(html){const o=$a('aiAnalysis');o.innerHTML=html;o.classList.remove('hidden');$a('aiAnalysisHint').classList.add('hidden')}
