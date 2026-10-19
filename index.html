@@ -988,13 +988,27 @@ if(tb){var tick=false;window.addEventListener('scroll',function(){if(tick)return
    protejate de regulile din firestore.rules, nu de ascunderea cheii.
    ===================================================================== */
 const ATLAS_FIREBASE_CONFIG = {
-   apiKey: "AIzaSyAX93bTc5N0Y1Q5f1CSmQbYU9DBEKkgY7o",
+ // Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyAX93bTc5N0Y1Q5f1CSmQbYU9DBEKkgY7o",
   authDomain: "atlas-f1dfd.firebaseapp.com",
   projectId: "atlas-f1dfd",
   storageBucket: "atlas-f1dfd.firebasestorage.app",
   messagingSenderId: "926961747907",
   appId: "1:926961747907:web:6c2613c64a00626a1f9f76",
   measurementId: "G-XZFBE9RWLT"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
 };
 
 // Initialize Firebase
