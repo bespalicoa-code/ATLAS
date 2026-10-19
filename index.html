@@ -1118,6 +1118,28 @@ async function cycle(){
   finally{S.busy=false}}
 async function cycleOnce(){
   const meta=readMeta(),L=localState(),R=S.remote,B=meta.base;
+  // Dacă acest dispozitiv și contul au modificat simultan aceeași clasă,
+  // unește elevii și istoricul punctelor înainte de a trimite datele.
+  // Altfel, o salvare făcută de pe un alt dispozitiv putea suprascrie logurile.
+  let conflict=false;
+  const mergedState=new Map();
+  L.forEach((v,id)=>mergedState.set(id,v.data));
+  L.forEach((l,id)=>{
+    if(!id.startsWith('c_')||!R.has(id)||B[id]===undefined)return;
+    const r=R.get(id),lh=l.hash,rh=r.hash,bh=B[id];
+    if(lh!==rh&&lh!==bh&&rh!==bh){
+      const merged=mergeClass(r.data,l.data);
+      mergedState.set(id,merged);
+      // Serverul este punctul de referință pentru următorul ciclu; versiunea
+      // îmbinată local va fi apoi trimisă ca o modificare nouă.
+      B[id]=rh; conflict=true;
+    }
+  });
+  if(conflict){
+    applyState(mergedState);
+    meta.uid=S.user.uid;meta.base=B;meta.lastSync=Date.now();writeMeta(meta);
+    S.again=true;return;
+  }
   // Baza din cont a fost ștearsă/recreată goală: nu șterge datele locale, ci urcă-le din nou.
   if(R.size===0&&Object.keys(B).length)Object.keys(B).forEach(k=>delete B[k]);
   const ids=new Set([...L.keys(),...R.keys(),...Object.keys(B)]),push=[],pull=[];
@@ -1208,10 +1230,34 @@ function wipeLocalAndReload(){
   try{localStorage.setItem(SETTINGS_KEY,JSON.stringify({dark,school:'',year:'2026–2027'}))}catch(e){}
   location.reload()}
 async function logout(){
-  const unsynced=S.user&&(S.status==='pending'||S.status==='offline'||S.paused||localDiffers());
-  const msg=(unsynced?'ATENȚIE: ai modificări care nu au ajuns încă în cont. Dacă ieși acum, ele se pierd.\n\n':'')+'Ieși din cont? Datele de pe acest dispozitiv se șterg (rămân în cont și le regăsești la următoarea autentificare).';
-  if(!confirm(msg))return;
-  clearTimeout(S.timer);try{await S.be.signOut()}catch(e){}
+  if(!S.user)return;
+  const unsynced=S.status!=='synced'||S.status==='offline'||S.paused||localDiffers();
+  if(unsynced){
+    const ok=confirm('Există posibil date care încă nu s-au salvat în cont. Vrei să încerc să le sincronizez înainte de ieșire? Datele locale nu vor fi șterse dacă sincronizarea eșuează.');
+    if(!ok)return;
+    if(!navigator.onLine){showToast('Nu există internet. Am păstrat datele pe acest dispozitiv; reconectează-te și sincronizează înainte de a ieși.',true);return}
+    if(S.paused){showToast('Alege mai întâi cum vrei să îmbini datele locale cu cele din cont.',true);openChoice();return}
+    setStatus('syncing');
+    try{await cycle()}catch(e){}
+    const deadline=Date.now()+20000;
+    while(Date.now()<deadline){
+      if(S.status==='synced'&&!localDiffers())break;
+      await new Promise(resolve=>setTimeout(resolve,250));
+      if(S.status==='error'||S.status==='offline')break;
+      if(!S.busy&&S.ready&&!S.paused&&localDiffers())schedule(0);
+    }
+    if(S.status!=='synced'||localDiffers()){
+      showToast('Nu am putut confirma salvarea în cont. Nu te-am deconectat și nu am șters datele. Verifică internetul și apasă „Sincronizează acum”.',true);
+      return;
+    }
+  }
+  if(!confirm('Sincronizarea este confirmată. Ieși din cont? Datele din cont vor rămâne disponibile la următoarea autentificare.')){
+    return;
+  }
+  clearTimeout(S.timer);
+  try{await S.be.signOut()}catch(e){
+    showToast('Nu am putut ieși din cont. Datele locale au fost păstrate.',true);return;
+  }
   wipeLocalAndReload()}
 
 /* ---------- Pornire ---------- */
