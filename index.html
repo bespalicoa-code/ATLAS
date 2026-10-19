@@ -1097,6 +1097,8 @@ async function cycle(){
   finally{S.busy=false}}
 async function cycleOnce(){
   const meta=readMeta(),L=localState(),R=S.remote,B=meta.base;
+  // Baza din cont a fost ștearsă/recreată goală: nu șterge datele locale, ci urcă-le din nou.
+  if(R.size===0&&Object.keys(B).length)Object.keys(B).forEach(k=>delete B[k]);
   const ids=new Set([...L.keys(),...R.keys(),...Object.keys(B)]),push=[],pull=[];
   ids.forEach(id=>{const l=L.get(id)&&L.get(id).hash,r=R.get(id)&&R.get(id).hash,b=B[id];
     if(l===r){if(l===undefined)delete B[id];else B[id]=l;return}
