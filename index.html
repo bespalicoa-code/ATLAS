@@ -216,6 +216,41 @@ body.lite .podium{transform:none}
 .qs-it.on,.qs-it:hover{background:rgba(34,137,213,.14)}.qs-it small{color:var(--muted)}
 #qsList{max-height:50vh;overflow:auto}#qsBtn{cursor:pointer}
 </style>
+<style>
+/* Cont și sincronizare */
+.sync-chip{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--white);color:var(--ink);border-radius:999px;padding:8px 12px;font-weight:750;font-size:12px;white-space:nowrap}
+.sync-chip:hover{border-color:var(--blue2)}
+.sync-chip .sync-dot{width:8px;height:8px;border-radius:50%;background:#9aa8b4;flex:none}
+.sync-chip[data-state=synced] .sync-dot{background:#2eb58b}
+.sync-chip[data-state=syncing] .sync-dot,.sync-chip[data-state=connecting] .sync-dot{background:var(--blue2);animation:syncPulse 1s ease-in-out infinite}
+.sync-chip[data-state=pending] .sync-dot,.sync-chip[data-state=paused] .sync-dot{background:var(--gold)}
+.sync-chip[data-state=offline] .sync-dot,.sync-chip[data-state=error] .sync-dot{background:var(--red)}
+@keyframes syncPulse{50%{opacity:.35}}
+@media(prefers-reduced-motion:reduce){.sync-chip .sync-dot{animation:none!important}}
+@media(max-width:760px){.sync-chip{padding:7px 10px;font-size:11px}}
+@media(max-width:420px){.sync-chip #syncChipText{display:none}.sync-chip{padding:11px}}
+.account-actions{display:flex;gap:8px;flex-wrap:wrap}
+.auth-tabs{display:grid;grid-template-columns:1fr 1fr;gap:4px;background:rgba(113,131,151,.14);padding:4px;border-radius:12px;margin-bottom:16px}
+.auth-tabs button{border:0;background:transparent;color:var(--muted);border-radius:9px;padding:9px;font-weight:750;font-size:13px}
+.auth-tabs button.on{background:var(--white);color:var(--blue);box-shadow:0 2px 8px #10375214}
+.auth-wide{width:100%}
+.auth-err{margin:0 0 12px;padding:10px 12px;border-radius:10px;background:#fff0f0;border:1px solid #f4d6d7;color:var(--red);font-size:12px;font-weight:650;line-height:1.5}
+.auth-err.ok{background:#e7f7f0;border-color:#ccefe0;color:#117957}
+.auth-or{display:flex;align-items:center;gap:10px;margin:14px 0;color:var(--muted);font-size:11px}
+.auth-or:before,.auth-or:after{content:"";flex:1;height:1px;background:var(--line)}
+.auth-links{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:14px}
+.linkbtn{border:0;background:none;color:var(--blue);font-weight:700;font-size:12px;padding:4px 0;text-decoration:underline;text-underline-offset:3px}
+.choice-list{display:grid;gap:10px;margin-top:14px}
+.choice-list .btn{justify-content:flex-start;text-align:left;flex-direction:column;align-items:flex-start;gap:3px;padding:13px 15px;height:auto}
+.choice-list .btn small{font-weight:500;font-size:11px;opacity:.85;line-height:1.4}
+body.dark #authModal .modal-head h2,body.dark #syncChoiceModal .modal-head h2,body.dark #choiceInfo{color:#e8f1f8}
+body.dark #authModal .form-row label,body.dark #authModal .modal-head p,body.dark #syncChoiceModal .modal-head p{color:#b8cddd}
+body.dark .auth-tabs button.on{background:rgba(255,255,255,.14);color:#9fd2f6}
+body.dark .sync-chip{background:rgba(255,255,255,.07);color:#e8f1f8;border-color:rgba(255,255,255,.14)}
+body.dark .linkbtn{color:#7cc0f0}
+body.dark .auth-err{background:rgba(189,75,85,.18);border-color:rgba(189,75,85,.4);color:#ffb3ba}
+body.dark .auth-err.ok{background:rgba(24,133,108,.2);border-color:rgba(24,133,108,.45);color:#8fe6c6}
+</style>
 </head>
 <body>
 <div id="scene" aria-hidden="true"><svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg" role="presentation" focusable="false"><defs>
@@ -251,6 +286,7 @@ body.lite .podium{transform:none}
     <button data-page="stats"><svg viewBox="0 0 24 24"><path d="M4 19V10M10 19V5M16 19v-7M22 19H2"/></svg>Statistici și progres</button>
     <button id="navAdd"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>Adaugă puncte</button>
     <button id="navSettings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="m19.4 15 .1.1 1.4 1.1-1.5 2.6-1.7-.6a8 8 0 0 1-1.7 1l-.3 1.8h-3l-.3-1.8a8 8 0 0 1-1.7-1l-1.7.6-1.5-2.6 1.4-1.1a7 7 0 0 1 0-2l-1.4-1.1 1.5-2.6 1.7.6a8 8 0 0 1 1.7-1l.3-1.8h3l.3 1.8a8 8 0 0 1 1.7 1l1.7-.6 1.5 2.6-1.4 1.1a7 7 0 0 1 0 2z"/></svg>Setări</button>
+    <button id="navAccount"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>Cont și sincronizare</button>
     <button id="navExport"><svg viewBox="0 0 24 24"><path d="M12 3v12m-5-5 5 5 5-5M4 17v3h16v-3"/></svg>Exportă catalogul</button>
     <button id="navBackup"><svg viewBox="0 0 24 24"><path d="M12 16V4m-5 5 5-5 5 5M4 16v4h16v-4"/></svg>Copie de siguranță</button>
     <button id="navRestore"><svg viewBox="0 0 24 24"><path d="M12 4v12m-5-5 5 5 5-5M4 4h16"/></svg>Restaurează copia</button>
@@ -261,7 +297,7 @@ body.lite .podium{transform:none}
 </aside>
 <div class="scrim" id="scrim"></div>
 <div class="main">
-  <header class="topbar"><div class="top-left"><button class="mobile-menu" id="menuToggle" aria-label="Deschide meniul" aria-controls="sidebar">☰</button><div><div class="eyebrow">Spațiu educațional digital</div><div class="top-title" id="topTitle">Catalog de Geografie</div></div></div><div class="top-right"><span class="pill" id="classPill">CLASA A XII-A U</span><span class="avatar" id="classAvatar">12U</span></div></header>
+  <header class="topbar"><div class="top-left"><button class="mobile-menu" id="menuToggle" aria-label="Deschide meniul" aria-controls="sidebar">☰</button><div><div class="eyebrow">Spațiu educațional digital</div><div class="top-title" id="topTitle">Catalog de Geografie</div></div></div><div class="top-right"><button class="sync-chip hidden" id="syncChip" type="button" aria-live="polite"><span class="sync-dot" aria-hidden="true"></span><span id="syncChipText"></span></button><span class="pill" id="classPill">CLASA A XII-A U</span><span class="avatar" id="classAvatar">12U</span></div></header>
   <main class="content">
     <div class="page-intro"><div><div class="eyebrow" id="pageEyebrow">PREZENTARE GENERALĂ</div><h1 id="pageTitle">Catalog de Geografie</h1><p id="pageSubtitle">Clasa a XII-a U · Evidența punctelor, notelor automate și progresului elevilor</p></div><div class="intro-actions"><button class="btn white" id="printBtn"><svg viewBox="0 0 24 24"><path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v7H6z"/></svg>Tipărește</button><button class="btn primary" id="introAdd"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Adaugă puncte</button></div></div>
     <section id="hero" class="hero"><div class="hero-copy"><div class="hero-label"><span class="live-dot"></span> PROFIL EDUCAȚIONAL · GEOGRAFIE</div><h2>Descoperim lumea, construim viitorul.</h2><p>Un instrument modern pentru evidența punctelor, urmărirea activității și aprecierea progresului fiecărui elev.</p></div><div class="hero-art"><canvas id="heroGlobe" width="420" height="420" tabindex="0" role="img" aria-label="Glob 3D interactiv. Trage pentru a-l roti sau folosește săgețile." title="Trage pentru a roti globul"></canvas></div></section>
@@ -283,7 +319,7 @@ body.lite .podium{transform:none}
       <div id="assessmentList" class="assessment-list"></div><div class="empty hidden" id="assessmentEmpty">Nu ai creat încă evaluări pentru această clasă.</div></div>
     </section>
     <section class="page hidden" id="quizPage"><div class="panel quiz-panel"><div class="panel-head"><div class="panel-heading"><div class="section-icon">◎</div><div><h2>Quiz geografic</h2><p>Testează-ți cunoștințele cu întrebări de cultură geografică.</p></div></div><span class="pill" id="quizProgress">Întrebarea 1</span></div><div id="quizContent"></div><div class="quiz-actions"><button class="btn white" id="quizRestart">Reîncepe quiz-ul</button><button class="btn primary" id="quizNext" disabled>Următoarea întrebare →</button></div></div></section>
-    <section class="page hidden" id="settingsPage"><div class="panel"><div class="panel-head"><div class="panel-heading"><div class="section-icon">⚙</div><div><h2>Setări ATLAS</h2><p>Personalizează aspectul și gestionează datele catalogului.</p></div></div></div><div class="settings-grid"><div class="setting-item"><div><strong>Mod întunecat</strong><p>Schimbă tema aplicației pe acest dispozitiv.</p></div><label class="switch"><input type="checkbox" id="darkModeToggle"><span></span></label></div><div class="setting-item"><div><strong>Numele instituției</strong><p>Apare în antetul rapoartelor tipărite.</p></div><input id="schoolName" maxlength="100" placeholder="Numele instituției"></div><div class="setting-item"><div><strong>Anul școlar</strong><p>Folosit în rapoarte și în documentele exportate.</p></div><input id="schoolYear" maxlength="20" placeholder="2026–2027"></div><div class="setting-item"><div><strong>Export Excel</strong><p>Descarcă un catalog compatibil cu Microsoft Excel.</p></div><button class="btn light" id="excelExport">Exportă .xls</button></div><div class="setting-item"><div><strong>Raport PDF</strong><p>Deschide fereastra de imprimare pentru salvare ca PDF.</p></div><button class="btn light" id="pdfExport">Generează PDF</button></div><div class="setting-item"><div><strong>Protejarea datelor</strong><p>Datele rămân în browserul acestui dispozitiv. Fă periodic copii de siguranță.</p></div><button class="btn light" id="settingsBackup">Creează copie</button></div></div><div class="notice" style="margin-top:18px">Notă: autentificarea cu roluri și sincronizarea între dispozitive necesită un server și o bază de date online; această versiune funcționează local și nu trimite datele elevilor pe internet.</div></div></section>
+    <section class="page hidden" id="settingsPage"><div class="panel"><div class="panel-head"><div class="panel-heading"><div class="section-icon">⚙</div><div><h2>Setări ATLAS</h2><p>Personalizează aspectul și gestionează datele catalogului.</p></div></div></div><div class="settings-grid"><div class="setting-item" id="accountItem"><div><strong>Cont și sincronizare</strong><p id="accountText"></p></div><div class="account-actions" id="accountActions"></div></div><div class="setting-item"><div><strong>Mod întunecat</strong><p>Schimbă tema aplicației pe acest dispozitiv.</p></div><label class="switch"><input type="checkbox" id="darkModeToggle"><span></span></label></div><div class="setting-item"><div><strong>Numele instituției</strong><p>Apare în antetul rapoartelor tipărite.</p></div><input id="schoolName" maxlength="100" placeholder="Numele instituției"></div><div class="setting-item"><div><strong>Anul școlar</strong><p>Folosit în rapoarte și în documentele exportate.</p></div><input id="schoolYear" maxlength="20" placeholder="2026–2027"></div><div class="setting-item"><div><strong>Export Excel</strong><p>Descarcă un catalog compatibil cu Microsoft Excel.</p></div><button class="btn light" id="excelExport">Exportă .xls</button></div><div class="setting-item"><div><strong>Raport PDF</strong><p>Deschide fereastra de imprimare pentru salvare ca PDF.</p></div><button class="btn light" id="pdfExport">Generează PDF</button></div><div class="setting-item"><div><strong>Protejarea datelor</strong><p>Fă periodic o copie de siguranță (fișier), chiar și atunci când folosești un cont.</p></div><button class="btn light" id="settingsBackup">Creează copie</button></div></div><div class="notice" id="syncNotice" style="margin-top:18px"></div></div></section>
     <section class="page hidden" id="historyPage"><div class="panel"><div class="panel-head"><div class="panel-heading"><div class="section-icon" aria-hidden="true">◷</div><div><h2>Istoricul punctajelor</h2><p>Înregistrări cronologice și motivul acordării punctelor.</p></div></div><div class="controls"><label class="searchbox"><span aria-hidden="true">⌕</span><input id="historySearch" type="search" placeholder="Caută nume sau motiv..." aria-label="Caută în istoric" autocomplete="off"></label></div></div><div class="activity-list" id="activityList"></div><div class="empty hidden" id="historyEmpty">Nu există punctaje înregistrate.</div></div></section>
     <section class="page hidden" id="statsPage"><div class="two-col"><div class="panel"><div class="panel-head"><div class="panel-heading"><div class="section-icon" aria-hidden="true">↗</div><div><h2>Top 10 elevi</h2><p>Ordonați după totalul punctelor și nota calculată</p></div></div></div><div class="rank-list" id="ranking"></div></div><div class="panel"><div class="panel-head"><div class="panel-heading"><div class="section-icon" aria-hidden="true">▥</div><div><h2>Indicatori de activitate</h2><p>Sinteza punctajelor introduse în catalog</p></div></div></div><div class="distribution" id="statsBars"></div><div class="notice">Nota este estimativă și se recalculează automat după raportul dintre totalul elevului și cel mai mare total actual al clasei. Dacă maximul se schimbă, se actualizează toate notele.</div></div></div><div class="panel"><div class="panel-head"><div class="panel-heading"><div class="section-icon" aria-hidden="true">☷</div><div><h2>Raport complet</h2><p>Total, notă automată și număr de înregistrări pentru fiecare elev</p></div></div><button class="btn light" id="statsExport">Exportă CSV</button></div><div class="table-scroll"><table><thead><tr><th>Loc</th><th>Elev</th><th>Înregistrări</th><th>Total puncte</th><th>Nota automată</th></tr></thead><tbody id="summaryRows"></tbody></table></div></div></section>
     <div class="footer"><span id="footerClass">ATLAS · Geografie · Clasa a XII-a U</span><span>Explorează lumea. Înțelege planeta. Construiește viitorul.</span></div>
@@ -299,6 +335,30 @@ body.lite .podium{transform:none}
   <div class="form-row"><label for="classNewStudents" id="classNewLabel">Lista elevilor</label><textarea id="classNewStudents" rows="9" spellcheck="false" placeholder="Un elev pe linie, de exemplu:&#10;POPESCU ION&#10;IONESCU MARIA"></textarea><div class="form-help">Un elev pe linie. Poți lipi direct o listă din Word sau Excel; numerotarea de la începutul rândului se elimină automat.</div></div>
   <div class="modal-actions"><button type="button" class="btn danger push-left hidden" id="classDelete">Șterge clasa</button><button type="button" class="btn white" data-close="classModal">Anulează</button><button type="submit" class="btn primary" id="classSave">Creează clasa</button></div>
 </form></div></div>
+<div class="modal-backdrop" id="authModal" role="dialog" aria-modal="true" aria-labelledby="authTitle"><div class="modal">
+  <div class="modal-head"><div><h2 id="authTitle">Contul tău ATLAS</h2><p>Autentifică-te ca să ai catalogul pe orice dispozitiv: telefon, tabletă sau calculator.</p></div><button class="close" type="button" data-close="authModal" aria-label="Închide">×</button></div>
+  <form class="modal-body" id="authForm" novalidate>
+    <div class="auth-tabs" role="tablist"><button type="button" class="on" role="tab" aria-selected="true" data-auth-mode="login">Autentificare</button><button type="button" role="tab" aria-selected="false" data-auth-mode="signup">Cont nou</button></div>
+    <div class="form-row"><label for="authEmail">Email</label><input id="authEmail" type="email" autocomplete="username" inputmode="email" placeholder="nume@exemplu.ro"></div>
+    <div class="form-row"><label for="authPass">Parolă</label><input id="authPass" type="password" autocomplete="current-password" placeholder="Minimum 8 caractere"></div>
+    <div class="form-row hidden" id="authPass2Row"><label for="authPass2">Repetă parola</label><input id="authPass2" type="password" autocomplete="new-password"></div>
+    <div class="auth-err hidden" id="authErr" role="alert"></div>
+    <button class="btn primary auth-wide" id="authSubmit" type="submit">Intră în cont</button>
+    <div class="auth-or"><span>sau</span></div>
+    <button class="btn white auth-wide" type="button" id="authGoogle">Continuă cu Google</button>
+    <div class="auth-links"><button type="button" class="linkbtn" id="authForgot">Ai uitat parola?</button><button type="button" class="linkbtn" id="authSkip">Continuă fără cont</button></div>
+  </form>
+</div></div>
+<div class="modal-backdrop" id="syncChoiceModal" role="dialog" aria-modal="true" aria-labelledby="choiceTitle"><div class="modal">
+  <div class="modal-head"><div><h2 id="choiceTitle">Date găsite în cont</h2><p>Aceasta este prima conectare de pe acest dispozitiv.</p></div></div>
+  <div class="modal-body"><p id="choiceInfo" style="margin:0"></p>
+    <div class="choice-list">
+      <button type="button" class="btn primary" id="choiceMerge">Combină (recomandat)<small>Păstrează tot: clasele din cont și cele de aici, elevii și punctele din ambele locuri.</small></button>
+      <button type="button" class="btn white" id="choiceCloud">Folosește doar datele din cont<small>Datele de pe acest dispozitiv se înlocuiesc. Se descarcă înainte un fișier de siguranță.</small></button>
+      <button type="button" class="btn danger" id="choiceLocal">Folosește doar datele de pe acest dispozitiv<small>Datele din cont se înlocuiesc cu cele de aici.</small></button>
+    </div>
+  </div>
+</div></div>
 <input type="file" id="restoreFile" accept="application/json,.json" hidden>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <script>
@@ -914,6 +974,278 @@ if(tz&&!REDUCE){
 /* umbră pe bara de sus la derulare */
 var tb=document.querySelector('.topbar');
 if(tb){var tick=false;window.addEventListener('scroll',function(){if(tick)return;tick=true;requestAnimationFrame(function(){tb.classList.toggle('scrolled',window.scrollY>6);tick=false})},{passive:true})}
+})();
+</script>
+<script>
+/* =====================================================================
+   ATLAS · Cont și sincronizare între dispozitive (Firebase Auth + Firestore)
+   ---------------------------------------------------------------------
+   1. Creează un proiect Firebase (gratuit) și lipește mai jos datele lui.
+      Pașii sunt în README-SINCRONIZARE.md.
+   2. Cât timp câmpurile de mai jos sunt goale, aplicația funcționează ca
+      înainte: doar local, în browser, fără cont.
+   Aceste valori NU sunt secrete (le vede orice browser). Datele sunt
+   protejate de regulile din firestore.rules, nu de ascunderea cheii.
+   ===================================================================== */
+const ATLAS_FIREBASE_CONFIG = {
+  apiKey: "// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyAX93bTc5N0Y1Q5f1CSmQbYU9DBEKkgY7o",
+  authDomain: "atlas-f1dfd.firebaseapp.com",
+  projectId: "atlas-f1dfd",
+  storageBucket: "atlas-f1dfd.firebasestorage.app",
+  messagingSenderId: "926961747907",
+  appId: "1:926961747907:web:6c2613c64a00626a1f9f76",
+  measurementId: "G-XZFBE9RWLT"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);",
+  authDomain: "",
+  projectId: "",
+  appId: ""
+};
+
+(function(){
+'use strict';
+const CFG=ATLAS_FIREBASE_CONFIG;
+const FB_VER='10.14.1',SDK='https://www.gstatic.com/firebasejs/'+FB_VER+'/';
+const META_KEY='atlas-sync-meta-v1',GUEST_KEY='atlas-guest-ok',DISMISS_KEY='atlas-login-dismissed';
+const MAX_DOC_BYTES=900000;                 // Firestore: 1 MiB per document
+const ENABLED=!!((CFG.apiKey&&CFG.projectId&&CFG.appId)||window.__ATLAS_BACKEND__);
+
+/* ---------- Utilitare ---------- */
+function canon(v){if(v===undefined)return undefined;if(v===null||typeof v!=='object')return v;if(Array.isArray(v))return v.map(x=>x===undefined?null:canon(x));const o={};Object.keys(v).sort().forEach(k=>{const x=canon(v[k]);if(x!==undefined)o[k]=x});return o}
+function hash(v){const s=JSON.stringify(canon(v));let h1=0xdeadbeef,h2=0x41c6ce57;for(let i=0;i<s.length;i++){const c=s.charCodeAt(i);h1=Math.imul(h1^c,2654435761);h2=Math.imul(h2^c,1597334677)}h1=Math.imul(h1^(h1>>>16),2246822507)^Math.imul(h2^(h2>>>13),3266489909);h2=Math.imul(h2^(h2>>>16),2246822507)^Math.imul(h1^(h1>>>13),3266489909);return (4294967296*(2097151&h2)+(h1>>>0)).toString(36)+'.'+s.length}
+const clone=v=>JSON.parse(JSON.stringify(v));
+const docIdOf=cid=>'c_'+encodeURIComponent(cid);
+function readMeta(){try{const m=JSON.parse(localStorage.getItem(META_KEY));if(m&&typeof m==='object'&&m.base&&typeof m.base==='object')return m}catch(e){}return{uid:null,base:{},lastSync:0}}
+function writeMeta(m){try{localStorage.setItem(META_KEY,JSON.stringify(m))}catch(e){}}
+function flag(storage,k,v){try{if(v===undefined)return storage.getItem(k);storage.setItem(k,v)}catch(e){return null}}
+
+/* ---------- Starea locală ↔ „documente” sincronizabile ----------
+   «main» = ordinea claselor, evaluările, școala, anul. Fiecare clasă = un document (elevi + puncte). */
+function localState(){
+  const m=new Map();
+  db.classes.forEach(c=>{const data=clone({cid:c.id,name:c.name,students:c.students,logs:c.logs});m.set(docIdOf(c.id),{data,hash:hash(data)})});
+  const main=clone({order:db.classes.map(c=>c.id),assessments:assessments,school:appSettings.school||'',year:appSettings.year||''});
+  m.set('main',{data:main,hash:hash(main)});
+  return m}
+function remoteState(docs){
+  const m=new Map();
+  docs.forEach(d=>{const x=d.data||{};let data;
+    if(d.id==='main')data={order:Array.isArray(x.order)?x.order:[],assessments:Array.isArray(x.assessments)?x.assessments:[],school:x.school||'',year:x.year||''};
+    else if(d.id.startsWith('c_')&&typeof x.cid==='string')data={cid:x.cid,name:x.name||'',students:Array.isArray(x.students)?x.students:[],logs:Array.isArray(x.logs)?x.logs:[]};
+    else return;
+    data=clone(data);m.set(d.id,{data,hash:hash(data)})});
+  return m}
+function isPristine(){const c=db.classes;return c.length===1&&!c[0].logs.length&&!assessments.length&&c[0].name===DEFAULT_CLASS_NAME&&c[0].students.length===DEFAULT_STUDENTS.length}
+
+/* Scrie starea finală (Map id→date) în localStorage și redesenează aplicația. */
+let applying=false;
+function applyState(final){
+  applying=true;
+  try{
+    const byCid=new Map();final.forEach((d,id)=>{if(id!=='main')byCid.set(d.cid,d)});
+    const main=final.get('main'),ordered=[];
+    (main?main.order:db.classes.map(c=>c.id)).forEach(cid=>{if(byCid.has(cid)){ordered.push(byCid.get(cid));byCid.delete(cid)}});
+    byCid.forEach(d=>ordered.push(d));
+    localStorage.setItem(STORAGE_KEY,JSON.stringify({v:2,classes:ordered.map(d=>({id:d.cid,name:d.name,students:d.students,logs:d.logs}))}));
+    if(main){
+      localStorage.setItem(ASSESS_KEY,JSON.stringify(main.assessments));
+      const s=readLocal(SETTINGS_KEY,{dark:false,school:'',year:'2026–2027'});s.school=main.school;if(main.year)s.year=main.year;
+      localStorage.setItem(SETTINGS_KEY,JSON.stringify(s))}
+    loadData();
+    assessments=readLocal(ASSESS_KEY,[]);appSettings=readLocal(SETTINGS_KEY,{dark:false,school:'',year:'2026–2027'});
+    renderAll();
+  }finally{applying=false}}
+
+/* ---------- Conexiunea la Firebase (sau la un backend de test) ---------- */
+async function loadBackend(){
+  if(window.__ATLAS_BACKEND__)return window.__ATLAS_BACKEND__;
+  const [{initializeApp},A,F]=await Promise.all([import(SDK+'firebase-app.js'),import(SDK+'firebase-auth.js'),import(SDK+'firebase-firestore.js')]);
+  const app=initializeApp(CFG),auth=A.getAuth(app),fs=F.getFirestore(app);
+  return{
+    onAuth:cb=>A.onAuthStateChanged(auth,u=>cb(u?{uid:u.uid,email:u.email||''}:null)),
+    signInEmail:(e,p)=>A.signInWithEmailAndPassword(auth,e,p),
+    signUpEmail:(e,p)=>A.createUserWithEmailAndPassword(auth,e,p),
+    async signInGoogle(){const pr=new A.GoogleAuthProvider();try{await A.signInWithPopup(auth,pr)}catch(e){if(e&&(e.code==='auth/popup-blocked'||e.code==='auth/operation-not-supported-in-this-environment')){await A.signInWithRedirect(auth,pr);return}throw e}},
+    resetPassword:e=>A.sendPasswordResetEmail(auth,e),
+    signOut:()=>A.signOut(auth),
+    listen:(uid,cb,err)=>F.onSnapshot(F.collection(fs,'users',uid,'atlas'),snap=>cb({docs:snap.docs.map(d=>({id:d.id,data:d.data()})),fromCache:snap.metadata.fromCache,pending:snap.metadata.hasPendingWrites}),err),
+    async commit(uid,ops){for(let i=0;i<ops.length;i+=400){const b=F.writeBatch(fs);ops.slice(i,i+400).forEach(o=>{const r=F.doc(fs,'users',uid,'atlas',o.id);if(o.type==='set')b.set(r,{...o.data,updatedAt:F.serverTimestamp()});else b.delete(r)});await b.commit()}}
+  }}
+
+/* ---------- Starea sincronizării ---------- */
+const S={be:null,user:null,unsub:null,remote:null,ready:false,paused:false,busy:false,again:false,timer:null,status:ENABLED?'connecting':'unavailable',lastSync:0,warnedSize:false};
+const STATUS_TEXT={unavailable:'',connecting:'Se conectează…',off:'Doar pe acest dispozitiv',synced:'Sincronizat',syncing:'Se sincronizează…',pending:'Modificări în așteptare',offline:'Offline',error:'Eroare de sincronizare',paused:'Alege cum sincronizezi'};
+function setStatus(s){S.status=s;renderAccount()}
+function localDiffers(){const m=readMeta(),L=localState();for(const[id,v]of L)if(m.base[id]!==v.hash)return true;for(const id of Object.keys(m.base))if(!L.has(id))return true;return false}
+
+function renderAccount(){
+  const chip=$('syncChip'),txt=$('syncChipText'),item=$('accountText'),acts=$('accountActions'),notice=$('syncNotice'),nav=$('navAccount');
+  if(!chip)return;
+  if(!ENABLED){chip.classList.add('hidden');if(nav)nav.classList.add('hidden');if(item)item.textContent='Sincronizarea între dispozitive nu este configurată. Adaugă datele proiectului Firebase la începutul scriptului din index.html (pașii sunt în README-SINCRONIZARE.md).';if(acts)acts.innerHTML='';return}
+  const st=S.status,online=navigator.onLine!==false;
+  const shown=S.user&&!online&&st!=='paused'?'offline':st;
+  chip.classList.remove('hidden');chip.dataset.state=shown;txt.textContent=STATUS_TEXT[shown]||'';
+  chip.title=S.user?('Conectat ca '+S.user.email):'Autentifică-te ca să ai datele pe orice dispozitiv';
+  if(item){
+    if(S.user){const t=S.lastSync?new Date(S.lastSync).toLocaleTimeString('ro-RO',{hour:'2-digit',minute:'2-digit'}):'—';item.textContent='Conectat ca '+S.user.email+'. Datele sunt salvate în cont și pe acest dispozitiv · ultima sincronizare: '+t+'.'}
+    else item.textContent='Fără cont, datele rămân doar în acest browser. Autentifică-te ca să le poți deschide de pe orice alt dispozitiv (de exemplu de pe calculator).'}
+  if(acts){
+    acts.innerHTML=S.user?'<button class="btn light" type="button" id="accSync">Sincronizează acum</button><button class="btn danger" type="button" id="accOut">Ieși din cont</button>':'<button class="btn primary" type="button" id="accIn">Autentifică-te / Creează cont</button>'}
+  if(notice)notice.textContent=S.user?'Datele elevilor sunt stocate în contul tău (Google Firebase) și pot fi citite doar după autentificare. Pe un calculator folosit și de alte persoane, ieși din cont când termini: datele locale se șterg, iar cele din cont rămân.':'Fără cont, aplicația funcționează local și nu trimite datele elevilor pe internet. Cu cont, datele se sincronizează criptat între dispozitivele tale.'}
+
+/* ---------- Ciclul de sincronizare (îmbinare pe clasă, „ultima modificare câștigă”) ---------- */
+function userBusy(){const a=document.activeElement;return !!document.querySelector('.modal-backdrop.open')||!!(a&&a.closest&&a.closest('.inline-score')&&a.value)}
+function schedule(ms){clearTimeout(S.timer);S.timer=setTimeout(cycle,ms==null?1200:ms)}
+async function cycle(){
+  if(!S.user||!S.ready||S.paused||!S.remote)return;
+  if(S.busy){S.again=true;return}
+  S.busy=true;
+  try{do{S.again=false;await cycleOnce()}while(S.again)}
+  catch(e){const code=e&&e.code||'';setStatus(code==='permission-denied'?'error':(navigator.onLine===false?'offline':'error'));if(code==='permission-denied')showToast('Firestore a refuzat accesul. Verifică regulile din firestore.rules.',true);else schedule(20000)}
+  finally{S.busy=false}}
+async function cycleOnce(){
+  const meta=readMeta(),L=localState(),R=S.remote,B=meta.base;
+  const ids=new Set([...L.keys(),...R.keys(),...Object.keys(B)]),push=[],pull=[];
+  ids.forEach(id=>{const l=L.get(id)&&L.get(id).hash,r=R.get(id)&&R.get(id).hash,b=B[id];
+    if(l===r){if(l===undefined)delete B[id];else B[id]=l;return}
+    if(l!==b)push.push(id);else pull.push(id)});
+  /* 1) ce am schimbat aici → în cont */
+  if(push.length){
+    setStatus('syncing');
+    const ops=[];
+    push.forEach(id=>{const v=L.get(id);
+      if(!v){ops.push({type:'delete',id});return}
+      if(JSON.stringify(v.data).length>MAX_DOC_BYTES){if(!S.warnedSize){S.warnedSize=true;showToast('Clasa „'+(v.data.name||'')+'” este prea mare pentru sincronizare. Fă o copie de siguranță și șterge înregistrările vechi.',true)}return}
+      ops.push({type:'set',id,data:v.data})});
+    if(ops.length)await S.be.commit(S.user.uid,ops);
+    ops.forEach(o=>{if(o.type==='set'){B[o.id]=L.get(o.id).hash;R.set(o.id,{data:o.data,hash:L.get(o.id).hash})}else{delete B[o.id];R.delete(o.id)}})}
+  /* 2) ce s-a schimbat în alt loc → aici */
+  if(pull.length){
+    if(userBusy()){schedule(3000)}
+    else{
+      const final=new Map();L.forEach((v,id)=>final.set(id,v.data));
+      pull.forEach(id=>{const r=R.get(id);if(r)final.set(id,r.data);else final.delete(id)});
+      applyState(final);
+      pull.forEach(id=>{const r=R.get(id);if(r)B[id]=r.hash;else delete B[id]})}}
+  S.lastSync=Date.now();meta.uid=S.user.uid;meta.base=B;meta.lastSync=S.lastSync;writeMeta(meta);
+  setStatus(localDiffers()?'pending':'synced')}
+
+function onLocalChange(){if(applying||!S.user)return;if(S.ready&&!S.paused){setStatus('pending');schedule()}}
+['saveData','saveAssessments','saveSettings'].forEach(n=>{const orig=window[n];if(typeof orig!=='function')return;window[n]=function(){const r=orig.apply(this,arguments);onLocalChange();return r}});
+
+/* ---------- Prima conectare pe acest dispozitiv ---------- */
+function onSnapshot(snap){
+  if(snap.fromCache&&!S.ready){setStatus(navigator.onLine===false?'offline':'connecting');return}   // nu ne luăm după un cache gol
+  S.remote=remoteState(snap.docs);
+  if(!S.ready){firstSync();return}
+  if(snap.pending)return;
+  cycle()}
+function firstSync(){
+  const meta=readMeta();
+  if(meta.uid===S.user.uid){S.ready=true;cycle();return}
+  if(S.remote.size===0){writeMeta({uid:S.user.uid,base:{},lastSync:0});S.ready=true;cycle();return}
+  if(isPristine()){adoptRemote();return}
+  S.paused=true;setStatus('paused');openChoice()}
+function remoteMap(){const m=new Map();S.remote.forEach((v,id)=>m.set(id,v.data));return m}
+function baseFromRemote(){const b={};S.remote.forEach((v,id)=>b[id]=v.hash);return b}
+function adoptRemote(){applyState(remoteMap());writeMeta({uid:S.user.uid,base:baseFromRemote(),lastSync:Date.now()});S.paused=false;S.ready=true;cycle()}
+function adoptLocal(){const L=localState(),b={};S.remote.forEach((v,id)=>{if(!L.has(id))b[id]=v.hash});writeMeta({uid:S.user.uid,base:b,lastSync:0});S.paused=false;S.ready=true;cycle()}
+function mergeClass(r,l){
+  const sids=new Set(r.students.map(s=>s.id)),students=r.students.concat(l.students.filter(s=>!sids.has(s.id)));
+  const lids=new Set(r.logs.map(x=>x.id)),logs=r.logs.concat(l.logs.filter(x=>!lids.has(x.id))).sort((a,b)=>(a.ts||0)-(b.ts||0));
+  return{cid:r.cid,name:r.name,students,logs}}
+function adoptMerged(){
+  const L=localState(),R=remoteMap(),final=new Map(R);
+  L.forEach((v,id)=>{if(id==='main')return;final.set(id,R.has(id)?mergeClass(R.get(id),v.data):v.data)});
+  const rm=R.get('main')||{order:[],assessments:[],school:'',year:''},lm=L.get('main').data;
+  const aIds=new Set(rm.assessments.map(a=>a.id));
+  final.set('main',{order:rm.order.concat(lm.order.filter(c=>!rm.order.includes(c))),assessments:rm.assessments.concat(lm.assessments.filter(a=>!aIds.has(a.id))),school:rm.school||lm.school,year:rm.year||lm.year});
+  applyState(final);writeMeta({uid:S.user.uid,base:baseFromRemote(),lastSync:Date.now()});S.paused=false;S.ready=true;cycle()}
+function openChoice(){
+  const rc=[...S.remote.keys()].filter(k=>k!=='main').length,lc=db.classes.length,ll=db.classes.reduce((n,c)=>n+c.logs.length,0);
+  $('choiceInfo').textContent=`În cont există deja ${rc} ${pl(rc,'clasă','clase')}. Pe acest dispozitiv ai ${lc} ${pl(lc,'clasă','clase')} cu ${ll} ${pl(ll,'înregistrare','înregistrări')} de puncte. Ce vrei să păstrezi?`;
+  openModal('syncChoiceModal',$('choiceMerge'))}
+
+/* ---------- Autentificare: fereastra de login ---------- */
+let authMode='login';
+const AUTH_ERR={'auth/invalid-credential':'Email sau parolă greșită.','auth/wrong-password':'Email sau parolă greșită.','auth/user-not-found':'Email sau parolă greșită.','auth/invalid-email':'Adresa de email nu este validă.','auth/email-already-in-use':'Există deja un cont cu acest email. Încearcă să te autentifici.','auth/weak-password':'Parola este prea slabă (minimum 8 caractere).','auth/too-many-requests':'Prea multe încercări. Așteaptă puțin și încearcă din nou.','auth/network-request-failed':'Nu există conexiune la internet.','auth/popup-closed-by-user':'','auth/cancelled-popup-request':'','auth/operation-not-allowed':'Metoda de autentificare nu este activată în Firebase (vezi README).','auth/unauthorized-domain':'Acest domeniu nu este autorizat în Firebase (Authentication → Settings → Authorized domains).','auth/user-disabled':'Contul este dezactivat.'};
+function authError(e){return AUTH_ERR[e&&e.code]!==undefined?AUTH_ERR[e.code]:'Nu s-a putut face autentificarea. Încearcă din nou.'}
+function showAuthMsg(msg,ok){const el=$('authErr');el.textContent=msg||'';el.classList.toggle('hidden',!msg);el.classList.toggle('ok',!!ok)}
+function setAuthMode(m){authMode=m;const su=m==='signup';
+  document.querySelectorAll('[data-auth-mode]').forEach(b=>{const on=b.dataset.authMode===m;b.classList.toggle('on',on);b.setAttribute('aria-selected',on)});
+  $('authPass2Row').classList.toggle('hidden',!su);$('authPass').autocomplete=su?'new-password':'current-password';
+  $('authSubmit').textContent=su?'Creează contul':'Intră în cont';$('authForgot').classList.toggle('hidden',su);showAuthMsg('')}
+function openAuth(m){if(!ENABLED)return;if(!S.be){showToast('Se încarcă modulul de conectare… încearcă din nou în câteva secunde.',true);return}setAuthMode(m||'login');openModal('authModal',$('authEmail'))}
+function authBusy(on){['authSubmit','authGoogle'].forEach(id=>{$(id).disabled=on})}
+async function submitAuth(e){
+  e.preventDefault();const email=$('authEmail').value.trim(),pass=$('authPass').value;
+  if(!email||!pass)return showAuthMsg('Completează emailul și parola.');
+  if(authMode==='signup'){if(pass.length<8)return showAuthMsg('Parola trebuie să aibă cel puțin 8 caractere.');if(pass!==$('authPass2').value)return showAuthMsg('Parolele nu coincid.')}
+  showAuthMsg('');authBusy(true);
+  try{authMode==='signup'?await S.be.signUpEmail(email,pass):await S.be.signInEmail(email,pass);$('authPass').value='';$('authPass2').value=''}
+  catch(err){showAuthMsg(authError(err))}finally{authBusy(false)}}
+async function googleAuth(){showAuthMsg('');authBusy(true);try{await S.be.signInGoogle()}catch(err){showAuthMsg(authError(err))}finally{authBusy(false)}}
+async function forgot(){const email=$('authEmail').value.trim();if(!email)return showAuthMsg('Scrie mai întâi adresa de email, apoi apasă „Ai uitat parola?”.');
+  try{await S.be.resetPassword(email);showAuthMsg('Dacă există un cont cu această adresă, ți-am trimis un email cu linkul de resetare.',true)}catch(err){showAuthMsg(authError(err))}}
+function wipeLocalAndReload(){
+  const dark=!!appSettings.dark;
+  [STORAGE_KEY,OLD_STORAGE_KEY,ASSESS_KEY,ACTIVE_KEY,BACKUP_KEY,SETTINGS_KEY,META_KEY].forEach(k=>{try{localStorage.removeItem(k)}catch(e){}});
+  try{localStorage.setItem(SETTINGS_KEY,JSON.stringify({dark,school:'',year:'2026–2027'}))}catch(e){}
+  location.reload()}
+async function logout(){
+  const unsynced=S.user&&(S.status==='pending'||S.status==='offline'||S.paused||localDiffers());
+  const msg=(unsynced?'ATENȚIE: ai modificări care nu au ajuns încă în cont. Dacă ieși acum, ele se pierd.\n\n':'')+'Ieși din cont? Datele de pe acest dispozitiv se șterg (rămân în cont și le regăsești la următoarea autentificare).';
+  if(!confirm(msg))return;
+  clearTimeout(S.timer);try{await S.be.signOut()}catch(e){}
+  wipeLocalAndReload()}
+
+/* ---------- Pornire ---------- */
+function onAuth(user){
+  if(S.unsub){try{S.unsub()}catch(e){}S.unsub=null}
+  S.user=user;S.remote=null;S.ready=false;S.paused=false;
+  if(!user){setStatus('off');
+    if(!flag(localStorage,GUEST_KEY)&&!flag(sessionStorage,DISMISS_KEY))openAuth('login');
+    return}
+  closeModal('authModal');setStatus('connecting');
+  S.unsub=S.be.listen(user.uid,onSnapshot,e=>{setStatus(e&&e.code==='permission-denied'?'error':'offline');if(e&&e.code==='permission-denied')showToast('Firestore a refuzat accesul. Verifică regulile din firestore.rules.',true)})}
+async function start(){
+  renderAccount();if(!ENABLED)return;
+  try{S.be=await loadBackend()}catch(e){setStatus('offline');window.addEventListener('online',()=>{if(!S.be)start()},{once:true});return}
+  S.be.onAuth(onAuth)}
+
+document.addEventListener('click',e=>{
+  const t=e.target.closest('button');if(!t)return;
+  if(t.id==='syncChip'||t.id==='navAccount'||t.id==='accIn'){
+    if(t.id==='navAccount'&&typeof setSidebar==='function')setSidebar(false);
+    if(S.user){if(S.paused)openChoice();else showPage('settings')}else openAuth('login');return}
+  if(t.id==='accSync'){if(S.paused)openChoice();else if(S.ready){setStatus('syncing');cycle()}else showToast('Se conectează la cont… încearcă din nou în câteva secunde.');return}
+  if(t.id==='accOut'){logout();return}
+  if(t.dataset.authMode){setAuthMode(t.dataset.authMode);return}
+  if(t.id==='authGoogle'){googleAuth();return}
+  if(t.id==='authForgot'){forgot();return}
+  if(t.id==='authSkip'){flag(localStorage,GUEST_KEY,'1');closeModal('authModal');showToast('Lucrezi fără cont. Te poți autentifica oricând din Setări.');return}
+  if(t.id==='choiceMerge'){closeModal('syncChoiceModal');adoptMerged();showToast('Datele din cont și cele de pe acest dispozitiv au fost combinate.');return}
+  if(t.id==='choiceCloud'){closeModal('syncChoiceModal');try{backup()}catch(err){}adoptRemote();showToast('Am folosit datele din cont. Datele vechi de pe acest dispozitiv au fost descărcate ca fișier de siguranță.');return}
+  if(t.id==='choiceLocal'){if(!confirm('Datele din cont vor fi înlocuite cu cele de pe acest dispozitiv. Continui?'))return;closeModal('syncChoiceModal');adoptLocal();showToast('Contul a fost actualizat cu datele de pe acest dispozitiv.');return}
+});
+$('authForm').addEventListener('submit',submitAuth);
+// Dacă fereastra de login e închisă fără alegere, nu o mai afișăm până la următoarea deschidere a aplicației.
+new MutationObserver(()=>{if(!$('authModal').classList.contains('open')&&!S.user)flag(sessionStorage,DISMISS_KEY,'1')}).observe($('authModal'),{attributes:true,attributeFilter:['class']});
+window.addEventListener('online',()=>{renderAccount();if(S.user&&S.ready)schedule(500)});window.addEventListener('offline',renderAccount);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&S.user&&S.ready)schedule(300)});
+start();
 })();
 </script>
 </body>
