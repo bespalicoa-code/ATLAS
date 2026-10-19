@@ -1512,13 +1512,6 @@ var _sp=window.showPage;window.showPage=function(p){_sp(p);if(!SUB[p])return;doc
 html{scroll-behavior:smooth;scrollbar-color:#9fb7cc transparent}
 :where(button,a,input,select,textarea):focus-visible{outline:3px solid #59d6df;outline-offset:2px}
 #proBar{position:fixed;inset:0 0 auto 0;height:3px;z-index:9999;transform-origin:0 50%;transform:scaleX(0);background:linear-gradient(90deg,#59d6df,#1769aa,#d6a548);pointer-events:none}
-.stat-card{position:relative}
-.pro-tilt{transform:perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));transition:transform .3s ease-out,box-shadow .3s;will-change:transform}
-.pro-tilt.on{transition:transform .06s linear;box-shadow:0 22px 44px rgba(20,55,84,.18)}
-.pro-sheen::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;transition:opacity .3s;background:radial-gradient(240px circle at var(--mx,50%) var(--my,50%),rgba(255,255,255,.38),transparent 62%)}
-.pro-sheen.on::after{opacity:1}
-.page.pro-in{animation:proIn .45s cubic-bezier(.2,.7,.2,1)}
-@keyframes proIn{from{opacity:0;transform:translateY(12px)}}
 .catalog-table tbody tr{transition:background .2s}.catalog-table tbody tr:hover{background:rgba(23,105,170,.06)}
 .btn:active,.nav button:active{transform:scale(.98)}
 @keyframes proHit{0%,60%{background:rgba(214,165,72,.38)}100%{background:transparent}}
@@ -1534,6 +1527,7 @@ tr.pro-hit>td{animation:proHit 1.8s ease-out}
 .pro-tools{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 12px}
 .pro-tools input,.pro-tools select{padding:11px 14px;border:1px solid var(--line,#e2eaf1);border-radius:11px;background:var(--card,#fff);color:var(--ink,#182d40);font:inherit;font-size:13px}
 .pro-tools input{flex:1;min-width:200px}
+@keyframes proIn{from{opacity:0;transform:translateY(12px)}}
 #proK{position:fixed;inset:0;z-index:10000;display:none;align-items:flex-start;justify-content:center;padding:12vh 16px 0;background:rgba(6,20,38,.55);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
 #proK.open{display:flex}
 #proK .box{width:min(560px,100%);background:#fff;color:#182d40;border-radius:16px;box-shadow:0 30px 80px rgba(0,0,0,.35);overflow:hidden;animation:proIn .22s ease-out}
@@ -1546,8 +1540,7 @@ body.dark #proK .box{background:#10263a;color:#e5edf5}
 #proK li.none{cursor:default;opacity:.7}
 .pro-fab{position:fixed;right:16px;bottom:16px;z-index:900;border:0;border-radius:999px;padding:11px 16px;background:#0b2740;color:#fff;font-family:inherit;font-size:12px;font-weight:700;box-shadow:0 10px 28px rgba(6,20,38,.35);cursor:pointer}
 .pro-fab kbd{font:inherit;opacity:.7;margin-left:6px}
-@media(prefers-reduced-motion:reduce){.pro-pod i,.page.pro-in,#proK .box,.pro-tilt{transition:none!important;animation:none!important}}
-</style>
+@media(prefers-reduced-motion:reduce){.pro-pod i,.page.pro-in,#proK .box,</style>
 <script id="atlas-pro-js">
 (function(){'use strict';
 var q=function(s,r){return(r||document).querySelector(s)},qa=function(s,r){return[].slice.call((r||document).querySelectorAll(s))};
@@ -1562,21 +1555,13 @@ run(function(){var b=document.createElement('div'),w=0;b.id='proBar';document.bo
 function u(){w=0;var h=document.documentElement,m=h.scrollHeight-h.clientHeight;b.style.transform='scaleX('+(m>0?Math.min(1,h.scrollTop/m):0)+')'}
 addEventListener('scroll',function(){if(!w)w=requestAnimationFrame(u)},{passive:true});u()});
 
-/* 3. Înclinare 3D a cardurilor (doar mouse, fără lag pe telefon) */
-run(function(){if(!fine||calm)return;
-qa('.stat-card,.hero').forEach(function(c){var card=c.classList.contains('stat-card'),k=card?7:2.5,raf=0;c.classList.add('pro-tilt');if(card)c.classList.add('pro-sheen');
-c.addEventListener('pointermove',function(e){if(raf)return;raf=requestAnimationFrame(function(){raf=0;var r=c.getBoundingClientRect(),x=(e.clientX-r.left)/r.width,y=(e.clientY-r.top)/r.height;
-c.style.setProperty('--ry',((x-.5)*k).toFixed(2)+'deg');c.style.setProperty('--rx',((.5-y)*k).toFixed(2)+'deg');c.style.setProperty('--mx',(x*100)+'%');c.style.setProperty('--my',(y*100)+'%');c.classList.add('on')})});
-c.addEventListener('pointerleave',function(){c.classList.remove('on');c.style.setProperty('--rx','0deg');c.style.setProperty('--ry','0deg')})})});
+/* 2. Pornește animația existentă a numerelor (0 → valoare) și la încărcare */
+run(function(){if(calm)return;['statStudents','statPoints','statActive','statAverage'].forEach(function(id){var e=document.getElementById(id);if(!e)return;var t=e.textContent;e.textContent='';e.textContent=t})});
 
 /* 4. Paralaxă ușoară a fundalului */
 run(function(){var s=q('#scene');if(!s||!fine||calm)return;var raf=0;
 addEventListener('pointermove',function(e){if(raf)return;raf=requestAnimationFrame(function(){raf=0;
 s.style.transform='translate3d('+((e.clientX/innerWidth-.5)*-14).toFixed(1)+'px,'+((e.clientY/innerHeight-.5)*-8).toFixed(1)+'px,0) scale(1.03)'})},{passive:true})});
-
-/* 5. Tranziție la schimbarea paginii */
-run(function(){var sp=window.showPage;if(typeof sp!=='function')return;
-window.showPage=function(p){var r=sp.apply(this,arguments),e=document.getElementById(p+'Page');if(e&&!calm){e.classList.remove('pro-in');void e.offsetWidth;e.classList.add('pro-in')}return r}});
 
 /* 6. Catalog: căutare, sortare, filtru și podium */
 run(function(){var tb=q('#studentRows'),pg=q('#catalogPage'),ts=q('.table-scroll',pg||document),panel=pg&&q('.panel',pg);if(!tb||!pg||!ts||!panel)return;
