@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ATLAS — Administrator</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 24px;
+      font-family: system-ui, Arial, sans-serif;
+      background: #f1f5f9;
+      color: #172b4d;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: auto;
+    }
+
+    .card {
+      background: white;
+      padding: 20px;
+      margin: 16px 0;
+      border-radius: 16px;
+      box-shadow: 0 4px 18px #0000000a;
+      overflow-wrap: anywhere;
+    }
+
+    h1 {
+      margin-bottom: 5px;
+    }
+
+    .muted {
+      color: #64748b;
+      font-size: 14px;
+    }
+
+    input {
+      padding: 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 9px;
+      margin: 5px 0;
+      max-width: 100%;
+    }
+
+    button {
+      padding: 11px 15px;
+      border: none;
+      border-radius: 9px;
+      background: #1769aa;
+      color: white;
+      font-weight: 700;
+      cursor: pointer;
+      margin: 4px;
+    }
+
+    button:hover {
+      opacity: .85;
+    }
+
+    .secondary {
+      background: #e2e8f0;
+      color: #172b4d;
+    }
+
+    .status {
+      padding: 12px;
+      background: #e0f2fe;
+      border-radius: 9px;
+      margin: 12px 0;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .stat {
+      padding: 18px;
+      background: #f8fafc;
+      border-radius: 12px;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 28px;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      min-width: 700px;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #e2e8f0;
+      font-size: 13px;
+    }
+
+    th {
+      color: #64748b;
+    }
+
+    .event {
+      padding: 13px 0;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    @media(max-width: 650px) {
+      body {
+        padding: 12px;
+      }
+
+      .stats {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+<div class="container">
+
+  <header>
+    <h1>👑 ATLAS Admin</h1>
+
+    <p class="muted">
+      Administrator: bespalicoa@gmail.com
+    </p>
+
+    <a href="/">
+      <button class="secondary">Înapoi la ATLAS</button>
+    </a>
+
+    <button id="refresh">Reîmprospătează</button>
+  </header>
+
+  <div id="status" class="status">
+    Se conectează la Firebase...
+  </div>
+
+  <section id="loginPanel" class="card hidden">
+    <h2>Autentificare administrator</h2>
+
+    <input
+      id="email"
+      type="email"
+      placeholder="Adresa de e-mail"
+      autocomplete="username"
+    >
+
+    <input
+      id="password"
+      type="password"
+      placeholder="Parola"
+      autocomplete="current-password"
+    >
+
+    <button id="login">Conectare</button>
+  </section>
+
+  <section id="dashboard" class="hidden">
+
+    <div class="stats">
+
+      <div class="card stat">
+        <span class="muted">Conturi înregistrate</span>
+        <strong id="total">0</strong>
+      </div>
+
+      <div class="card stat">
+        <span class="muted">Conturi dezactivate</span>
+        <strong id="disabled">0</strong>
+      </div>
+
+      <div class="card stat">
+        <span class="muted">Activități înregistrate</span>
+        <strong id="activityCount">—</strong>
+      </div>
+
+    </div>
+
+    <div class="card">
+      <h2>Utilizatori</h2>
+
+      <input
+        id="search"
+        type="search"
+        placeholder="Caută după e-mail sau nume"
+        style="width:100%"
+      >
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Cont</th>
+              <th>Înregistrare</th>
+              <th>Ultima conectare</th>
+              <th>Ultima activitate</th>
+              <th>Stare</th>
+              <th>Acțiuni</th>
+            </tr>
+          </thead>
+
+          <tbody id="users"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Istoricul activității</h2>
+
+      <p id="selectedUser" class="muted">
+        Selectează un utilizator pentru a vedea istoricul.
+      </p>
+
+      <div id="events"></div>
+    </div>
+
+    <div class="card">
+      <h2>Resetarea parolei</h2>
+
+      <p class="muted">
+        Generează un link securizat pentru resetarea parolei
+        utilizatorului selectat.
+      </p>
+
+      <input
+        id="resetEmail"
+        type="email"
+        placeholder="E-mailul utilizatorului"
+        style="width:100%"
+      >
+
+      <button id="resetPassword">
+        Generează link de resetare
+      </button>
+
+      <div id="resetResult" class="status hidden"></div>
+    </div>
+
+  </section>
+</div>
+
+<script type="module">
+  import {
+    initializeApp
+  } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+
+  import {
+    getAuth,
+    signInWithEmailAndPassword,
+    onAuthStateChanged,
+    signOut
+  } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+
+  import {
+    getFunctions,
+    httpsCallable
+  } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-functions.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAX93bTc5N0Y1Q5f1CSmQbYU9DBEKkgY7o",
+    authDomain: "atlas-f1dfd.firebaseapp.com",
+    projectId: "atlas-f1dfd",
+    appId: "1:926961747907:web:6c2613c64a00626a1f9f76"
+  };
+
+  const ADMIN_EMAIL = "bespalicoa@gmail.com";
+
+  const app = initializeApp(firebaseConfig, "atlas-admin");
+  const auth = getAuth(app);
+  const functions = getFunctions(app);
+
+  const $ = id => document.getElementById(id);
+
+  let currentUser = null;
+  let users = [];
+
+  function setStatus(message, error = false) {
+    $("status").textContent = message;
+
+    $("status").style.background = error
+      ? "#fee2e2"
+      : "#e0f2fe";
+  }
+
+  function escapeHTML(value) {
+    return String(value ?? "").replace(/[&<>"']/g, char => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;"
+    })[char]);
+  }
+
+  function formatDate(value) {
+    if (!value) return "Nedisponibil";
+
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+      return "Nedisponibil";
+    }
+
+    return date.toLocaleString("ro-RO");
+  }
+
+  async function callFunction(name, data = {}) {
+    const callable = httpsCallable(functions, name);
+    const result = await callable(data);
+
+    return result.data;
+  }
+
+  async function loadUsers() {
+    setStatus("Se încarcă utilizatorii...");
+
+    const result = await callFunction("adminListUsers");
+
+    users = result.users || [];
+
+    $("total").textContent = users.length;
+
+    $("disabled").textContent =
+      users.filter(user => user.disabled).length;
+
+    $("activityCount").textContent =
+      "Vezi istoricul conturilor";
+
+    $("dashboard").classList.remove("hidden");
+    $("loginPanel").classList.add("hidden");
+
+    renderUsers();
+
+    setStatus("Conectat ca administrator.");
+  }
+
+  function renderUsers() {
+    const query = $("search").value.trim().toLowerCase();
+
+    const filtered = users.filter(user =>
+      `${user.email} ${user.displayName}`
+        .toLowerCase()
+        .includes(query)
+    );
+
+    $("users").innerHTML = filtered.map(user => `
+      <tr>
+        <td>
+          <strong>${escapeHTML(user.displayName || "Utilizator")}</strong>
+          <br>
+          ${escapeHTML(user.email)}
+        </td>
+
+        <td>${escapeHTML(formatDate(user.createdAt))}</td>
+
+        <td>${escapeHTML(formatDate(user.lastSignInAt))}</td>
+
+        <td>
+          ${escapeHTML(formatDate(user.lastActiveAt))}
+          <br>
+          <span class="muted">
+            ${escapeHTML(user.lastActivity || "")}
+          </span>
+        </td>
+
+        <td>${user.disabled ? "Dezactivat" : "Activ"}</td>
+
+        <td>
+          <button
+            data-activity="${escapeHTML(user.uid)}"
+            data-email="${escapeHTML(user.email)}"
+          >
+            Activitate
+          </button>
+
+          <button
+            class="secondary"
+            data-reset="${escapeHTML(user.email)}"
+          >
+            Resetare
+          </button>
+        </td>
+      </tr>
+    `).join("") || `
+      <tr><td colspan="6">Nu există rezultate.</td></tr>
+    `;
+  }
+
+  async function showActivity(uid, email) {
+    $("selectedUser").textContent =
+      "Se încarcă istoricul pentru " + email;
+
+    $("events").replaceChildren();
+
+    try {
+      const result = await callFunction("adminGetActivity", { uid });
+
+      $("selectedUser").textContent =
+        "Istoricul activității: " + email;
+
+      const events = result.events || [];
+
+      $("activityCount").textContent = events.length;
+
+      if (!events.length) {
+        $("events").textContent =
+          "Nu există încă evenimente înregistrate.";
+        return;
+      }
+
+      for (const event of events) {
+        const item = document.createElement("div");
+        item.className = "event";
+
+        const title = document.createElement("strong");
+        title.textContent = event.action || "Activitate";
+
+        const date = document.createElement("div");
+        date.className = "muted";
+        date.textContent = formatDate(event.createdAt);
+
+        const details = document.createElement("div");
+        details.className = "muted";
+        details.textContent = JSON.stringify(event.details || {});
+
+        item.append(title, date, details);
+        $("events").append(item);
+      }
+
+    } catch (error) {
+      $("selectedUser").textContent =
+        "Eroare: " + error.message;
+    }
+  }
+
+  $("login").addEventListener("click", async () => {
+    try {
+      await signInWithEmailAndPassword(
+        auth,
+        $("email").value.trim(),
+        $("password").value
+      );
+
+      $("password").value = "";
+
+    } catch (error) {
+      setStatus("Autentificare nereușită: " + error.message, true);
+    }
+  });
+
+  onAuthStateChanged(auth, async user => {
+    currentUser = user;
+
+    if (!user) {
+      $("loginPanel").classList.remove("hidden");
+      $("dashboard").classList.add("hidden");
+
+      setStatus("Autentifică-te cu contul administratorului.");
+      return;
+    }
+
+    if (
+      (user.email || "").toLowerCase() !== ADMIN_EMAIL ||
+      !user.emailVerified
+    ) {
+      await signOut(auth);
+
+      setStatus(
+        "Acces refuzat. Este necesar contul administratorului verificat.",
+        true
+      );
+
+      return;
+    }
+
+    try {
+      await loadUsers();
+    } catch (error) {
+      setStatus("Eroare la încărcarea datelor: " + error.message, true);
+    }
+  });
+
+  $("refresh").addEventListener("click", async () => {
+    if (!currentUser) return;
+
+    try {
+      await loadUsers();
+    } catch (error) {
+      setStatus(error.message, true);
+    }
+  });
+
+  $("search").addEventListener("input", renderUsers);
+
+  $("users").addEventListener("click", event => {
+    const activityButton = event.target.closest("[data-activity]");
+
+    if (activityButton) {
+      showActivity(
+        activityButton.dataset.activity,
+        activityButton.dataset.email
+      );
+    }
+
+    const resetButton = event.target.closest("[data-reset]");
+
+    if (resetButton) {
+      $("resetEmail").value = resetButton.dataset.reset;
+      $("resetResult").classList.add("hidden");
+    }
+  });
+
+  $("resetPassword").addEventListener("click", async () => {
+    const email = $("resetEmail").value.trim();
+
+    if (!email) {
+      setStatus("Introdu adresa de e-mail.", true);
+      return;
+    }
+
+    const resultBox = $("resetResult");
+
+    resultBox.classList.remove("hidden");
+    resultBox.textContent = "Se generează linkul...";
+
+    try {
+      const result = await callFunction(
+        "adminCreatePasswordResetLink",
+        { email }
+      );
+
+      resultBox.replaceChildren();
+
+      const message = document.createElement("p");
+      message.textContent =
+        "Linkul a fost generat. Trimite-l utilizatorului în privat.";
+
+      const link = document.createElement("input");
+      link.readOnly = true;
+      link.value = result.link;
+      link.style.width = "100%";
+
+      const copy = document.createElement("button");
+      copy.textContent = "Copiază linkul";
+
+      copy.addEventListener("click", async () => {
+        try {
+          await navigator.clipboard.writeText(result.link);
+          copy.textContent = "Copiat";
+        } catch {
+          link.focus();
+          link.select();
+        }
+      });
+
+      resultBox.append(message, link, copy);
+
+    } catch (error) {
+      resultBox.textContent =
+        "Nu s-a putut genera linkul: " + error.message;
+    }
+  });
+</script>
+
+</body>
+</html>
