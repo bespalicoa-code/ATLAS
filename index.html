@@ -1541,6 +1541,45 @@ body.dark #proK .box{background:#10263a;color:#e5edf5}
 .pro-fab{position:fixed;right:16px;bottom:16px;z-index:900;border:0;border-radius:999px;padding:11px 16px;background:#0b2740;color:#fff;font-family:inherit;font-size:12px;font-weight:700;box-shadow:0 10px 28px rgba(6,20,38,.35);cursor:pointer}
 .pro-fab kbd{font:inherit;opacity:.7;margin-left:6px}
 @media(prefers-reduced-motion:reduce){.pro-pod i,.page.pro-in,#proK .box,</style>
+<style id="atlas-glass-css">
+/* Liquid Glass (stil iOS 26): sticlă translucidă, margini luminate, reflexie speculară, adâncime 3D */
+.stats{gap:16px}
+.stat-card{position:relative;isolation:isolate;border-radius:26px;padding:18px;gap:14px;
+background:linear-gradient(145deg,rgba(255,255,255,.66),rgba(255,255,255,.3) 55%,rgba(255,255,255,.46));
+border:1px solid rgba(255,255,255,.72);
+-webkit-backdrop-filter:blur(22px) saturate(190%);backdrop-filter:blur(22px) saturate(190%);
+box-shadow:inset 0 1.5px 0 rgba(255,255,255,.95),inset 0 -1.5px 1px rgba(16,55,82,.1),inset 1px 0 0 rgba(255,255,255,.55),inset -1px 0 0 rgba(255,255,255,.25),0 1px 2px rgba(16,55,82,.08),0 14px 26px -8px rgba(16,55,82,.2),0 34px 54px -22px rgba(16,55,82,.26)}
+.stat-card::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:-1;
+background:radial-gradient(200px circle at var(--mx,30%) var(--my,0%),rgba(255,255,255,.6),transparent 66%),linear-gradient(180deg,rgba(255,255,255,.5),rgba(255,255,255,0) 44%)}
+.stat-icon{position:relative;width:50px;height:50px;border-radius:17px;color:#fff;
+box-shadow:inset 0 2px 2px rgba(255,255,255,.85),inset 0 -6px 9px rgba(0,0,0,.14),0 12px 18px -6px var(--gl,rgba(23,105,170,.6))}
+.stat-icon::after{content:"";position:absolute;left:3px;right:3px;top:2px;height:48%;border-radius:15px 15px 45% 45%;background:linear-gradient(rgba(255,255,255,.7),rgba(255,255,255,0));pointer-events:none}
+.stat-icon svg{position:relative;z-index:1;width:23px;height:23px;stroke-width:2;filter:drop-shadow(0 1px 1px rgba(0,0,0,.28))}
+.ic-blue{background:linear-gradient(150deg,#86cbf8,#1f7fd0 70%,#1769c0);--gl:rgba(31,127,208,.7)}
+.ic-teal{background:linear-gradient(150deg,#79e6d2,#17a08e 70%,#12857a);--gl:rgba(18,133,122,.7)}
+.ic-gold{background:linear-gradient(150deg,#ffe08a,#f0a73a 70%,#d9892a);--gl:rgba(224,150,43,.7)}
+.ic-violet{background:linear-gradient(150deg,#c1b7ff,#7a69e6 70%,#5d4fd0);--gl:rgba(101,86,214,.7)}
+.stat-card>div:last-child{min-width:0}.stat-label{font-size:12px;font-weight:650;color:#587087;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.stat-value{font-size:29px;font-weight:800;letter-spacing:-.05em;line-height:1.15;background:linear-gradient(180deg,#0e2b45,#1d66a0);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 2px 2px rgba(16,55,82,.16))}
+.stat-foot{font-size:11px;color:#6f8498}
+.panel{background:rgba(255,255,255,.76);border:1px solid rgba(255,255,255,.85);border-radius:28px;box-shadow:inset 0 1.5px 0 #fff,0 1px 2px rgba(16,55,82,.06),0 22px 44px -16px rgba(16,55,82,.2)}
+@media(hover:hover) and (min-width:900px){.panel{-webkit-backdrop-filter:blur(18px) saturate(170%);backdrop-filter:blur(18px) saturate(170%)}}
+.modal{border-radius:30px;background:rgba(255,255,255,.88);border:1px solid rgba(255,255,255,.85);-webkit-backdrop-filter:blur(26px) saturate(180%);backdrop-filter:blur(26px) saturate(180%);box-shadow:inset 0 1.5px 0 #fff,0 44px 90px -24px rgba(6,20,38,.55)}
+.sidebar-card{border-radius:24px;background:linear-gradient(150deg,rgba(255,255,255,.18),rgba(255,255,255,.04));border:1px solid rgba(255,255,255,.22);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);box-shadow:inset 0 1.5px 0 rgba(255,255,255,.32),0 14px 28px -10px rgba(0,0,0,.5)}
+.pro-podium{border-radius:28px;background:linear-gradient(160deg,rgba(11,39,64,.88),rgba(15,66,99,.8));border:1px solid rgba(255,255,255,.2);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);box-shadow:inset 0 1.5px 0 rgba(255,255,255,.32),0 26px 46px -16px rgba(11,39,64,.6)}
+.pro-pod i{border-radius:14px 14px 0 0;background:linear-gradient(180deg,rgba(255,255,255,.6),#59d6df 32%,#1769aa);box-shadow:inset 0 2px 2px rgba(255,255,255,.75),0 12px 22px -8px rgba(23,105,170,.8)}
+.pro-pod.g i{background:linear-gradient(180deg,rgba(255,255,255,.7),#f4cf7a 32%,#d6a548)}
+.pro-fab{background:rgba(11,39,64,.62);border:1px solid rgba(255,255,255,.28);-webkit-backdrop-filter:blur(16px) saturate(180%);backdrop-filter:blur(16px) saturate(180%);box-shadow:inset 0 1.5px 0 rgba(255,255,255,.4),0 14px 30px -8px rgba(6,20,38,.55)}
+#proK .box{border-radius:28px;background:rgba(255,255,255,.76);border:1px solid rgba(255,255,255,.85);-webkit-backdrop-filter:blur(30px) saturate(190%);backdrop-filter:blur(30px) saturate(190%);box-shadow:inset 0 1.5px 0 #fff,0 40px 90px -20px rgba(6,20,38,.5)}
+body.dark .stat-card{background:linear-gradient(145deg,rgba(255,255,255,.16),rgba(255,255,255,.05) 55%,rgba(255,255,255,.1));border-color:rgba(255,255,255,.2);box-shadow:inset 0 1.5px 0 rgba(255,255,255,.3),inset 0 -1.5px 1px rgba(0,0,0,.35),0 16px 32px -10px rgba(0,0,0,.55)}
+body.dark .stat-card::before{background:radial-gradient(200px circle at var(--mx,30%) var(--my,0%),rgba(255,255,255,.22),transparent 66%),linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,0) 44%)}
+body.dark .stat-label,body.dark .stat-foot{color:#9fb4c8}
+body.dark .stat-value{background:linear-gradient(180deg,#ffffff,#9fd0f5);-webkit-background-clip:text;background-clip:text;color:transparent}
+body.dark .panel{background:rgba(24,43,61,.74);border-color:rgba(255,255,255,.12);box-shadow:inset 0 1.5px 0 rgba(255,255,255,.14),0 22px 44px -16px rgba(0,0,0,.55)}
+body.dark .modal,body.dark #proK .box{background:rgba(20,38,56,.86);border-color:rgba(255,255,255,.14);box-shadow:inset 0 1.5px 0 rgba(255,255,255,.16),0 44px 90px -24px rgba(0,0,0,.7)}
+@media(max-width:600px){.stat-card{border-radius:22px;padding:14px 12px;gap:10px}.stat-icon{width:42px;height:42px;border-radius:14px}.stat-value{font-size:24px}.panel{border-radius:22px}}
+@media(prefers-reduced-transparency:reduce){.stat-card,.panel,.modal,#proK .box{-webkit-backdrop-filter:none;backdrop-filter:none;background:#fff}body.dark .stat-card,body.dark .panel,body.dark .modal,body.dark #proK .box{background:#182b3d}}
+</style>
 <script id="atlas-pro-js">
 (function(){'use strict';
 var q=function(s,r){return(r||document).querySelector(s)},qa=function(s,r){return[].slice.call((r||document).querySelectorAll(s))};
@@ -1563,25 +1602,18 @@ run(function(){var s=q('#scene');if(!s||!fine||calm)return;var raf=0;
 addEventListener('pointermove',function(e){if(raf)return;raf=requestAnimationFrame(function(){raf=0;
 s.style.transform='translate3d('+((e.clientX/innerWidth-.5)*-14).toFixed(1)+'px,'+((e.clientY/innerHeight-.5)*-8).toFixed(1)+'px,0) scale(1.03)'})},{passive:true})});
 
-/* 6. Catalog: căutare, sortare, filtru și podium */
-run(function(){var tb=q('#studentRows'),pg=q('#catalogPage'),ts=q('.table-scroll',pg||document),panel=pg&&q('.panel',pg);if(!tb||!pg||!ts||!panel)return;
+/* 6. Podiumul clasei (top 3 după punctaj; căutarea și sortarea rămân cele ale aplicației) */
+run(function(){var tb=q('#studentRows'),pg=q('#catalogPage'),panel=pg&&q('.panel',pg);if(!tb||!panel)return;
 var host=document.createElement('section');host.className='pro-podium';host.hidden=true;host.setAttribute('aria-label','Podiumul clasei');panel.parentNode.insertBefore(host,panel);
-var tools=document.createElement('div');tools.className='pro-tools';
-tools.innerHTML='<input type="search" id="proFind" placeholder="Caută elev în catalog" aria-label="Caută elev în catalog"><select id="proSort" aria-label="Ordinea elevilor"><option value="0">Ordinea listei</option><option value="n">Nume A–Z</option><option value="d">Puncte, de la mari la mici</option><option value="a">Puncte, de la mici la mari</option></select><select id="proFilt" aria-label="Filtru elevi"><option value="">Toți elevii</option><option value="y">Evaluați</option><option value="n">Fără puncte</option></select>';
-ts.parentNode.insertBefore(tools,ts);
 function rows(){return qa('tr',tb).map(function(r){var n=r.querySelector('.student-name'),t=r.cells[4];
-return{r:r,o:parseInt(r.cells[0]&&r.cells[0].textContent,10)||0,n:n?n.textContent.trim():'',p:t?parseFloat(String(t.textContent).replace(/[^\d,.-]/g,'').replace(',','.'))||0:0,y:!!r.querySelector('.status.has-points')}})}
-function apply(){var f=norm(q('#proFind').value),fl=q('#proFilt').value,s=q('#proSort').value,d=rows();
-d.forEach(function(x){x.r.hidden=!((!f||norm(x.n).indexOf(f)>-1)&&(!fl||(fl==='y')===x.y))});
-d.slice().sort(function(a,b){return s==='n'?a.n.localeCompare(b.n,'ro'):s==='d'?b.p-a.p:s==='a'?a.p-b.p:a.o-b.o}).forEach(function(x){tb.appendChild(x.r)})}
+return{n:n?n.textContent.trim():'',p:t?parseFloat(String(t.textContent).replace(/[^\d,.-]/g,'').replace(',','.'))||0:0}})}
 function podium(){var top=rows().filter(function(x){return x.p>0}).sort(function(a,b){return b.p-a.p}).slice(0,3);
 if(!top.length){host.hidden=true;host.innerHTML='';return}host.hidden=false;var mx=top[0].p;
 host.innerHTML='<h3>Podiumul clasei</h3>'+[1,0,2].filter(function(k){return top[k]}).map(function(k){var x=top[k];
 return'<div class="pro-pod'+(k===0?' g':'')+'"><b>'+esc(x.n)+'</b><small>'+x.p+' puncte</small><i data-h="'+Math.max(28,Math.round(100*x.p/mx))+'">'+(k+1)+'</i></div>'}).join('');
 requestAnimationFrame(function(){requestAnimationFrame(function(){qa('.pro-pod i',host).forEach(function(i){i.style.height=i.dataset.h+'px'})})})}
-var obs=new MutationObserver(debounce(function(){apply();obs.takeRecords();podium()},90));
-['input','change'].forEach(function(ev){tools.addEventListener(ev,function(){apply();obs.takeRecords()})});
-obs.observe(tb,{childList:true,subtree:true,characterData:true});apply();obs.takeRecords();podium()});
+var key='';new MutationObserver(debounce(function(){var k=rows().map(function(x){return x.n+x.p}).join('|');if(k!==key){key=k;podium()}},120)).observe(tb,{childList:true,subtree:true,characterData:true});
+key=rows().map(function(x){return x.n+x.p}).join('|');podium()});
 
 /* 7. Căutare rapidă (Ctrl/⌘ + K): pagini, clase, elevi, acțiuni */
 run(function(){var el=document.createElement('div');el.id='proK';el.setAttribute('role','dialog');el.setAttribute('aria-modal','true');el.setAttribute('aria-label','Căutare rapidă');
