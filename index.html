@@ -1562,16 +1562,6 @@ run(function(){var b=document.createElement('div'),w=0;b.id='proBar';document.bo
 function u(){w=0;var h=document.documentElement,m=h.scrollHeight-h.clientHeight;b.style.transform='scaleX('+(m>0?Math.min(1,h.scrollTop/m):0)+')'}
 addEventListener('scroll',function(){if(!w)w=requestAnimationFrame(u)},{passive:true});u()});
 
-/* 2. Cifre animate în cardurile de statistică */
-run(function(){if(calm)return;var obs=new MutationObserver(function(rs){rs.forEach(function(r){var e=r.target.nodeType===1?r.target:r.target.parentNode;e=e&&e.closest&&e.closest('.stat-value');if(e)count(e)})});
-function set(e,t){e.textContent=t;obs.takeRecords()}
-function count(e){var raw=e.textContent.trim(),m=raw.match(/^(\d+(?:[.,]\d+)?)(.*)$/);if(!m)return;
-var to=parseFloat(m[1].replace(',','.')),dec=(m[1].split(/[.,]/)[1]||'').length,comma=m[1].indexOf(',')>-1,from=+e._pv||0,tk=e._tk=(e._tk||0)+1;e._pv=to;
-if(from===to)return;var t0=performance.now();
-(function f(n){if(e._tk!==tk)return;var k=Math.min(1,(n-t0)/700),v=from+(to-from)*(1-Math.pow(1-k,3)),s=v.toFixed(dec);
-set(e,(comma?s.replace('.',','):s)+m[2]);if(k<1)requestAnimationFrame(f)})(t0)}
-qa('.stat-value').forEach(function(e){count(e);obs.observe(e,{childList:true,characterData:true,subtree:true})})});
-
 /* 3. Înclinare 3D a cardurilor (doar mouse, fără lag pe telefon) */
 run(function(){if(!fine||calm)return;
 qa('.stat-card,.hero').forEach(function(c){var card=c.classList.contains('stat-card'),k=card?7:2.5,raf=0;c.classList.add('pro-tilt');if(card)c.classList.add('pro-sheen');
