@@ -1052,7 +1052,7 @@ function applyState(final){
 async function loadBackend(){
   if(window.__ATLAS_BACKEND__)return window.__ATLAS_BACKEND__;
   const [{initializeApp},A,F]=await Promise.all([import(SDK+'firebase-app.js'),import(SDK+'firebase-auth.js'),import(SDK+'firebase-firestore.js')]);
-  const app=initializeApp(CFG),auth=A.getAuth(app),fs=F.getFirestore(app);
+  const app=initializeApp(CFG),auth=A.getAuth(app),fs=F.initializeFirestore(app,{experimentalAutoDetectLongPolling:true});
   return{
     onAuth:cb=>A.onAuthStateChanged(auth,u=>cb(u?{uid:u.uid,email:u.email||''}:null)),
     signInEmail:(e,p)=>A.signInWithEmailAndPassword(auth,e,p),
@@ -1199,7 +1199,8 @@ function onAuth(user){
     if(!flag(localStorage,GUEST_KEY)&&!flag(sessionStorage,DISMISS_KEY))openAuth('login');
     return}
   closeModal('authModal');setStatus('connecting');
-  S.unsub=S.be.listen(user.uid,onSnapshot,e=>{setStatus(e&&e.code==='permission-denied'?'error':'offline');if(e&&e.code==='permission-denied')showToast('Firestore a refuzat accesul. Verifică regulile din firestore.rules.',true)})}
+  clearTimeout(S.watch);S.watch=setTimeout(()=>{if(S.user&&!S.ready&&!S.paused){setStatus('error');showToast('Nu mă pot conecta la baza de date. Verifică în Firebase: Firestore Database creată și regulile publicate. Dezactivează și blocantul de reclame pentru acest site.',true)}},15000);
+  S.unsub=S.be.listen(user.uid,onSnapshot,e=>{const c=e&&e.code||'';setStatus(c==='permission-denied'?'error':'offline');showToast(c==='permission-denied'?'Firestore a refuzat accesul. Publică regulile din firestore.rules (Firestore → Rules → Publish).':'Eroare la baza de date'+(c?' ('+c+')':'')+'. Verifică dacă Firestore Database este creată în proiectul Firebase.',true);console.error('ATLAS sync:',e)})}
 async function start(){
   renderAccount();if(!ENABLED)return;
   try{S.be=await loadBackend()}catch(e){setStatus('offline');window.addEventListener('online',()=>{if(!S.be)start()},{once:true});return}
