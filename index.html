@@ -162,6 +162,59 @@ body.dark .page-intro p,body.dark .page-intro .eyebrow,body.dark .footer{color:#
 
 @media(prefers-reduced-motion:reduce){.sc-cloud{animation:none}}
 @media print{#scene{display:none}.panel,.stat-card,.topbar,.hero,.modal{backdrop-filter:none;-webkit-backdrop-filter:none}.panel,.stat-card{background:#fff;box-shadow:none}}
+/* ===== ATLAS Plus: laborator, 3D ușor, mod economic ===== */
+.lab-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:18px}
+.lab-card{background:var(--white);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;contain:layout paint}
+.lab-card.wide{grid-column:1/-1}
+.lab-card h3{margin:0 0 3px;font-size:15px;letter-spacing:-.02em}
+.lab-card .sub{margin:0 0 14px;color:var(--muted);font-size:12px}
+.lab-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.podium-stage{perspective:800px;padding-top:10px}
+.podium{display:flex;align-items:flex-end;justify-content:center;gap:8px;height:200px;transform:rotateX(10deg);transform-style:preserve-3d}
+.pod{flex:1;max-width:112px;display:flex;flex-direction:column;justify-content:flex-end;text-align:center;min-width:0}
+.pod-name{font-size:11px;font-weight:800;margin-bottom:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pod-bar{position:relative;border-radius:10px 10px 4px 4px;color:#fff;font-weight:900;font-size:20px;display:grid;place-items:start center;padding-top:8px;transform-origin:bottom;animation:podRise .8s cubic-bezier(.2,.9,.3,1) both;background:linear-gradient(180deg,#2289d5,#0d466f)}
+.pod-bar:before{content:"";position:absolute;left:0;right:0;top:-9px;height:9px;background:#ffffff40;border-radius:10px 10px 0 0;transform:skewX(-30deg) translateX(4px)}
+.pod.p1 .pod-bar{background:linear-gradient(180deg,#e8bb5c,#b8851f);animation-delay:.25s}.pod.p2 .pod-bar{animation-delay:.1s}.pod.p3 .pod-bar{background:linear-gradient(180deg,#d28a5b,#8f5530);animation-delay:.4s}
+@keyframes podRise{from{transform:scaleY(0);opacity:.2}to{transform:scaleY(1);opacity:1}}
+.pick-card{height:110px;border-radius:16px;display:grid;place-items:center;text-align:center;padding:10px;font-size:20px;font-weight:850;color:#fff;background:linear-gradient(135deg,#0d3555,#167d83)}
+.pick-card.pop{animation:pickPop .7s ease both}
+@keyframes pickPop{0%{transform:perspective(600px) rotateY(0)}100%{transform:perspective(600px) rotateY(360deg)}}
+.tm-disp{font-size:clamp(44px,14vw,64px);font-weight:900;letter-spacing:.04em;text-align:center;font-variant-numeric:tabular-nums;color:var(--ink)}
+.tm-disp.end{color:var(--red);animation:tmBlink .5s steps(2) 6}
+@keyframes tmBlink{50%{opacity:.25}}
+.fc{perspective:900px;height:150px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.fc-in{position:relative;width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d}
+.fc.flip .fc-in{transform:rotateY(180deg)}
+.fc-f,.fc-b{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:16px;display:grid;place-items:center;text-align:center;padding:12px;font-size:24px;font-weight:850}
+.fc-f{background:linear-gradient(135deg,#0d3555,#167d83);color:#fff}
+.fc-b{background:#fff3cf;color:#5a3d00;transform:rotateY(180deg)}
+.fc-info{text-align:center;color:var(--muted);font-size:12px;margin-top:8px}
+.heat{display:grid;grid-auto-flow:column;grid-template-rows:repeat(7,1fr);gap:3px;overflow-x:auto;padding-bottom:4px}
+.heat i{width:14px;height:14px;border-radius:3px;background:var(--line)}
+.heat i.l1{background:#bfe0f5}.heat i.l2{background:#7bbbe6}.heat i.l3{background:#2289d5}.heat i.l4{background:#0d466f}
+.perf-sel{width:100%;padding:10px;border-radius:11px;border:1px solid var(--line);background:var(--white);color:var(--ink)}
+body.lite .topbar{backdrop-filter:none;-webkit-backdrop-filter:none}
+body.lite .hero-art,body.lite canvas[aria-hidden="true"]{display:none!important}
+body.lite *{box-shadow:none!important;transition-duration:.01ms!important;animation-duration:.01ms!important;animation-iteration-count:1!important}
+body.lite .podium{transform:none}
+@media(prefers-reduced-motion:reduce){.pod-bar,.pick-card.pop,.tm-disp.end{animation:none}.fc-in{transition:none}}
+/* ===== ATLAS Plus 2 ===== */
+.bulk-list{display:flex;flex-wrap:wrap;gap:6px;max-height:190px;overflow:auto;padding:2px}
+.bulk-list label{display:flex;align-items:center;gap:6px;padding:7px 10px;border:1px solid var(--line);border-radius:999px;font-size:12px;font-weight:700;cursor:pointer}
+.bulk-list label:has(input:checked){background:rgba(34,137,213,.15);border-color:var(--blue2)}
+.badge-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(125px,1fr));gap:8px;margin-top:12px}
+.bdg{border:1px solid var(--line);border-radius:14px;padding:10px;text-align:center;font-size:12px;font-weight:700}
+.bdg b{display:block;font-size:26px;margin-bottom:2px}.bdg small{color:var(--muted);font-weight:500}
+.bdg.off{opacity:.35;filter:grayscale(1)}
+.dist-out{margin-top:12px;font-size:13px;line-height:1.7}
+.qs-back{position:fixed;inset:0;background:#06192b99;z-index:70;display:none;align-items:flex-start;justify-content:center;padding:12vh 12px 0}
+.qs-back.open{display:flex}
+.qs-box{width:min(560px,100%);background:var(--white);border-radius:16px;overflow:hidden;box-shadow:0 20px 50px #0006}
+.qs-in{width:100%;border:0;border-bottom:1px solid var(--line);padding:16px;font-size:16px;background:var(--white);color:var(--ink);outline:0}
+.qs-it{display:flex;justify-content:space-between;gap:8px;padding:12px 16px;cursor:pointer;color:var(--ink)}
+.qs-it.on,.qs-it:hover{background:rgba(34,137,213,.14)}.qs-it small{color:var(--muted)}
+#qsList{max-height:50vh;overflow:auto}#qsBtn{cursor:pointer}
 </style>
 </head>
 <body>
@@ -486,6 +539,229 @@ $('classModal').addEventListener('paste',e=>{const f=e.clipboardData&&[...e.clip
 loadData();renderAll();renderQuiz();
 </script>
 <script>
+/* ===== ATLAS Plus · Laborator: podium 3D, extragere, cronometru, cartonașe, activitate, mod economic ===== */
+(function(){
+'use strict';
+var PK='atlas-perf-v1',FK='atlas-flash-v1',autoLite=false,perf=readLocal(PK,'auto');
+function store(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+
+/* ---------- 1. Mod economic (fără lag pe telefon) ---------- */
+function lowEnd(){var n=navigator;return !!((n.deviceMemory&&n.deviceMemory<=2)||(n.hardwareConcurrency&&n.hardwareConcurrency<=2))}
+function applyPerf(){document.body.classList.toggle('lite',perf==='lite'||(perf==='auto'&&(autoLite||lowEnd())))}
+function probe(){ /* măsoară 45 de cadre; dacă prea multe sunt lente, trece singur în modul economic */
+  var n=0,t0=0,bad=0;
+  (function f(t){if(t0){n++;if(t-t0>34)bad++}t0=t;if(n<45)requestAnimationFrame(f);else if(bad>14){autoLite=true;applyPerf()}})(performance.now());
+}
+applyPerf();setTimeout(function(){if(perf==='auto'&&!document.hidden)probe()},1500);
+
+/* ---------- 2. Pagina «Laborator» ---------- */
+var FC=[['România','București'],['Moldova','Chișinău'],['Franța','Paris'],['Germania','Berlin'],['Italia','Roma'],['Spania','Madrid'],['Portugalia','Lisabona'],['Polonia','Varșovia'],['Ucraina','Kiev'],['Grecia','Atena'],['Turcia','Ankara'],['Egipt','Cairo'],['Japonia','Tokyo'],['China','Beijing'],['India','New Delhi'],['Australia','Canberra'],['Canada','Ottawa'],['Brazilia','Brasília'],['Argentina','Buenos Aires'],['SUA','Washington D.C.'],['Rusia','Moscova'],['Suedia','Stockholm'],['Norvegia','Oslo'],['Austria','Viena'],['Ungaria','Budapesta'],['Bulgaria','Sofia'],['Kenya','Nairobi'],['Maroc','Rabat'],['Mexic','Ciudad de México'],['Coreea de Sud','Seul']];
+var html='<section class="page hidden" id="labPage"><div class="lab-grid">'+
+'<div class="lab-card"><h3>Podium 3D</h3><p class="sub">Primii 3 elevi ai clasei, după total puncte.</p><div class="podium-stage"><div class="podium" id="podium"></div></div></div>'+
+'<div class="lab-card"><h3>Cine răspunde?</h3><p class="sub">Extragere corectă: fiecare elev e ales o singură dată pe rundă.</p><div class="pick-card" id="pickCard">?</div><div class="fc-info" id="pickInfo"></div><div class="lab-row"><button class="btn primary" data-lab="pick">Alege un elev</button><button class="btn white" data-lab="pickReset">Rundă nouă</button></div></div>'+
+'<div class="lab-card"><h3>Cronometru lecție</h3><p class="sub">Pentru activități pe grupe, teste scurte, discuții.</p><div class="tm-disp" id="tmDisp">05:00</div><div class="lab-row"><button class="btn light" data-tm="60">1 min</button><button class="btn light" data-tm="180">3 min</button><button class="btn light" data-tm="300">5 min</button><button class="btn light" data-tm="600">10 min</button></div><div class="lab-row"><button class="btn primary" data-lab="tmGo" id="tmGo">Start</button><button class="btn white" data-lab="tmReset">Resetează</button></div></div>'+
+'<div class="lab-card"><h3>Cartonașe: capitale</h3><p class="sub">Atinge cartonașul ca să îl întorci. Cele știute nu se mai repetă.</p><div class="fc" id="fc" data-lab="flip" role="button" tabindex="0" aria-label="Întoarce cartonașul"><div class="fc-in"><div class="fc-f" id="fcF"></div><div class="fc-b" id="fcB"></div></div></div><div class="fc-info" id="fcInfo"></div><div class="lab-row"><button class="btn green" data-lab="fcYes">Știu</button><button class="btn danger" data-lab="fcNo">Nu știu</button><button class="btn white" data-lab="fcReset">De la capăt</button></div></div>'+
+'<div class="lab-card wide"><h3>Activitatea clasei · ultimele 12 săptămâni</h3><p class="sub">Fiecare pătrat este o zi; cu cât e mai închis, cu atât s-au acordat mai multe puncte.</p><div class="heat" id="heat"></div></div>'+
+'<div class="lab-card"><h3>Performanță</h3><p class="sub">Modul economic oprește globul și efectele grele. Automat: se activează singur dacă telefonul are lag.</p><select class="perf-sel" id="perfSel" aria-label="Mod performanță"><option value="auto">Automat (recomandat)</option><option value="lite">Economic (fără efecte grele)</option><option value="full">Complet (toate efectele)</option></select></div>'+
+'</div></section>';
+var tgt=document.getElementById('settingsPage');
+if(tgt)tgt.insertAdjacentHTML('afterend',html);
+var nav=document.querySelector('.nav');
+if(nav){nav.insertAdjacentHTML('beforeend','<button type="button" data-page="lab"><svg viewBox="0 0 24 24"><path d="M12 2 3 7v10l9 5 9-5V7zM3 7l9 5 9-5M12 12v10"/></svg>Laborator</button>');
+  nav.lastElementChild.addEventListener('click',function(){showPage('lab');setSidebar(false)})}
+
+/* integrare cu aplicația existentă */
+var _pi=window.pageInfo;window.pageInfo=function(p){return p==='lab'?['LABORATOR','Laborator ATLAS','Podium, extragere, cronometru, cartonașe și activitate']:_pi(p)};
+var _sp=window.showPage;window.showPage=function(p){_sp(p);if(p==='lab')refresh()};
+var _ra=window.renderAll;window.renderAll=function(){_ra.apply(this,arguments);if(currentPage==='lab')refresh()};
+
+/* podium 3D */
+function podium(){
+  var c=cls(),arr=c.students.map(function(s){return{n:s.name,t:totalFor(s.id)}}).filter(function(x){return x.t>0}).sort(function(a,b){return b.t-a.t}).slice(0,3),el=$('podium');
+  if(!arr.length){el.innerHTML='<div class="empty" style="width:100%">Acordă primele puncte pentru a vedea podiumul.</div>';return}
+  var max=arr[0].t,order=[1,0,2].filter(function(i){return arr[i]});
+  el.innerHTML=order.map(function(i){var x=arr[i],h=Math.max(55,Math.round(x.t/max*150));
+    return '<div class="pod p'+(i+1)+'"><div class="pod-name" title="'+escapeHtml(x.n)+'">'+escapeHtml(x.n)+'</div><div class="pod-bar" style="height:'+h+'px">'+(i+1)+'<small style="position:absolute;bottom:6px;font-size:11px;font-weight:700">'+fmt(x.t)+' p</small></div></div>'}).join('');
+}
+
+/* extragere corectă */
+var pool=[],poolFor=null,pickBusy=false;
+function pickReset(){pool=cls().students.map(function(s){return s.name});poolFor=activeId;$('pickInfo').textContent='Rămași în rundă: '+pool.length;$('pickCard').textContent='?'}
+function pick(){
+  if(pickBusy)return;if(poolFor!==activeId||!pool.length)pickReset();if(!pool.length)return;
+  var names=cls().students,final=pool.splice(Math.floor(Math.random()*pool.length),1)[0],card=$('pickCard'),i=0,d=45;pickBusy=true;card.classList.remove('pop');
+  (function tick(){
+    if(i++<16){card.textContent=names[Math.floor(Math.random()*names.length)].name;d+=i*4;setTimeout(tick,d)}
+    else{card.textContent=final;void card.offsetWidth;card.classList.add('pop');$('pickInfo').textContent='Rămași în rundă: '+pool.length;pickBusy=false;if(navigator.vibrate)navigator.vibrate(40)}
+  })();
+}
+
+/* cronometru (se actualizează doar cât rulează) */
+var tmLeft=300000,tmEnd=0,tmId=0;
+function tmDraw(){var s=Math.max(0,Math.ceil(tmLeft/1000));$('tmDisp').textContent=('0'+(s/60|0)).slice(-2)+':'+('0'+s%60).slice(-2)}
+function tmStop(){clearInterval(tmId);tmId=0;$('tmGo').textContent='Start'}
+function beep(){try{var A=window.AudioContext||window.webkitAudioContext,a=new A(),o=a.createOscillator(),g=a.createGain();o.connect(g);g.connect(a.destination);g.gain.value=.15;o.frequency.value=880;o.start();o.stop(a.currentTime+.6);setTimeout(function(){a.close()},900)}catch(e){}if(navigator.vibrate)navigator.vibrate([200,100,200])}
+function tmToggle(){
+  if(tmId){tmStop();return}
+  if(tmLeft<=0)return;tmEnd=Date.now()+tmLeft;$('tmDisp').classList.remove('end');$('tmGo').textContent='Pauză';
+  tmId=setInterval(function(){tmLeft=tmEnd-Date.now();if(tmLeft<=0){tmLeft=0;tmStop();$('tmDisp').classList.add('end');beep()}tmDraw()},250);
+}
+function tmSet(sec){tmStop();tmLeft=sec*1000;$('tmDisp').classList.remove('end');tmDraw()}
+
+/* cartonașe 3D */
+var fk=readLocal(FK,[]),deck=[],fi=0;
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t}return a}
+function fBuild(){deck=FC.map(function(_,i){return i}).filter(function(i){return fk.indexOf(i)<0});if(!deck.length){fk=[];store(FK,fk);deck=FC.map(function(_,i){return i});showToast('Le știi pe toate! Începem din nou.')}shuffle(deck);fi=0;fDraw()}
+function fDraw(){var c=FC[deck[fi]];$('fc').classList.remove('flip');$('fcF').textContent=c[0];$('fcB').textContent=c[1];$('fcInfo').textContent='Cartonaș '+(fi+1)+' din '+deck.length+' · știute '+fk.length+'/'+FC.length}
+function fNext(known){var id=deck[fi];if(known&&fk.indexOf(id)<0){fk.push(id);store(FK,fk)}if(++fi>=deck.length)fBuild();else fDraw()}
+
+/* hartă de activitate */
+function heat(){
+  var map={},max=0,now=new Date(),end=new Date(now.getFullYear(),now.getMonth(),now.getDate()),dow=(end.getDay()+6)%7,start=new Date(end);start.setDate(end.getDate()-dow-77);
+  function key(d){return d.getFullYear()+'-'+d.getMonth()+'-'+d.getDate()}
+  cls().logs.forEach(function(x){var k=key(new Date(x.ts));map[k]=(map[k]||0)+x.points});
+  Object.keys(map).forEach(function(k){if(map[k]>max)max=map[k]});
+  var out='';for(var i=0;i<84;i++){var d=new Date(start);d.setDate(start.getDate()+i);if(d>end){out+='<i style="opacity:0"></i>';continue}
+    var v=map[key(d)]||0,l=!v?0:Math.min(4,Math.ceil(v/max*4));out+='<i class="'+(l?'l'+l:'')+'" title="'+d.toLocaleDateString('ro-RO')+': '+fmt(v)+' puncte"></i>'}
+  $('heat').innerHTML=out;
+}
+
+function refresh(){podium();heat();if(poolFor!==activeId)pickReset();$('perfSel').value=perf}
+
+/* evenimente (delegare: un singur ascultător) */
+document.addEventListener('click',function(e){
+  var t=e.target.closest&&e.target.closest('#labPage [data-lab],#labPage [data-tm]');if(!t)return;
+  if(t.dataset.tm){tmSet(Number(t.dataset.tm));return}
+  switch(t.dataset.lab){
+    case 'pick':pick();break;case 'pickReset':pickReset();break;
+    case 'tmGo':tmToggle();break;case 'tmReset':tmSet(300);break;
+    case 'flip':$('fc').classList.toggle('flip');break;
+    case 'fcYes':fNext(true);break;case 'fcNo':fNext(false);break;
+    case 'fcReset':fk=[];store(FK,fk);fBuild();break}
+});
+document.addEventListener('keydown',function(e){if((e.key==='Enter'||e.key===' ')&&e.target.id==='fc'){e.preventDefault();$('fc').classList.toggle('flip')}});
+$('perfSel').addEventListener('change',function(e){perf=e.target.value;store(PK,perf);autoLite=false;applyPerf();showToast('Mod performanță: '+e.target.options[e.target.selectedIndex].text)});
+pickReset();fBuild();tmDraw();
+})();
+</script>
+<script>
+/* ===== ATLAS Plus 2 · quiz extins, puncte în grup, insigne, distanțe, căutare rapidă ===== */
+(function(){
+'use strict';
+function shuf(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t}return a}
+
+/* ---------- 1. Quiz: bancă de 32 de întrebări, runde de 10 ---------- */
+var BANK=geoQuestions.slice();
+[['Care este cel mai lung fluviu din Europa?',['Volga','Dunărea','Rinul','Niprul'],0,'Volga, în Rusia, are circa 3.500 km.'],
+['Care este capitala Republicii Moldova?',['Bălți','Chișinău','Tiraspol','Cahul'],1,'Chișinău este capitala și cel mai mare oraș.'],
+['Care este cel mai mare lac din lume ca suprafață?',['Baikal','Marea Caspică','Victoria','Superior'],1,'Marea Caspică este considerată cel mai mare lac.'],
+['Care este cel mai mic continent?',['Europa','Antarctica','Australia','America de Sud'],2,'Australia (Oceania) este cel mai mic continent.'],
+['Ce munți despart Europa de Asia?',['Alpii','Carpații','Uralii','Pirineii'],2,'Munții Ural marchează limita convențională.'],
+['Care este cel mai înalt vârf din România?',['Omu','Moldoveanu','Negoiu','Parângul Mare'],1,'Moldoveanu (2.544 m), în Munții Făgăraș.'],
+['Prin ce oraș trece meridianul 0?',['Paris','Greenwich (Londra)','Roma','Lisabona'],1,'Meridianul Greenwich are longitudinea 0°.'],
+['Care este cea mai joasă depresiune de pe uscat?',['Marea Moartă','Valea Morții','Marea Caspică','Turfan'],0,'Marea Moartă este la circa 430 m sub nivelul mării.'],
+['Care este cel mai populat continent?',['Africa','Asia','Europa','America de Nord'],1,'Asia are cea mai mare populație.'],
+['În ce țară se varsă Dunărea în Marea Neagră?',['România','Ungaria','Bulgaria','Serbia'],0,'Delta Dunării se află în România.'],
+['Care este capitala Canadei?',['Toronto','Ottawa','Montreal','Vancouver'],1,'Ottawa este capitala Canadei.'],
+['Care este cea mai mare insulă din lume?',['Groenlanda','Madagascar','Borneo','Noua Guinee'],0,'Groenlanda este cea mai mare insulă.'],
+['Ce ocean scaldă coasta de est a Africii?',['Atlantic','Indian','Pacific','Arctic'],1,'Oceanul Indian scaldă coasta estică a Africii.'],
+['Care fluviu are cel mai mare debit din lume?',['Amazonul','Nilul','Mississippi','Gange'],0,'Amazonul transportă cea mai mare cantitate de apă.'],
+['Ce mare scaldă litoralul României?',['Marea Neagră','Marea Adriatică','Marea Baltică','Marea Egee'],0,'Litoralul românesc este la Marea Neagră.'],
+['Ce țară are forma unei cizme?',['Italia','Grecia','Spania','Portugalia'],0,'Peninsula Italică seamănă cu o cizmă.'],
+['În ce țară se află deșertul Atacama?',['Chile','Peru','Argentina','Mexic'],0,'Atacama, în nordul Chile, este unul dintre cele mai aride locuri.'],
+['Câte continente se învață, în mod obișnuit?',['5','6','7','8'],2,'Se numără de obicei 7 continente.'],
+['Care este capitala Japoniei?',['Osaka','Tokyo','Kyoto','Seul'],1,'Tokyo este capitala Japoniei.'],
+['În ce continent se află Munții Anzi?',['America de Sud','Asia','Africa','Europa'],0,'Anzii urmează coasta de vest a Americii de Sud.'],
+['Care este cea mai mare țară din America de Sud?',['Argentina','Brazilia','Peru','Columbia'],1,'Brazilia ocupă aproape jumătate din continent.'],
+['Care este cel mai mare deșert cald din lume?',['Gobi','Sahara','Kalahari','Deșertul Arabic'],1,'Sahara are circa 9 milioane km².'],
+['Care este capitala Turciei?',['Istanbul','Ankara','Izmir','Bursa'],1,'Capitala este Ankara, nu Istanbul.'],
+['Ce fenomen provoacă alternanța zi–noapte?',['Rotația Pământului','Revoluția Pământului','Înclinarea axei','Mareele'],0,'Pământul se rotește în jurul axei în aproape 24 de ore.']
+].forEach(function(x){BANK.push({q:x[0],a:x[1],c:x[2],info:x[3]})});
+function newRound(){geoQuestions.splice.apply(geoQuestions,[0,geoQuestions.length].concat(shuf(BANK.slice()).slice(0,10)));quizIndex=0;quizScore=0;renderQuiz()}
+$('quizRestart').addEventListener('click',newRound);newRound();
+
+/* ---------- 2. Cărți noi în Laborator ---------- */
+var CITY=[['București',44.43,26.10,'Europe/Bucharest'],['Chișinău',47.01,28.86,'Europe/Chisinau'],['Londra',51.51,-.13,'Europe/London'],['Paris',48.86,2.35,'Europe/Paris'],['Berlin',52.52,13.40,'Europe/Berlin'],['Roma',41.90,12.50,'Europe/Rome'],['Madrid',40.42,-3.70,'Europe/Madrid'],['Moscova',55.76,37.62,'Europe/Moscow'],['Cairo',30.04,31.24,'Africa/Cairo'],['Nairobi',-1.29,36.82,'Africa/Nairobi'],['New Delhi',28.61,77.21,'Asia/Kolkata'],['Beijing',39.90,116.41,'Asia/Shanghai'],['Tokyo',35.68,139.69,'Asia/Tokyo'],['Sydney',-33.87,151.21,'Australia/Sydney'],['New York',40.71,-74.01,'America/New_York'],['Los Angeles',34.05,-118.24,'America/Los_Angeles'],['São Paulo',-23.55,-46.63,'America/Sao_Paulo']];
+var opts=CITY.map(function(c,i){return '<option value="'+i+'">'+c[0]+'</option>'}).join('');
+var grid=$('labPage')&&$('labPage').querySelector('.lab-grid');
+if(grid)grid.insertAdjacentHTML('beforeend',
+'<div class="lab-card wide"><h3>Puncte pentru mai mulți elevi</h3><p class="sub">Bifează elevii, alege punctele și motivul; se salvează o singură dată.</p><div class="bulk-list" id="bulkList"></div><div class="lab-row"><input id="bulkPts" type="number" min="1" max="1000" value="5" class="perf-sel" style="width:90px" aria-label="Puncte"><input id="bulkNote" class="perf-sel" style="flex:1;min-width:140px" maxlength="300" placeholder="Motiv (opțional)"><button class="btn light" data-l2="bulkAll">Toți</button><button class="btn primary" data-l2="bulkGo">Acordă</button></div></div>'+
+'<div class="lab-card"><h3>Insigne</h3><p class="sub">Se calculează automat din punctajele elevului.</p><select class="perf-sel" id="badgeSel" aria-label="Elev"></select><div class="badge-grid" id="badgeList"></div></div>'+
+'<div class="lab-card"><h3>Distanță între orașe</h3><p class="sub">Distanța pe glob, zborul estimat și diferența de fus orar.</p><div class="lab-row" style="margin-top:0"><select class="perf-sel" id="cityA" style="flex:1" aria-label="Oraș A">'+opts+'</select><select class="perf-sel" id="cityB" style="flex:1" aria-label="Oraș B">'+opts+'</select></div><div class="dist-out" id="distOut"></div></div>');
+
+function bulkDraw(){$('bulkList').innerHTML=cls().students.map(function(s){return '<label><input type="checkbox" value="'+escapeHtml(s.id)+'"> '+escapeHtml(s.name)+'</label>'}).join('')}
+function bulkGo(){
+  var ids=[].slice.call($('bulkList').querySelectorAll('input:checked')).map(function(i){return i.value}),p=Number($('bulkPts').value),note=$('bulkNote').value.trim().slice(0,300);
+  if(!ids.length)return showToast('Bifează cel puțin un elev.',true);
+  if(!Number.isInteger(p)||p<1||p>1000)return showToast('Introduceți un număr întreg între 1 și 1000.',true);
+  var now=new Date(),add=ids.map(function(sid){return{id:uid(),sid:sid,points:p,note:note,ts:now.getTime(),date:now.toLocaleString('ro-RO')}});
+  setLogs(cls().logs.concat(add));saveData();renderAll();showToast('Au fost adăugate '+p+' '+pl(p,'punct','puncte')+' pentru '+ids.length+' '+pl(ids.length,'elev','elevi')+'.');
+}
+
+/* insigne */
+function sstats(sid){
+  var logs=cls().logs.filter(function(x){return x.sid===sid}),days={};
+  logs.forEach(function(x){var d=new Date(x.ts);days[Math.floor(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())/864e5)]=1});
+  var ks=Object.keys(days).map(Number).sort(function(a,b){return a-b}),best=0,run=0,prev=-9;
+  ks.forEach(function(k){run=k===prev+1?run+1:1;prev=k;if(run>best)best=run});
+  var t=totalFor(sid);return{n:logs.length,t:t,d:ks.length,streak:best,rank:cls().students.filter(function(s){return totalFor(s.id)>t}).length+1};
+}
+var BD=[['🌱','Prima activitate','1 înregistrare',function(s){return s.n>=1}],['⭐','Constant','5 înregistrări',function(s){return s.n>=5}],['🔥','Serie de 3 zile','3 zile la rând',function(s){return s.streak>=3}],['🗺️','Explorator','5 zile diferite',function(s){return s.d>=5}],['🎯','100 de puncte','total ≥ 100',function(s){return s.t>=100}],['🏆','Top 3','în primii 3 ai clasei',function(s){return s.t>0&&s.rank<=3}]];
+function badges(){var sid=$('badgeSel').value;if(!sid){$('badgeList').innerHTML='';return}var s=sstats(sid);
+  $('badgeList').innerHTML=BD.map(function(b){return '<div class="bdg'+(b[3](s)?'':' off')+'"><b>'+b[0]+'</b>'+b[1]+'<br><small>'+b[2]+'</small></div>'}).join('')}
+function badgeDraw(){var sel=$('badgeSel'),cur=sel.value;sel.innerHTML=cls().students.map(function(s){return '<option value="'+escapeHtml(s.id)+'">'+escapeHtml(s.name)+'</option>'}).join('');if(cur&&cls().students.some(function(s){return s.id===cur}))sel.value=cur;badges()}
+
+/* distanțe */
+function offset(tz,d){return new Date(d.toLocaleString('en-US',{timeZone:tz}))}
+function dist(){
+  var a=CITY[$('cityA').value],b=CITY[$('cityB').value],r=Math.PI/180,dl=(b[2]-a[2])*r,dp=(b[1]-a[1])*r;
+  var h=Math.sin(dp/2)*Math.sin(dp/2)+Math.cos(a[1]*r)*Math.cos(b[1]*r)*Math.sin(dl/2)*Math.sin(dl/2),km=Math.round(12742*Math.asin(Math.sqrt(h))),mins=Math.round(km/850*60),now=new Date(),diff=Math.round((offset(b[3],now)-offset(a[3],now))/36e5);
+  function clock(tz){return new Intl.DateTimeFormat('ro-RO',{timeZone:tz,hour:'2-digit',minute:'2-digit'}).format(now)}
+  $('distOut').innerHTML='<strong>'+a[0]+' → '+b[0]+'</strong><br>Distanță: '+fmt(km)+' km<br>Zbor estimat: '+Math.floor(mins/60)+' h '+mins%60+' min (850 km/h)<br>Fus orar: '+(diff>0?'+':'')+diff+' h<br>Ora acum: '+clock(a[3])+' în '+a[0]+' · '+clock(b[3])+' în '+b[0];
+}
+if($('cityB')){$('cityB').value='12';$('cityA').addEventListener('change',dist);$('cityB').addEventListener('change',dist);dist()}
+
+function refresh2(){bulkDraw();badgeDraw();dist()}
+var _r=window.renderAll;window.renderAll=function(){_r.apply(this,arguments);if(currentPage==='lab')refresh2()};
+var _s=window.showPage;window.showPage=function(p){_s(p);if(p==='lab')refresh2()};
+if($('badgeSel'))$('badgeSel').addEventListener('change',badges);
+document.addEventListener('click',function(e){
+  var t=e.target.closest&&e.target.closest('[data-l2]');if(!t)return;
+  if(t.dataset.l2==='bulkGo')bulkGo();
+  else if(t.dataset.l2==='bulkAll'){var bx=$('bulkList').querySelectorAll('input'),all=[].every.call(bx,function(i){return i.checked});[].forEach.call(bx,function(i){i.checked=!all})}
+});
+
+/* ---------- 3. Căutare rapidă (Ctrl+K sau «/») ---------- */
+var qsItems=[],qsShown=[],qsSel=0;
+document.body.insertAdjacentHTML('beforeend','<div class="qs-back" id="qs"><div class="qs-box"><input id="qsIn" class="qs-in" placeholder="Caută elev, pagină sau acțiune…" autocomplete="off" aria-label="Căutare rapidă"><div id="qsList"></div></div></div>');
+var tr=document.querySelector('.top-right');if(tr)tr.insertAdjacentHTML('afterbegin','<button type="button" class="pill" id="qsBtn" aria-label="Căutare rapidă">⌕</button>');
+function qsBuild(){
+  var it=[];[['catalog','Catalog'],['assessments','Evaluări'],['history','Istoric'],['stats','Statistici'],['quiz','Quiz'],['lab','Laborator'],['settings','Setări']].forEach(function(p){it.push({t:p[1],s:'Pagină',f:function(){showPage(p[0])}})});
+  it.push({t:'Adaugă puncte',s:'Acțiune',f:function(){openScoreModal()}},{t:'Clasă nouă',s:'Acțiune',f:function(){openClassModal()}},{t:'Mod întunecat / luminos',s:'Acțiune',f:function(){appSettings.dark=!appSettings.dark;saveSettings();renderSettings()}});
+  cls().students.forEach(function(s){it.push({t:s.name,s:'Elev · '+fmt(totalFor(s.id))+' p',f:function(){openStudentHistory(s.id)}})});return it;
+}
+function qsDraw(){
+  var q=norm($('qsIn').value.trim());qsShown=qsItems.filter(function(x){return !q||norm(x.t).indexOf(q)>-1}).slice(0,8);if(qsSel>=qsShown.length)qsSel=0;
+  $('qsList').innerHTML=qsShown.map(function(x,i){return '<div class="qs-it'+(i===qsSel?' on':'')+'" data-i="'+i+'"><span>'+escapeHtml(x.t)+'</span><small>'+escapeHtml(x.s)+'</small></div>'}).join('')||'<div class="qs-it"><small>Niciun rezultat</small></div>';
+}
+function qsOpen(){qsItems=qsBuild();qsSel=0;$('qs').classList.add('open');$('qsIn').value='';qsDraw();setTimeout(function(){$('qsIn').focus()},30)}
+function qsClose(){$('qs').classList.remove('open')}
+function qsRun(i){var x=qsShown[i];if(!x)return;qsClose();setSidebar(false);x.f()}
+$('qsIn').addEventListener('input',function(){qsSel=0;qsDraw()});
+$('qsIn').addEventListener('keydown',function(e){
+  if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();qsSel=(qsSel+(e.key==='ArrowDown'?1:-1)+qsShown.length)%Math.max(1,qsShown.length);qsDraw()}
+  else if(e.key==='Enter'){e.preventDefault();qsRun(qsSel)}else if(e.key==='Escape')qsClose();
+});
+$('qsList').addEventListener('click',function(e){var r=e.target.closest('[data-i]');if(r)qsRun(Number(r.dataset.i))});
+$('qs').addEventListener('mousedown',function(e){if(e.target===$('qs'))qsClose()});
+if($('qsBtn'))$('qsBtn').addEventListener('click',qsOpen);
+document.addEventListener('keydown',function(e){
+  var tag=(e.target.tagName||'').toLowerCase(),typing=tag==='input'||tag==='textarea'||tag==='select';
+  if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();qsOpen()}else if(e.key==='/'&&!typing&&!document.querySelector('.modal-backdrop.open')){e.preventDefault();qsOpen()}
+});
+})();
+</script>
+<script>
 /* ===== ATLAS · glob 3D interactiv + efecte (independent de logica catalogului) ===== */
 (function(){
 'use strict';
@@ -640,7 +916,5 @@ var tb=document.querySelector('.topbar');
 if(tb){var tick=false;window.addEventListener('scroll',function(){if(tick)return;tick=true;requestAnimationFrame(function(){tb.classList.toggle('scrolled',window.scrollY>6);tick=false})},{passive:true})}
 })();
 </script>
-</body>
-
 </body>
 </html>
