@@ -6,7 +6,13 @@
 <meta name="theme-color" content="#0b2743">
 <meta name="description" content="ATLAS — catalog de puncte pentru Geografie, pe clase.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='46' fill='%231769aa'/%3E%3Ccircle cx='50' cy='50' r='30' fill='%2370bd8d'/%3E%3C/svg%3E">
-<title>🗺️ | Catalog de Geografie</title>
+<title>ATLAS | Catalog de Geografie</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<style>#mapCv{width:100%;height:min(68vh,680px);min-height:380px;border-radius:14px;overflow:hidden;z-index:1}.atlas-plane-wrap{background:transparent;border:0}.leaflet-container{font:12px/1.5 Inter,system-ui,sans-serif}</style>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="apple-touch-icon" href="icon.svg">
 <style>
 :root{--navy:#0b2743;--navy2:#123c5d;--blue:#1769aa;--blue2:#2289d5;--teal:#167d83;--gold:#d6a548;--ink:#182d40;--muted:#718397;--line:#e2eaf1;--bg:#f3f7fb;--white:#fff;--green:#18856c;--red:#bd4b55;--shadow:0 12px 32px rgba(20,55,84,.07);--radius:18px}
 *{box-sizing:border-box}html{scroll-behavior:smooth}@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
@@ -711,7 +717,7 @@ pickReset();fBuild();tmDraw();
 function shuf(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t}return a}
 
 /* ---------- 1. Quiz: bancă de 32 de întrebări, runde de 10 ---------- */
-var BANK=geoQuestions.slice();
+var BANK=geoQuestions.slice();window.ATLAS_BANK=BANK;
 [['Care este cel mai lung fluviu din Europa?',['Volga','Dunărea','Rinul','Niprul'],0,'Volga, în Rusia, are circa 3.500 km.'],
 ['Care este capitala Republicii Moldova?',['Bălți','Chișinău','Tiraspol','Cahul'],1,'Chișinău este capitala și cel mai mare oraș.'],
 ['Care este cel mai mare lac din lume ca suprafață?',['Baikal','Marea Caspică','Victoria','Superior'],1,'Marea Caspică este considerată cel mai mare lac.'],
@@ -742,7 +748,7 @@ $('quizRestart').addEventListener('click',newRound);newRound();
 
 /* ---------- 2. Cărți noi în Laborator ---------- */
 var CITY=[['București',44.43,26.10,'Europe/Bucharest'],['Chișinău',47.01,28.86,'Europe/Chisinau'],['Londra',51.51,-.13,'Europe/London'],['Paris',48.86,2.35,'Europe/Paris'],['Berlin',52.52,13.40,'Europe/Berlin'],['Roma',41.90,12.50,'Europe/Rome'],['Madrid',40.42,-3.70,'Europe/Madrid'],['Moscova',55.76,37.62,'Europe/Moscow'],['Cairo',30.04,31.24,'Africa/Cairo'],['Nairobi',-1.29,36.82,'Africa/Nairobi'],['New Delhi',28.61,77.21,'Asia/Kolkata'],['Beijing',39.90,116.41,'Asia/Shanghai'],['Tokyo',35.68,139.69,'Asia/Tokyo'],['Sydney',-33.87,151.21,'Australia/Sydney'],['New York',40.71,-74.01,'America/New_York'],['Los Angeles',34.05,-118.24,'America/Los_Angeles'],['São Paulo',-23.55,-46.63,'America/Sao_Paulo']];
-var opts=CITY.map(function(c,i){return '<option value="'+i+'">'+c[0]+'</option>'}).join('');
+window.ATLAS_CITY=CITY;var opts=CITY.map(function(c,i){return '<option value="'+i+'">'+c[0]+'</option>'}).join('');
 var grid=$('labPage')&&$('labPage').querySelector('.lab-grid');
 if(grid)grid.insertAdjacentHTML('beforeend',
 '<div class="lab-card wide"><h3>Puncte pentru mai mulți elevi</h3><p class="sub">Bifează elevii, alege punctele și motivul; se salvează o singură dată.</p><div class="bulk-list" id="bulkList"></div><div class="lab-row"><input id="bulkPts" type="number" min="1" max="1000" value="5" class="perf-sel" style="width:90px" aria-label="Puncte"><input id="bulkNote" class="perf-sel" style="flex:1;min-width:140px" maxlength="300" placeholder="Motiv (opțional)"><button class="btn light" data-l2="bulkAll">Toți</button><button class="btn primary" data-l2="bulkGo">Acordă</button></div></div>'+
@@ -829,7 +835,7 @@ var REDUCE=window.matchMedia&&matchMedia('(prefers-reduced-motion:reduce)').matc
 var LAND=[[-168,66,-162,70,-156,71.5,-141,70,-128,70,-115,68.5,-105,68,-95,72,-88,68.5,-82,69,-81,63,-93,61,-94,58.5,-88,56,-82,55,-80,52,-79,57,-77,60,-78,62.5,-70,61,-65,60,-62,57,-58,54,-56,52,-60,50,-66,50,-70,47,-65,48.5,-64,46,-61,46,-66,44,-70,43,-70,41.5,-74,40.5,-76,38,-76,35,-81,31.5,-80,27,-80,25.2,-82,26.5,-82.5,29,-85,29.7,-89,30,-90,29,-94,29.5,-97,27.5,-97.5,22,-96,19,-94.5,18.2,-91,18.8,-90.5,21,-87,21.5,-87.5,18,-88,16,-84,15.8,-83.3,14.5,-83.7,11,-81.5,9,-79.5,9.5,-77.5,8.5,-78,7.5,-80,7.3,-83,8.3,-86,11,-88,13.2,-92,14.5,-95,16,-98,16,-102,18,-105.5,20,-105.5,23,-109,26,-112.5,29.5,-114.5,31.5,-113,28.5,-110,24,-112,25,-115,28,-117,32.5,-120.5,34.5,-124,40,-124.2,43,-124,47,-123,48.5,-127,51,-130,54.5,-134,57,-138,59,-145,60.5,-150,61,-152,58.5,-158,56.5,-163,55,-158,58.5,-162,60,-165,62,-161,64.5,-168,65.5],[-73,78,-60,82,-30,83.5,-20,80,-18,75,-22,70,-30,68,-40,65,-43,60,-48,61,-53,66,-55,70,-60,76,-68,76.5],[-77,8.5,-72,12,-68,10.5,-62,10.5,-60,8.5,-55,6,-51,4,-50,0,-45,-1.5,-40,-3,-35,-5.5,-35,-9,-38.5,-13,-39,-18,-41,-22,-45,-23.5,-48.5,-26,-48.5,-28.5,-52,-33,-54,-34.5,-57,-36,-57,-38,-62,-39,-65,-41,-64,-43,-66,-45.5,-67.5,-47,-66,-50,-69,-52,-68.5,-55,-72,-54,-75,-50,-74,-44,-73.5,-38,-71.5,-30,-70.5,-23,-70.3,-18.5,-76,-14,-79,-8,-81,-5,-80,-2,-80,1,-78.5,2.5,-77.5,6],[-9.5,37,-9,43,-2,43.5,-1.5,46,-4.5,48.5,-1.5,48.7,2,51,4.5,53,8.5,54,8.5,57,10.5,57.5,10.5,55,12,54,14,54,19,54.5,21,57,24,58,28,59.5,23,60,21.5,61,21.5,63,25,65,22,65.8,17.5,62.5,17.5,60.5,19,59.5,16.5,57,13,55.5,11,58.5,8,58,5,59,5.5,62,10,64,14,67.5,19,70,26,71,31,70,41,67,35,66,34,64.5,40,64.5,44,66,44,68.5,53,68.5,60,69,68,68.5,69,73,73,72.5,80,73,87,75,100,76.5,105,77.5,113,73.5,128,73,140,72.5,150,71.5,160,70,170,70,180,68.5,180,65,178,64.5,172,64.5,179,62.5,170,60,164,60,163,57,162,54.5,156.5,51,155.5,56,156.5,61,160,61.5,153,59,143,59,137,54,141,53,140,48,135,43.5,131,42.5,129.5,41,128,38.5,129.5,36,126.5,34.5,126,37.5,125,39.5,121.5,39,122,40.5,119,39.5,118.5,37.5,122.5,37,121,35,120.5,32,121.8,30.8,122,29,119.5,25.5,116.5,23,113,22,110,21.2,108,21.5,106,19.5,108.5,15.5,109,12,105,8.7,103,10.5,100.5,13.5,99.5,10,100.5,7,103.5,1.5,101,3,98.5,8,98.5,13,97.5,16.5,94.5,16,94,19,92,21,90,22,86.5,20,84.5,18,81.5,16,80,13.5,80,10,78,8.5,76.5,9.5,75,13,73,17.5,72.8,21,70,21,67,24.5,62,25,57,25.7,56.5,27,52,28,50,30,48.5,29.7,50,26.5,51.5,25,54,24,56,26,58.5,23.5,59.5,22.5,57,19,52,16,45,12.8,43,13,39,21,35,28,34.5,29.5,34,31,35.5,33.5,36,36,32,36.2,30,36.5,28,36.8,26.5,38.5,26.5,40,29,41,31,41.2,35,42,38,41,41.5,41.5,41.5,42.5,37.5,45,39,47,35,46.5,33,46,31.5,46.5,29.5,45.5,28.7,44,28,42.5,28.5,41.2,26,40.8,24,40.5,23,40,22.8,38,23,36.5,21.5,36.8,21,38.5,19.5,40.5,19,42,16,43.5,14,45.2,13.5,45.7,12.3,45,12.5,43.7,14,42.2,16,41.5,18.5,40.2,17,39,16.5,38,15.7,38,16,40,14,40.8,12,42,10.5,43.5,8.8,44.4,7,43.7,4,43.4,3,42.3,3,41.5,0.5,40.5,-0.5,38.5,-2,36.8,-5,36.2,-6.2,36.8,-8.8,37],[-17,21,-16,24,-13,27.5,-10,30,-9.5,32,-6,35.8,-2,35.1,3,36.8,10,37.2,11,35,10,33.5,15,32.3,20,32.2,20,30.5,24,31.8,29,31,32,31.2,34,31,32.5,29.9,33,28,35,24,37,21,38.5,18,40,15,43,12,44,10.5,51,11.8,51,10.4,48,5,44,1.5,41,-2,39.5,-5,39,-8,40.5,-11,40.5,-15,35,-19.5,35.5,-24,33,-26,32.8,-28.5,30,-31.5,27,-33.5,22,-34.2,19,-34.5,18,-32,16.5,-28.5,14.5,-23,12,-17.5,13.5,-12,12.5,-6,9,-1,9.5,3.5,6,4.3,4,6.3,1,6,-2,4.8,-7.5,4.4,-11,6.8,-13.5,9.5,-16.7,12.5,-17.4,14.7,-16.5,19],[113,-22,114,-26,115,-34,118,-35,123,-34,129,-31.5,132,-32,135.5,-35,138,-35,140,-38,144,-38.5,147,-38,150,-37,151,-33,153,-28,153,-25,150,-22,146,-19,145.5,-15,143,-11,141.5,-13,141.5,-17,139,-17.5,136,-15,137,-12,132,-11.3,130,-13,127,-14,125,-15,122,-18,119,-20,116,-21],[-180,-72,-150,-76,-120,-74,-90,-72,-60,-65,-58,-70,-30,-72,0,-70,30,-69,60,-67,90,-66,120,-66,150,-68,180,-72,180,-90,-180,-90],[-5.5,50,1.5,51,1.8,53,-0.5,54.5,-2,57.5,-3,58.6,-6,58.3,-5.5,56,-4.8,54.8,-3,54,-3,53,-4.5,52.5,-5,51.6],[-10,51.8,-6,52,-6,54.2,-8,55.2,-10,54],[-24,65.5,-22,66.4,-15,66.3,-13.5,65,-18,63.5,-22.5,63.8],[130.5,31.2,131.5,33.5,134,35.4,137,37,140,40,141.5,41.4,141.5,45.4,145.5,44,143,42,141,38.5,140.8,35.5,137,34.6,135,33.8,132,33.2],[95,5.5,98,4,104,-1.5,106,-6,102,-4,98,0,96,2.5],[109,1.5,111,2,115,5,119,5,117.5,1,116,-3.5,113,-3.3,110,-2.5],[105.5,-6.5,114.5,-7.5,114,-8.5,106,-7.5],[131,-1,135,-3.3,141,-2.6,147,-6,150,-10.5,143.5,-8.5,139,-8,138,-6,133,-4],[120,18.5,122.5,18.2,122,14,124,13,121,13.5,120,15.5],[122,7.5,126,9.5,126,6.5,123,6.7],[44,-25,47,-25,50,-15.5,49.3,-12,47,-15,44,-17,43.5,-22],[172.7,-34.5,178,-37.7,175,-41.5,174.5,-39.5,173,-36],[172.7,-40.5,174,-41.5,171,-44.5,168,-46.6,166.5,-45.8,170,-43],[-85,22,-80,23.2,-74,20.2,-77.5,19.8,-80,21.8],[-74.4,18.4,-72.8,19.9,-68.4,18.7,-71.5,17.8],[79.8,9.5,81.8,7.5,81,6,80,6.2,79.7,8],[120.2,23,121.5,25,122,24.5,120.8,22],[52,71,56,75,68,77,60,74,55,71.5],[142,46,143.5,49,143,54,142,52,142,48],[-59,47.7,-55,47,-52.7,47.5,-53.5,50.5,-56,51.5,-58,48.9],[-80,63,-72,64,-62,66,-64,70,-72,72,-82,73.5,-88,70.5,-85,66],[-120,70,-105,73,-100,69,-115,69],[-90,76.5,-80,80,-65,82,-75,78.5,-78,76],[144.7,-40.7,148,-40.8,148,-43,146,-43.6],[12.4,38,15.6,38.2,15,36.7],[8.2,41,9.7,41,9.5,39.2,8.4,39]];
 var WATER=[[47,45,50,46.5,53,45,51,42,53,40,54,37,50,37,49,40,47.5,42.5]];
 function inPoly(p,lon,lat){var c=false,n=p.length/2,j=n-1;for(var i=0;i<n;j=i++){var xi=p[2*i],yi=p[2*i+1],xj=p[2*j],yj=p[2*j+1];if((yi>lat)!==(yj>lat)&&lon<(xj-xi)*(lat-yi)/(yj-yi)+xi)c=!c}return c}
-function isLand(lon,lat){for(var w=0;w<WATER.length;w++)if(inPoly(WATER[w],lon,lat))return false;for(var k=0;k<LAND.length;k++)if(inPoly(LAND[k],lon,lat))return true;return false}
+window.ATLAS_isLand=function(a,b){return isLand(a,b)};function isLand(lon,lat){for(var w=0;w<WATER.length;w++)if(inPoly(WATER[w],lon,lat))return false;for(var k=0;k<LAND.length;k++)if(inPoly(LAND[k],lon,lat))return true;return false}
 
 /* puncte de uscat (matrice de puncte pe sferă) */
 var X0=[],Y0=[],Z0=[],D2R=Math.PI/180;
@@ -1231,5 +1237,181 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden&&S.user&&S
 start();
 })();
 </script>
+<style>
+.p3 h2{margin:0 0 6px}.p3 h3{margin:22px 0 8px}.p3s{color:var(--muted);margin:0 0 12px}.p3row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:10px 0}.p3 input,.p3 select,.qz3 select{border:1px solid var(--line);border-radius:10px;padding:9px 11px;background:var(--white);color:var(--ink)}#mapCv{width:100%;height:auto;border-radius:14px;touch-action:manipulation;cursor:crosshair;display:block}.p3r{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;padding:8px 0;border-bottom:1px solid var(--line)}.p3r .btn{padding:6px 10px}.p3r .on{background:var(--blue);color:#fff}.cal-soon{color:var(--red);font-weight:800}.qz3{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}
+body.fs1{zoom:1.1}body.fs2{zoom:1.22}body.hc{--ink:#000;--muted:#25384a;--line:#5a7186}body.hc.dark{--ink:#fff;--muted:#d6e2ee;--line:#9db3c6}
+#splash{position:fixed;inset:0;z-index:99;background:#0b2743;display:grid;place-content:center;justify-items:center;transition:opacity .5s}#splash.out{opacity:0;pointer-events:none}.sp-globe{width:110px;height:110px;border-radius:50%;background:radial-gradient(circle at 32% 30%,#5fb4ee,#1769aa 55%,#0b2743);box-shadow:0 0 40px #2289d599;position:relative;overflow:hidden;animation:spGlow 1.6s ease-in-out infinite}.sp-globe:before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,#70bd8d55 0 18px,transparent 18px 46px);animation:spRot 2s linear infinite}@keyframes spRot{to{background-position:92px 0}}@keyframes spGlow{50%{transform:scale(1.06)}}.sp-t{color:#e9f2fa;letter-spacing:.3em;font-weight:850;margin-top:18px}
+</style>
+<script>
+/* ===== ATLAS Plus 3 · hartă, quiz pe categorii, prezență, calendar, diplome, accesibilitate, PWA ===== */
+(function(){
+'use strict';
+var $=function(i){return document.getElementById(i)},LS=function(k,d){try{return JSON.parse(localStorage.getItem(k))||d}catch(e){return d}},SV=function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+var esc=window.escapeHtml;
+
+/* ecran de pornire */
+if(!matchMedia('(prefers-reduced-motion:reduce)').matches&&!document.body.classList.contains('lite')){document.body.insertAdjacentHTML('beforeend','<div id="splash"><div class="sp-globe"></div><div class="sp-t">ATLAS</div></div>');setTimeout(function(){$('splash').classList.add('out');setTimeout(function(){$('splash').remove()},600)},1100)}
+
+/* accesibilitate */
+var A=LS('atlas-a11y-v1',{fs:0,hc:0});
+function ap(){document.body.classList.toggle('fs1',A.fs===1);document.body.classList.toggle('fs2',A.fs===2);document.body.classList.toggle('hc',!!A.hc);SV('atlas-a11y-v1',A)}ap();
+var tr=document.querySelector('.top-right');
+if(tr){tr.insertAdjacentHTML('afterbegin','<button type="button" class="pill" id="a11yF" aria-label="Mărime text">A+</button><button type="button" class="pill" id="a11yC" aria-label="Contrast ridicat">◐</button>');$('a11yF').onclick=function(){A.fs=(A.fs+1)%3;ap()};$('a11yC').onclick=function(){A.hc=A.hc?0:1;ap()}}
+
+/* pagini noi */
+$('quizPage').parentNode.insertAdjacentHTML('beforeend',
+'<section class="page hidden" id="mapPage"><div class="panel p3"><h2>Hartă interactivă</h2><p class="p3s" id="mapMsg">Atinge harta pentru a afla cel mai apropiat oraș sau pornește jocul.</p><div class="p3row"><button class="btn" id="mapPlay">Joc: Unde este…?</button><button class="btn white" id="mapExp">Explorează</button><button class="btn white" id="mapReward" style="display:none">Acordă puncte</button><span class="pill" id="mapScore">Scor joc 0</span></div><div id="mapCv" role="application" aria-label="Hartă geografică interactivă cu zbor animat"></div><p class="p3s">Apasă oriunde pe hartă pentru a seta destinația. Avionul pornește din Chișinău la primul zbor, apoi din ultima destinație.</p></div></section>'+
+'<section class="page hidden" id="attendancePage"><div class="panel p3"><h2>Prezență</h2><div class="p3row"><input type="date" id="attDate" aria-label="Data"><button class="btn white" id="attAll">Toți prezenți</button></div><div id="attList"></div><h3>Rezumat lunar</h3><div class="p3row"><input type="month" id="attMonth" aria-label="Luna"></div><div id="attSum" class="table-scroll"></div></div></section>'+
+'<section class="page hidden" id="calendarPage"><div class="panel p3"><h2>Calendar lucrări</h2><div class="p3row"><input id="calT" placeholder="Titlu (ex. Test Europa)" aria-label="Titlu"><input type="date" id="calD" aria-label="Data"><button class="btn" id="calAdd">Adaugă</button></div><div id="calList"></div></div></section>');
+var nav=document.querySelector('.nav'),nb=$('navAdd');
+[['map','Hartă interactivă','<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/>'],['attendance','Prezență','<path d="M9 11l3 3 8-8M20 12v7a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h9"/>'],['calendar','Calendar lucrări','<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/>']].forEach(function(p){
+  var b=document.createElement('button');b.type='button';b.dataset.page=p[0];b.innerHTML='<svg viewBox="0 0 24 24">'+p[2]+'</svg>'+p[1];b.addEventListener('click',function(){showPage(p[0])});nav.insertBefore(b,nb)});
+var INFO={map:['INTERACTIV','Hartă interactivă','Explorează lumea și testează-ți orientarea'],attendance:['EVIDENȚĂ','Prezență','Prezență zilnică și rezumat lunar'],calendar:['PLANIFICARE','Calendar lucrări','Teste și lucrări programate']};
+var _pi=window.pageInfo;window.pageInfo=function(p){return INFO[p]||_pi(p)};
+var _sp=window.showPage;window.showPage=function(p){_sp(p);if(p==='map'){initMap();draw();}if(p==='attendance')renderAtt();if(p==='calendar')renderCal()};
+var _ra=window.renderAll;window.renderAll=function(){_ra.apply(this,arguments);if(currentPage==='attendance')renderAtt();cnt()};
+
+/* Hartă geografică reală + zbor animat */
+var map=null,plane=null,route=null,targetLayer=null,tg=null,guess=null,score=0,lastPoint=[47.0105,28.8638],flightFrame=0,waypoints=[];
+function km(a,b,c,d){var r=Math.PI/180,dl=(d-b)*r,dp=(c-a)*r,x=Math.sin(dp/2)*Math.sin(dp/2)+Math.cos(a*r)*Math.cos(c*r)*Math.sin(dl/2)*Math.sin(dl/2);return 12742*Math.asin(Math.sqrt(x))}
+function msg(t){$('mapMsg').textContent=t}
+function planeIcon(angle){return L.divIcon({className:'atlas-plane-wrap',html:'<span style="display:block;transform:rotate('+angle+'deg);font-size:27px;line-height:32px;filter:drop-shadow(0 2px 2px #17324b88)">✈️</span>',iconSize:[34,34],iconAnchor:[17,17]})}
+function bearing(a,b){var r=Math.PI/180,y=Math.sin((b[1]-a[1])*r)*Math.cos(b[0]*r),x=Math.cos(a[0]*r)*Math.sin(b[0]*r)-Math.sin(a[0]*r)*Math.cos(b[0]*r)*Math.cos((b[1]-a[1])*r);return Math.atan2(y,x)*180/Math.PI+90}
+function initMap(){if(map||!window.L)return;map=L.map('mapCv',{worldCopyJump:true,zoomControl:true}).setView([30,10],2);L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors'}).addTo(map);plane=L.marker(lastPoint,{icon:planeIcon(0),zIndexOffset:1000}).addTo(map).bindTooltip('Avion ATLAS · Chișinău');map.on('click',function(e){var lat=e.latlng.lat,lon=e.latlng.lng,C=window.ATLAS_CITY||[];if(tg&&guess)return;guess=[lon,lat];var dest=[lat,lon];if(tg){var d=Math.round(km(lat,lon,tg[1],tg[2])),p=d<400?3:d<1000?2:d<2500?1:0;score+=p;msg('Distanță față de '+tg[0]+': '+d+' km · +'+p+' puncte joc');$('mapReward').style.display=''}else{var n=null,m=1e9;C.forEach(function(c){var d=km(lat,lon,c[1],c[2]);if(d<m){m=d;n=c}});msg((n?'Cel mai apropiat oraș: '+n[0]+' ('+Math.round(m)+' km) · ':'')+lat.toFixed(3)+'°, '+lon.toFixed(3)+'° · Avionul zboară spre punctul ales.');}
+$('mapScore').textContent='Scor joc '+score;flyTo(dest);if(targetLayer)map.removeLayer(targetLayer);targetLayer=L.marker(dest).addTo(map).bindPopup('Punct de destinație<br>'+lat.toFixed(4)+'°, '+lon.toFixed(4)+'°').openPopup();});setTimeout(function(){map.invalidateSize()},120)}
+function flyTo(dest){if(!map||!plane)return;cancelAnimationFrame(flightFrame);var from=lastPoint.slice(),to=dest.slice(),start=performance.now(),duration=Math.max(1800,Math.min(6500,km(from[0],from[1],to[0],to[1])*12));if(route)map.removeLayer(route);route=L.polyline([from,to],{color:'#e4a735',weight:3,dashArray:'8 8',opacity:.95}).addTo(map);plane.setIcon(planeIcon(bearing(from,to)));var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+if(reduce){plane.setLatLng(to);lastPoint=to;map.fitBounds(L.latLngBounds(from,to).pad(.18),{maxZoom:7});return}
+function step(now){var t=Math.min(1,(now-start)/duration),ease=t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;plane.setLatLng([from[0]+(to[0]-from[0])*ease,from[1]+(to[1]-from[1])*ease]);if(t<1)flightFrame=requestAnimationFrame(step);else{lastPoint=to;plane.setLatLng(to);plane.setTooltipContent('Avion ATLAS · destinație atinsă');map.fitBounds(L.latLngBounds(from,to).pad(.18),{maxZoom:7});msg(($('mapMsg').textContent||'')+' Zbor finalizat.')}}flightFrame=requestAnimationFrame(step)}
+function draw(){if(map){setTimeout(function(){map.invalidateSize()},80)}}
+$('mapPlay').onclick=function(){var C=window.ATLAS_CITY||[];if(!C.length)return;tg=C[Math.floor(Math.random()*C.length)];guess=null;msg('Unde este «'+tg[0]+'»? Atinge destinația pe hartă.');$('mapReward').style.display='none';this.textContent='Alt oraș';draw()};
+$('mapExp').onclick=function(){tg=null;guess=null;$('mapPlay').textContent='Joc: Unde este…?';$('mapReward').style.display='none';msg('Atinge harta pentru a alege destinația. Avionul va zbura din ultimul punct până la cel selectat.');draw()};
+$('mapReward').onclick=function(){openScoreModal()};
+/* quiz pe categorii + greșeli */
+var CAT={cap:/capital/i,ape:/fluviu|râu|lac|ocean|mare|golf|strâmtoare|deltă/i,rel:/munt|vârf|vulcan|deșert|câmpie|podiș|insul/i},RK='atlas-greseli-v1',rv=false;
+function txt(q){var v=Object.keys(q).map(function(k){return q[k]}).filter(function(v){return typeof v==='string'});return v[0]||''}
+function load(B,n){if(!B.length)return showToast('Nu există întrebări pentru această alegere.',true);B=B.slice().sort(function(){return Math.random()-.5}).slice(0,n);geoQuestions.splice.apply(geoQuestions,[0,geoQuestions.length].concat(B));quizIndex=0;quizScore=0;renderQuiz()}
+var qh=document.querySelector('#quizPage .panel-head');
+if(qh){qh.insertAdjacentHTML('afterend','<div class="qz3"><select id="qzCat" aria-label="Categorie"><option value="all">Toate categoriile</option><option value="cap">Capitale</option><option value="ape">Ape</option><option value="rel">Relief</option><option value="alt">Altele</option></select><select id="qzLen" aria-label="Număr întrebări"><option value="5">5 întrebări</option><option value="10" selected>10 întrebări</option><option value="20">20 întrebări</option></select><button type="button" class="btn white" id="qzGo">Pornește runda</button><button type="button" class="btn white" id="qzWrong"></button></div>');
+  $('qzGo').onclick=function(){rv=false;var c=$('qzCat').value;load((window.ATLAS_BANK||geoQuestions).filter(function(q){var t=txt(q);return c==='all'||(c==='alt'?!CAT.cap.test(t)&&!CAT.ape.test(t)&&!CAT.rel.test(t):CAT[c].test(t))}),+$('qzLen').value)};
+  $('qzWrong').onclick=function(){rv=true;load(LS(RK,[]),20)}}
+function cnt(){var b=$('qzWrong');if(b)b.textContent='Greșelile mele ('+LS(RK,[]).length+')'}cnt();
+var _aq=window.answerQuiz;window.answerQuiz=function(i){var q=geoQuestions[quizIndex],was=quizAnswered;_aq(i);if(was||!q)return;var w=LS(RK,[]),t=txt(q);
+  if(i!==q.c){if(!w.some(function(x){return txt(x)===t}))w.push(q)}else if(rv)w=w.filter(function(x){return txt(x)!==t});SV(RK,w.slice(-60));cnt()};
+
+/* prezență */
+var AK='atlas-prezenta-v1',today=new Date().toISOString().slice(0,10);
+$('attDate').value=today;$('attMonth').value=today.slice(0,7);
+function renderAtt(){var c=cls(),a=LS(AK,{}),d=$('attDate').value,day=(a[c.id]||{})[d]||{},m=$('attMonth').value,t={};
+  $('attList').innerHTML=c.students.map(function(s){var v=day[s.id]||'';return '<div class="p3r"><span>'+esc(s.name)+'</span><span>'+[['P','Prezent'],['I','Întârziat'],['A','Absent']].map(function(o){return '<button type="button" class="btn white'+(v===o[0]?' on':'')+'" data-att="'+esc(s.id)+'" data-v="'+o[0]+'">'+o[1]+'</button>'}).join(' ')+'</span></div>'}).join('')||'<p class="p3s">Nu există elevi în clasă.</p>';
+  Object.keys(a[c.id]||{}).forEach(function(k){if(k.slice(0,7)===m)Object.keys(a[c.id][k]).forEach(function(sid){var r=t[sid]=t[sid]||{A:0,I:0,P:0};r[a[c.id][k][sid]]++})});
+  $('attSum').innerHTML='<table class="assessment-table"><tr><th>Elev</th><th>Prezent</th><th>Întârziat</th><th>Absent</th></tr>'+c.students.map(function(s){var r=t[s.id]||{A:0,I:0,P:0};return '<tr><td>'+esc(s.name)+'</td><td>'+r.P+'</td><td>'+r.I+'</td><td>'+r.A+'</td></tr>'}).join('')+'</table>'}
+function setAtt(fn){var c=cls(),a=LS(AK,{}),d=$('attDate').value;a[c.id]=a[c.id]||{};a[c.id][d]=a[c.id][d]||{};fn(a[c.id][d],c);SV(AK,a);renderAtt()}
+$('attList').addEventListener('click',function(e){var b=e.target.closest('[data-att]');if(!b)return;setAtt(function(o){if(o[b.dataset.att]===b.dataset.v)delete o[b.dataset.att];else o[b.dataset.att]=b.dataset.v})});
+$('attAll').onclick=function(){setAtt(function(o,c){c.students.forEach(function(s){o[s.id]='P'})})};
+$('attDate').onchange=$('attMonth').onchange=renderAtt;
+
+/* calendar lucrări */
+var CK='atlas-calendar-v1';
+function evs(){var c=cls().id;return LS(CK,[]).filter(function(x){return !x.c||x.c===c}).sort(function(x,y){return x.d<y.d?-1:1})}
+function days(d){var t=new Date();t.setHours(0,0,0,0);return Math.round((new Date(d+'T00:00')-t)/864e5)}
+function renderCal(){$('calList').innerHTML=evs().map(function(x){var n=days(x.d);return '<div class="p3r"><span><b>'+esc(x.t)+'</b> · '+x.d+'</span><span class="'+(n>=0&&n<=2?'cal-soon':'')+'">'+(n<0?'trecut':n===0?'azi':'în '+n+' zile')+' <button type="button" class="btn white" data-cdel="'+x.id+'">Șterge</button></span></div>'}).join('')||'<p class="p3s">Nicio lucrare programată.</p>'}
+$('calAdd').onclick=function(){var t=$('calT').value.trim(),d=$('calD').value;if(!t||!d)return showToast('Completează titlul și data.',true);var a=LS(CK,[]);a.push({id:Date.now(),t:t,d:d,c:cls().id});SV(CK,a);$('calT').value='';renderCal()};
+$('calList').addEventListener('click',function(e){var b=e.target.closest('[data-cdel]');if(!b)return;SV(CK,LS(CK,[]).filter(function(x){return String(x.id)!==b.dataset.cdel}));renderCal()});
+setTimeout(function(){var s=evs().filter(function(x){var n=days(x.d);return n>=0&&n<=2})[0];if(s)showToast('Lucrare în curând: '+s.t+' ('+s.d+')')},2200);
+
+/* diplome print pentru podium */
+var pd=$('podium'),pc=pd&&pd.closest('.lab-card');
+if(pc){pc.insertAdjacentHTML('beforeend','<button type="button" class="btn white" id="dipBtn" style="margin-top:12px">Printează diplome</button>');$('dipBtn').onclick=function(){var c=cls(),top=c.students.map(function(s){return{n:s.name,t:totalFor(s.id)}}).sort(function(a,b){return b.t-a.t}).slice(0,3),w=window.open('','_blank');
+  if(!w)return showToast('Permite ferestrele pop-up pentru print.',true);
+  w.document.write('<title>Diplome ATLAS</title><style>body{font-family:Georgia,serif;margin:0}.d{height:94vh;border:10px double #d6a548;margin:2vh 2vw;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;page-break-after:always}h1{font-size:54px;letter-spacing:.2em;margin:0;color:#0b2743}h2{font-size:44px;margin:30px 0}p{font-size:22px}</style>'+top.map(function(x,i){return '<div class="d"><h1>DIPLOMĂ</h1><p>Locul '+(i+1)+' · Geografie · Clasa '+esc(c.name)+'</p><h2>'+esc(x.n)+'</h2><p>'+x.t+' puncte acumulate</p><p>'+new Date().toLocaleDateString('ro-RO')+'</p></div>'}).join('')+'<script>onload=function(){print()}<\/script>');w.document.close()}}
+
+/* PWA */
+if('serviceWorker' in navigator&&location.protocol.indexOf('http')===0)navigator.serviceWorker.register('sw.js').catch(function(){});
+})();
+</script>
+<script>
+/* ===== ATLAS Plus 4 · Fișe țări + Hartă mută ===== */
+(function(){
+'use strict';
+var $=function(i){return document.getElementById(i)},esc=window.escapeHtml;
+/* [țară, capitală, continent, populație (mil., aprox.), lat, lon, curiozitate] */
+var CT=[['România','București','Europa',19,44.43,26.10,'Carpații formează un arc în centrul țării, iar Dunărea se varsă în Marea Neagră prin Deltă.'],
+['Republica Moldova','Chișinău','Europa',2.4,47.01,28.86,'Relief de dealuri și podișuri, între Prut și Nistru.'],
+['Franța','Paris','Europa',68,48.86,2.35,'Are în Alpi Mont Blanc, cel mai înalt vârf din Europa de Vest (aprox. 4.800 m).'],
+['Germania','Berlin','Europa',84,52.52,13.40,'Este străbătută de Rin și are climă temperată.'],
+['Italia','Roma','Europa',59,41.90,12.50,'Peninsulă cu vulcanii Vezuviu și Etna.'],
+['Spania','Madrid','Europa',48,40.42,-3.70,'Ocupă cea mai mare parte a Peninsulei Iberice, cu podișul Meseta în centru.'],
+['Marea Britanie','Londra','Europa',68,51.51,-0.13,'Țară insulară cu climă oceanică, în vestul Europei.'],
+['Ucraina','Kiev','Europa',33,50.45,30.52,'Are stepe întinse și ieșire la Marea Neagră.'],
+['Polonia','Varșovia','Europa',37,52.23,21.01,'Relief mai ales de câmpie, cu Munții Tatra în sud.'],
+['Grecia','Atena','Europa',10,37.98,23.73,'Peninsulă cu mii de insule; cel mai înalt vârf este Olimp.'],
+['Turcia','Ankara','Europa și Asia',85,39.93,32.86,'Europa și Asia sunt separate aici de Bosfor.'],
+['Rusia','Moscova','Europa și Asia',144,55.76,37.62,'Cea mai întinsă țară din lume, pe două continente.'],
+['China','Beijing','Asia',1410,39.90,116.40,'Are fluviile Yangtze și Huang He.'],
+['India','New Delhi','Asia',1430,28.61,77.21,'Himalaya se află la nord, iar clima este musonică.'],
+['Japonia','Tokyo','Asia',124,35.68,139.69,'Arhipelag cu mii de insule și vulcanul Fuji.'],
+['Egipt','Cairo','Africa',112,30.04,31.24,'Viața se concentrează pe valea Nilului, înconjurată de deșert.'],
+['Statele Unite','Washington','America de Nord',335,38.91,-77.04,'Se întinde între Atlantic și Pacific, cu Munții Stâncoși și Apalași.'],
+['Canada','Ottawa','America de Nord',40,45.42,-75.70,'Una dintre cele mai întinse țări ale lumii, cu foarte multe lacuri.'],
+['Brazilia','Brasília','America de Sud',216,-15.79,-47.88,'Cuprinde cea mai mare parte a bazinului fluviului Amazon.'],
+['Australia','Canberra','Australia și Oceania',27,-35.28,149.13,'Țară-continent, cu mari întinderi de deșert în interior.']];
+function px(lon,lat){return[(lon+180)/360*1000,(90-lat)/180*500]}
+function bs(){return window.ATLAS_base()}
+function pin(g,p,t,c){g.fillStyle=c;g.beginPath();g.arc(p[0],p[1],t?12:9,0,7);g.fill();g.strokeStyle='#fff';g.lineWidth=2;g.stroke();if(t){g.fillStyle='#fff';g.font='bold 14px sans-serif';g.textAlign='center';g.textBaseline='middle';g.fillText(t,p[0],p[1]+1)}}
+
+$('quizPage').parentNode.insertAdjacentHTML('beforeend',
+'<section class="page hidden" id="countriesPage"><div class="panel p3"><h2>Fișe țări</h2><div class="p3row"><select id="ctSel" aria-label="Țara"></select></div><div id="ctCard"></div><canvas id="ctCv" width="1000" height="500" style="width:100%;height:auto;border-radius:14px;display:block" aria-label="Poziția capitalei pe hartă"></canvas></div></section>'+
+'<section class="page hidden" id="mutePage"><div class="panel p3"><h2>Hartă mută</h2><p class="p3s" id="muMsg"></p><canvas id="muCv" width="1000" height="500" style="width:100%;height:auto;border-radius:14px;display:block" aria-label="Hartă fără denumiri"></canvas><div class="p3row" id="muList"></div><div class="p3row"><button class="btn" id="muCheck">Verifică</button><button class="btn white" id="muNew">Altă hartă</button><button class="btn white" id="muReward" style="display:none">Acordă puncte</button></div></div></section>');
+var nav=document.querySelector('.nav'),nb=$('navAdd');
+[['countries','Fișe țări','<path d="M5 21V4M5 4h11l-2 4 2 4H5"/>'],['mute','Hartă mută','<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>']].forEach(function(p){
+  var b=document.createElement('button');b.type='button';b.dataset.page=p[0];b.innerHTML='<svg viewBox="0 0 24 24">'+p[2]+'</svg>'+p[1];b.addEventListener('click',function(){showPage(p[0])});nav.insertBefore(b,nb)});
+var INFO={countries:['ÎNVĂȚARE','Fișe țări','Capitală, continent, populație și poziție pe hartă'],mute:['EXERSARE','Hartă mută','Recunoaște orașele după poziția de pe hartă']};
+var _pi=window.pageInfo;window.pageInfo=function(p){return INFO[p]||_pi(p)};
+
+/* fișe țări */
+$('ctSel').innerHTML=CT.map(function(c,i){return '<option value="'+i+'">'+esc(c[0])+'</option>'}).join('');
+function showC(){var c=CT[+$('ctSel').value];$('ctCard').innerHTML='<div class="p3r"><b>'+esc(c[0])+'</b><span>'+esc(c[2])+'</span></div><div class="p3r"><span>Capitala</span><b>'+esc(c[1])+'</b></div><div class="p3r"><span>Populație</span><b>aprox. '+String(c[3]).replace('.',',')+' mil.</b></div><p class="p3s" style="margin-top:12px">'+esc(c[6])+'</p>';
+  var g=$('ctCv').getContext('2d');g.drawImage(bs(),0,0);pin(g,px(c[5],c[4]),0,'#d6a548')}
+$('ctSel').onchange=showC;
+
+/* hartă mută */
+var set=[];
+function newMute(){set=(window.ATLAS_CITY||[]).slice().sort(function(){return Math.random()-.5}).slice(0,6);var g=$('muCv').getContext('2d');g.drawImage(bs(),0,0);
+  set.forEach(function(c,i){pin(g,px(c[2],c[1]),i+1,'#bd4b55')});
+  var names=set.map(function(c){return c[0]}).sort(function(){return Math.random()-.5});
+  $('muList').innerHTML=set.map(function(c,i){return '<label>'+(i+1)+'. <select data-mu="'+i+'" style="border:1px solid var(--line);border-radius:10px;padding:8px;background:var(--white);color:var(--ink)"><option value="">—</option>'+names.map(function(n){return '<option>'+esc(n)+'</option>'}).join('')+'</select></label>'}).join('');
+  $('muMsg').textContent='Potrivește numerele de pe hartă cu orașele.';$('muReward').style.display='none'}
+$('muNew').onclick=newMute;
+$('muCheck').onclick=function(){var ok=0;document.querySelectorAll('[data-mu]').forEach(function(s){var good=s.value===set[+s.dataset.mu][0];if(good)ok++;s.style.borderColor=good?'#18856c':'#bd4b55'});$('muMsg').textContent='Corect: '+ok+' din '+set.length;$('muReward').style.display=ok===set.length?'':'none'};
+$('muReward').onclick=function(){openScoreModal()};
+
+var _sp=window.showPage;window.showPage=function(p){_sp(p);if(p==='countries')showC();if(p==='mute'&&!set.length)newMute()};
+})();
+</script>
+<style>
+.gm-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:14px}.gm-tile{border:1px solid var(--line);border-radius:16px;padding:20px;background:var(--white);color:var(--ink);text-align:left;display:grid;gap:6px;transition:transform .18s,box-shadow .18s,border-color .18s}.gm-tile:hover{transform:translateY(-3px);box-shadow:var(--shadow);border-color:var(--blue)}body.lite .gm-tile{transition:none}body.lite .gm-tile:hover{transform:none}.gm-ic{font-size:34px;line-height:1}.gm-tile strong{font-size:16px}.gm-tile span.gm-d{color:var(--muted);font-size:12px}
+</style>
+<script>
+/* ===== ATLAS Plus 5 · centru „Jocuri cu harta” ===== */
+(function(){
+'use strict';
+var $=function(i){return document.getElementById(i)},nav=document.querySelector('.nav');
+/* scoate butoanele separate din meniu; paginile rămân, accesibile din centru */
+['map','mute','countries'].forEach(function(p){var b=nav.querySelector('[data-page="'+p+'"]');if(b)b.remove()});
+var G=[['🎯','Unde este…?','Găsește orașul cerut pe hartă; punctele depind de cât de aproape ești.','map','mapPlay'],
+['🧭','Explorează harta','Atinge harta și află cel mai apropiat oraș și coordonatele.','map','mapExp'],
+['🗺️','Hartă mută','Potrivește numerele de pe hartă cu numele orașelor.','mute','muNew'],
+['📚','Fișe țări','Capitală, populație și poziție pe hartă pentru 20 de țări.','countries','']];
+$('quizPage').parentNode.insertAdjacentHTML('beforeend','<section class="page hidden" id="gamesPage"><div class="panel p3"><h2>Jocuri cu harta</h2><p class="p3s">Alege cu ce vrei să te joci.</p><div class="gm-grid">'+G.map(function(g){return '<button type="button" class="gm-tile" data-go="'+g[3]+'" data-btn="'+g[4]+'"><span class="gm-ic" aria-hidden="true">'+g[0]+'</span><strong>'+g[1]+'</strong><span class="gm-d">'+g[2]+'</span></button>'}).join('')+'</div></div></section>');
+/* buton de întoarcere în fiecare joc */
+['map','mute','countries'].forEach(function(p){var el=document.querySelector('#'+p+'Page .panel');if(el)el.insertAdjacentHTML('afterbegin','<button type="button" class="btn white" data-back style="margin-bottom:12px">← Jocuri cu harta</button>')});
+/* buton în meniu */
+var b=document.createElement('button');b.type='button';b.dataset.page='games';b.innerHTML='<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg>Jocuri cu harta';b.addEventListener('click',function(){showPage('games')});nav.insertBefore(b,$('navAdd'));
+document.addEventListener('click',function(e){var t=e.target.closest('.gm-tile');if(t){showPage(t.dataset.go);if(t.dataset.btn)$(t.dataset.btn).click();return}if(e.target.closest('[data-back]'))showPage('games')});
+var _pi=window.pageInfo;window.pageInfo=function(p){return p==='games'?['JOCURI','Jocuri cu harta','Alege jocul în care vrei să te joci']:_pi(p)};
+var SUB={games:1,map:1,mute:1,countries:1};
+var _sp=window.showPage;window.showPage=function(p){_sp(p);if(!SUB[p])return;document.querySelectorAll('.nav [data-page]').forEach(function(x){var on=x.dataset.page==='games';x.classList.toggle('active',on);if(on)x.setAttribute('aria-current','page');else x.removeAttribute('aria-current')})};
+})();
+</script>
 </body>
-</html>
+</html
