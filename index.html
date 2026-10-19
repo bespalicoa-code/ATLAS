@@ -314,7 +314,7 @@ body.dark .atlas-map-heading h1{color:#edf5ff}body.dark .atlas-stat{background:#
   </nav>
   <div class="spacer"></div>
   <div class="sidebar-card"><canvas id="sideGlobe" width="172" height="172" aria-hidden="true"></canvas><strong>Explorează. Înțelege. Învață.</strong><p>Un catalog clar pentru urmărirea punctajelor și progresului clasei.</p></div>
-  <div class="version">ATLAS · Versiunea 3.0</div>
+  <div class="version">ATLAS · Versiunea 3.1 Pro</div>
 </aside>
 <div class="scrim" id="scrim"></div>
 <div class="main">
@@ -1505,6 +1505,139 @@ function initAtlasGlobe(){if(atlasGlobeReady){if(atlasGlobe&&$('atlasGlobeCanvas
 
 var SUB={games:1,map:1,mute:1,countries:1,globe:1};
 var _sp=window.showPage;window.showPage=function(p){_sp(p);if(!SUB[p])return;document.querySelectorAll('.nav [data-page]').forEach(function(x){var on=x.dataset.page==='games';x.classList.toggle('active',on);if(on)x.setAttribute('aria-current','page');else x.removeAttribute('aria-current')});if(p==='globe')setTimeout(initAtlasGlobe,120)};
+})();
+</script>
+<style id="atlas-pro-css">
+::selection{background:#59d6df55}
+html{scroll-behavior:smooth;scrollbar-color:#9fb7cc transparent}
+:where(button,a,input,select,textarea):focus-visible{outline:3px solid #59d6df;outline-offset:2px}
+#proBar{position:fixed;inset:0 0 auto 0;height:3px;z-index:9999;transform-origin:0 50%;transform:scaleX(0);background:linear-gradient(90deg,#59d6df,#1769aa,#d6a548);pointer-events:none}
+.stat-card{position:relative}
+.pro-tilt{transform:perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));transition:transform .3s ease-out,box-shadow .3s;will-change:transform}
+.pro-tilt.on{transition:transform .06s linear;box-shadow:0 22px 44px rgba(20,55,84,.18)}
+.pro-sheen::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;transition:opacity .3s;background:radial-gradient(240px circle at var(--mx,50%) var(--my,50%),rgba(255,255,255,.38),transparent 62%)}
+.pro-sheen.on::after{opacity:1}
+.page.pro-in{animation:proIn .45s cubic-bezier(.2,.7,.2,1)}
+@keyframes proIn{from{opacity:0;transform:translateY(12px)}}
+.catalog-table tbody tr{transition:background .2s}.catalog-table tbody tr:hover{background:rgba(23,105,170,.06)}
+.btn:active,.nav button:active{transform:scale(.98)}
+@keyframes proHit{0%,60%{background:rgba(214,165,72,.38)}100%{background:transparent}}
+tr.pro-hit>td{animation:proHit 1.8s ease-out}
+.pro-podium{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;align-items:end;margin:0 0 18px;padding:18px 20px 0;border-radius:17px;background:linear-gradient(160deg,#0b2740,#0f4263);color:#eef7ff;box-shadow:var(--shadow)}
+.pro-podium[hidden]{display:none}
+.pro-podium h3{grid-column:1/-1;margin:0 0 6px;font-size:14px;letter-spacing:.01em}
+.pro-pod{text-align:center;min-width:0}
+.pro-pod b{display:block;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pro-pod small{color:#9cc3dd;font-size:11px}
+.pro-pod i{display:block;margin:8px auto 0;height:0;overflow:hidden;border-radius:10px 10px 0 0;background:linear-gradient(#59d6df,#1769aa);font:800 20px/1 system-ui,sans-serif;font-style:normal;padding-top:10px;transition:height .9s cubic-bezier(.2,.8,.2,1)}
+.pro-pod.g i{background:linear-gradient(#f4cf7a,#d6a548);color:#4a3508}
+.pro-tools{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 12px}
+.pro-tools input,.pro-tools select{padding:11px 14px;border:1px solid var(--line,#e2eaf1);border-radius:11px;background:var(--card,#fff);color:var(--ink,#182d40);font:inherit;font-size:13px}
+.pro-tools input{flex:1;min-width:200px}
+#proK{position:fixed;inset:0;z-index:10000;display:none;align-items:flex-start;justify-content:center;padding:12vh 16px 0;background:rgba(6,20,38,.55);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+#proK.open{display:flex}
+#proK .box{width:min(560px,100%);background:#fff;color:#182d40;border-radius:16px;box-shadow:0 30px 80px rgba(0,0,0,.35);overflow:hidden;animation:proIn .22s ease-out}
+body.dark #proK .box{background:#10263a;color:#e5edf5}
+#proK input{width:100%;box-sizing:border-box;border:0;border-bottom:1px solid rgba(120,150,180,.28);padding:18px 20px;font-family:inherit;font-size:16px;font-weight:600;background:transparent;color:inherit;outline:0}
+#proK ul{list-style:none;margin:0;padding:8px;max-height:46vh;overflow:auto}
+#proK li{display:flex;justify-content:space-between;gap:12px;padding:11px 12px;border-radius:10px;cursor:pointer;font-size:14px}
+#proK li[aria-selected=true]{background:#1769aa;color:#fff}
+#proK li small{opacity:.7;white-space:nowrap}
+#proK li.none{cursor:default;opacity:.7}
+.pro-fab{position:fixed;right:16px;bottom:16px;z-index:900;border:0;border-radius:999px;padding:11px 16px;background:#0b2740;color:#fff;font-family:inherit;font-size:12px;font-weight:700;box-shadow:0 10px 28px rgba(6,20,38,.35);cursor:pointer}
+.pro-fab kbd{font:inherit;opacity:.7;margin-left:6px}
+@media(prefers-reduced-motion:reduce){.pro-pod i,.page.pro-in,#proK .box,.pro-tilt{transition:none!important;animation:none!important}}
+</style>
+<script id="atlas-pro-js">
+(function(){'use strict';
+var q=function(s,r){return(r||document).querySelector(s)},qa=function(s,r){return[].slice.call((r||document).querySelectorAll(s))};
+var fine=matchMedia('(hover:hover) and (pointer:fine)').matches,calm=matchMedia('(prefers-reduced-motion:reduce)').matches;
+var norm=function(t){return String(t||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase()};
+var esc=function(t){return String(t).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})};
+function run(f){try{f()}catch(e){console.warn('ATLAS Pro:',e)}}
+function debounce(f,ms){var t;return function(){clearTimeout(t);t=setTimeout(f,ms)}}
+
+/* 1. Bară de progres la derulare */
+run(function(){var b=document.createElement('div'),w=0;b.id='proBar';document.body.appendChild(b);
+function u(){w=0;var h=document.documentElement,m=h.scrollHeight-h.clientHeight;b.style.transform='scaleX('+(m>0?Math.min(1,h.scrollTop/m):0)+')'}
+addEventListener('scroll',function(){if(!w)w=requestAnimationFrame(u)},{passive:true});u()});
+
+/* 2. Cifre animate în cardurile de statistică */
+run(function(){if(calm)return;var obs=new MutationObserver(function(rs){rs.forEach(function(r){var e=r.target.nodeType===1?r.target:r.target.parentNode;e=e&&e.closest&&e.closest('.stat-value');if(e)count(e)})});
+function set(e,t){e.textContent=t;obs.takeRecords()}
+function count(e){var raw=e.textContent.trim(),m=raw.match(/^(\d+(?:[.,]\d+)?)(.*)$/);if(!m)return;
+var to=parseFloat(m[1].replace(',','.')),dec=(m[1].split(/[.,]/)[1]||'').length,comma=m[1].indexOf(',')>-1,from=+e._pv||0,tk=e._tk=(e._tk||0)+1;e._pv=to;
+if(from===to)return;var t0=performance.now();
+(function f(n){if(e._tk!==tk)return;var k=Math.min(1,(n-t0)/700),v=from+(to-from)*(1-Math.pow(1-k,3)),s=v.toFixed(dec);
+set(e,(comma?s.replace('.',','):s)+m[2]);if(k<1)requestAnimationFrame(f)})(t0)}
+qa('.stat-value').forEach(function(e){count(e);obs.observe(e,{childList:true,characterData:true,subtree:true})})});
+
+/* 3. Înclinare 3D a cardurilor (doar mouse, fără lag pe telefon) */
+run(function(){if(!fine||calm)return;
+qa('.stat-card,.hero').forEach(function(c){var card=c.classList.contains('stat-card'),k=card?7:2.5,raf=0;c.classList.add('pro-tilt');if(card)c.classList.add('pro-sheen');
+c.addEventListener('pointermove',function(e){if(raf)return;raf=requestAnimationFrame(function(){raf=0;var r=c.getBoundingClientRect(),x=(e.clientX-r.left)/r.width,y=(e.clientY-r.top)/r.height;
+c.style.setProperty('--ry',((x-.5)*k).toFixed(2)+'deg');c.style.setProperty('--rx',((.5-y)*k).toFixed(2)+'deg');c.style.setProperty('--mx',(x*100)+'%');c.style.setProperty('--my',(y*100)+'%');c.classList.add('on')})});
+c.addEventListener('pointerleave',function(){c.classList.remove('on');c.style.setProperty('--rx','0deg');c.style.setProperty('--ry','0deg')})})});
+
+/* 4. Paralaxă ușoară a fundalului */
+run(function(){var s=q('#scene');if(!s||!fine||calm)return;var raf=0;
+addEventListener('pointermove',function(e){if(raf)return;raf=requestAnimationFrame(function(){raf=0;
+s.style.transform='translate3d('+((e.clientX/innerWidth-.5)*-14).toFixed(1)+'px,'+((e.clientY/innerHeight-.5)*-8).toFixed(1)+'px,0) scale(1.03)'})},{passive:true})});
+
+/* 5. Tranziție la schimbarea paginii */
+run(function(){var sp=window.showPage;if(typeof sp!=='function')return;
+window.showPage=function(p){var r=sp.apply(this,arguments),e=document.getElementById(p+'Page');if(e&&!calm){e.classList.remove('pro-in');void e.offsetWidth;e.classList.add('pro-in')}return r}});
+
+/* 6. Catalog: căutare, sortare, filtru și podium */
+run(function(){var tb=q('#studentRows'),pg=q('#catalogPage'),ts=q('.table-scroll',pg||document),panel=pg&&q('.panel',pg);if(!tb||!pg||!ts||!panel)return;
+var host=document.createElement('section');host.className='pro-podium';host.hidden=true;host.setAttribute('aria-label','Podiumul clasei');panel.parentNode.insertBefore(host,panel);
+var tools=document.createElement('div');tools.className='pro-tools';
+tools.innerHTML='<input type="search" id="proFind" placeholder="Caută elev în catalog" aria-label="Caută elev în catalog"><select id="proSort" aria-label="Ordinea elevilor"><option value="0">Ordinea listei</option><option value="n">Nume A–Z</option><option value="d">Puncte, de la mari la mici</option><option value="a">Puncte, de la mici la mari</option></select><select id="proFilt" aria-label="Filtru elevi"><option value="">Toți elevii</option><option value="y">Evaluați</option><option value="n">Fără puncte</option></select>';
+ts.parentNode.insertBefore(tools,ts);
+function rows(){return qa('tr',tb).map(function(r){var n=r.querySelector('.student-name'),t=r.cells[4];
+return{r:r,o:parseInt(r.cells[0]&&r.cells[0].textContent,10)||0,n:n?n.textContent.trim():'',p:t?parseFloat(String(t.textContent).replace(/[^\d,.-]/g,'').replace(',','.'))||0:0,y:!!r.querySelector('.status.has-points')}})}
+function apply(){var f=norm(q('#proFind').value),fl=q('#proFilt').value,s=q('#proSort').value,d=rows();
+d.forEach(function(x){x.r.hidden=!((!f||norm(x.n).indexOf(f)>-1)&&(!fl||(fl==='y')===x.y))});
+d.slice().sort(function(a,b){return s==='n'?a.n.localeCompare(b.n,'ro'):s==='d'?b.p-a.p:s==='a'?a.p-b.p:a.o-b.o}).forEach(function(x){tb.appendChild(x.r)})}
+function podium(){var top=rows().filter(function(x){return x.p>0}).sort(function(a,b){return b.p-a.p}).slice(0,3);
+if(!top.length){host.hidden=true;host.innerHTML='';return}host.hidden=false;var mx=top[0].p;
+host.innerHTML='<h3>Podiumul clasei</h3>'+[1,0,2].filter(function(k){return top[k]}).map(function(k){var x=top[k];
+return'<div class="pro-pod'+(k===0?' g':'')+'"><b>'+esc(x.n)+'</b><small>'+x.p+' puncte</small><i data-h="'+Math.max(28,Math.round(100*x.p/mx))+'">'+(k+1)+'</i></div>'}).join('');
+requestAnimationFrame(function(){requestAnimationFrame(function(){qa('.pro-pod i',host).forEach(function(i){i.style.height=i.dataset.h+'px'})})})}
+var obs=new MutationObserver(debounce(function(){apply();obs.takeRecords();podium()},90));
+['input','change'].forEach(function(ev){tools.addEventListener(ev,function(){apply();obs.takeRecords()})});
+obs.observe(tb,{childList:true,subtree:true,characterData:true});apply();obs.takeRecords();podium()});
+
+/* 7. Căutare rapidă (Ctrl/⌘ + K): pagini, clase, elevi, acțiuni */
+run(function(){var el=document.createElement('div');el.id='proK';el.setAttribute('role','dialog');el.setAttribute('aria-modal','true');el.setAttribute('aria-label','Căutare rapidă');
+el.innerHTML='<div class="box"><input id="proKq" type="text" placeholder="Caută pagină, elev sau acțiune" autocomplete="off" aria-controls="proKl"><ul id="proKl" role="listbox"></ul></div>';document.body.appendChild(el);
+var inp=q('#proKq'),ul=q('#proKl'),items=[],cur=0,last=null;
+function build(){var a=[];
+qa('.nav button').forEach(function(b){var t=b.textContent.trim();if(t)a.push({t:t,k:'Pagină',f:function(){b.click()}})});
+var cs=q('#classSelect');if(cs)qa('option',cs).forEach(function(o){if(!o.selected)a.push({t:'Clasa '+o.textContent.trim(),k:'Schimbă clasa',f:function(){cs.value=o.value;cs.dispatchEvent(new Event('change',{bubbles:true}))}})});
+var dm=q('#darkModeToggle');if(dm)a.push({t:'Comută tema întunecată',k:'Acțiune',f:function(){dm.click()}});
+qa('#studentRows tr').forEach(function(r){var n=r.querySelector('.student-name');if(!n)return;
+a.push({t:n.textContent.trim(),k:'Elev',f:function(){var c=q('.nav [data-page=catalog]');if(c&&q('#catalogPage.hidden'))c.click();
+setTimeout(function(){r.hidden=false;r.scrollIntoView({block:'center',behavior:calm?'auto':'smooth'});r.classList.remove('pro-hit');void r.offsetWidth;r.classList.add('pro-hit')},140)}})});
+return a}
+function draw(){var f=norm(inp.value);items=build().filter(function(x){return!f||norm(x.t+' '+x.k).indexOf(f)>-1}).slice(0,40);cur=Math.min(cur,Math.max(0,items.length-1));
+ul.innerHTML=items.length?items.map(function(x,i){return'<li role="option" data-i="'+i+'" aria-selected="'+(i===cur)+'"><span>'+esc(x.t)+'</span><small>'+x.k+'</small></li>'}).join(''):'<li class="none">Niciun rezultat</li>';
+var s=q('[aria-selected=true]',ul);if(s&&s.scrollIntoView)s.scrollIntoView({block:'nearest'})}
+function open(){last=document.activeElement;el.classList.add('open');inp.value='';cur=0;draw();inp.focus()}
+function close(){el.classList.remove('open');if(last&&last.focus)last.focus()}
+function pick(i){var x=items[i];if(!x)return;close();setTimeout(x.f,30)}
+document.addEventListener('keydown',function(e){var k=(e.key||'').toLowerCase();
+if((e.ctrlKey||e.metaKey)&&k==='k'){e.preventDefault();el.classList.contains('open')?close():open();return}
+if(!el.classList.contains('open'))return;
+if(k==='escape')close();else if(k==='tab')e.preventDefault();
+else if(k==='arrowdown'){e.preventDefault();cur=Math.min(items.length-1,cur+1);draw()}
+else if(k==='arrowup'){e.preventDefault();cur=Math.max(0,cur-1);draw()}
+else if(k==='enter'){e.preventDefault();pick(cur)}});
+inp.addEventListener('input',function(){cur=0;draw()});
+ul.addEventListener('click',function(e){var li=e.target.closest('li[data-i]');if(li)pick(+li.dataset.i)});
+el.addEventListener('mousedown',function(e){if(e.target===el)close()});
+var fab=document.createElement('button');fab.className='pro-fab';fab.type='button';fab.setAttribute('aria-label','Deschide căutarea rapidă');
+fab.innerHTML='Căutare rapidă'+(fine?'<kbd>'+(/Mac/.test(navigator.platform)?'⌘ K':'Ctrl K')+'</kbd>':'');fab.onclick=open;document.body.appendChild(fab)});
 })();
 </script>
 </body>
