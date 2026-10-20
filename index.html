@@ -1733,50 +1733,50 @@ lab.insertBefore(hero,gr)});
 })();
 </script>
 <script type="module">
-/* ATLAS · Administrare: cont de admin + parolă separată pentru baza de date a utilizatorilor.
-   Securitatea reală stă în firestore.rules (UID-ul contului-seif), nu în acest cod. */
-const ADMIN_EMAIL='bespalicoa@gmail.com';  // emailul cu care te loghezi ca admin în ATLAS
-const VAULT_EMAIL='bespalicoa@gmail.com';  // emailul contului-seif (creat în Firebase Console); parola lui = „parola bazei de date”
+/* ATLAS Admin — listă simplificată: doar conturi Firebase existente și active; afișează clasele și elevii, fără editor de date. */
+const ADMIN_UID='Xoe7dWynfiSgHQi1Ua0dLIqwOvG2';
+const ADMIN_EMAIL='bespalicoa@gmail.com';
+const VAULT_EMAIL='bespalicoa@gmail.com';
 const SDK='https://www.gstatic.com/firebasejs/10.14.1/';
 if(ADMIN_EMAIL&&VAULT_EMAIL){
-const [P,A,F]=await Promise.all([import(SDK+'firebase-app.js'),import(SDK+'firebase-auth.js'),import(SDK+'firebase-firestore.js')]);
-const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-let app;for(let i=0;i<60&&!app;i++){app=P.getApps().find(a=>a.name==='[DEFAULT]');if(!app)await new Promise(r=>setTimeout(r,500))}
-if(app){
-const auth=A.getAuth(app),fs=F.getFirestore(app),btn=document.getElementById('navAdmin');
-A.onAuthStateChanged(auth,u=>{
-  btn.style.display=u&&(u.email||'').toLowerCase()===ADMIN_EMAIL.toLowerCase()?'':'none';
-  if(u&&u.email)F.setDoc(F.doc(fs,'users',u.uid),{email:u.email,seen:F.serverTimestamp()},{merge:true}).catch(()=>{});
-});
-let vAuth,vFs;
-btn.onclick=()=>{
-  const o=document.createElement('div');
-  o.style.cssText='position:fixed;inset:0;z-index:99;background:#06192bcc;display:grid;place-items:center;padding:14px';
-  o.innerHTML='<div style="background:var(--white);color:var(--ink);border-radius:16px;padding:22px;width:min(760px,100%);max-height:88vh;overflow:auto"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h2 style="margin:0">Administrare</h2><button class="btn white" type="button" id="admX">Închide</button></div><div id="admBody"></div></div>';
-  document.body.appendChild(o);
-  const body=o.querySelector('#admBody');
-  o.querySelector('#admX').onclick=()=>{o.remove();if(vAuth)A.signOut(vAuth).catch(()=>{})};
-  body.innerHTML='<p>Introdu parola bazei de date ca să vezi datele tuturor utilizatorilor.</p><form id="admF" style="display:flex;gap:8px"><input id="admP" type="password" autocomplete="off" placeholder="Parola bazei de date" style="flex:1;padding:10px;border:1px solid var(--line);border-radius:10px"><button class="btn primary" type="submit">Deschide</button></form><p id="admE" class="auth-err hidden" style="margin-top:12px"></p>';
-  body.querySelector('#admF').onsubmit=async e=>{
-    e.preventDefault();const err=body.querySelector('#admE');err.classList.add('hidden');
-    try{
-      const v=P.getApps().find(a=>a.name==='vault')||P.initializeApp(ATLAS_FIREBASE_CONFIG,'vault');
-      vAuth=A.getAuth(v);await A.signInWithEmailAndPassword(vAuth,VAULT_EMAIL,body.querySelector('#admP').value);
-      vFs=F.getFirestore(v);await show(body);
-    }catch(x){err.textContent=x.code==='permission-denied'?'Contul-seif nu are acces: verifică UID-ul din firestore.rules.':'Parolă greșită sau eroare de conectare.';err.classList.remove('hidden')}
+ const [P,A,F,Fn]=await Promise.all([import(SDK+'firebase-app.js'),import(SDK+'firebase-auth.js'),import(SDK+'firebase-firestore.js'),import(SDK+'firebase-functions.js')]);
+ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ let app;for(let i=0;i<60&&!app;i++){app=P.getApps().find(a=>a.name==='[DEFAULT]');if(!app)await new Promise(r=>setTimeout(r,500))}
+ if(app){
+  const auth=A.getAuth(app),btn=document.getElementById('navAdmin');
+  if(btn)A.onAuthStateChanged(auth,u=>{btn.style.display=u&&(u.email||'').toLowerCase()===ADMIN_EMAIL.toLowerCase()&&u.uid===ADMIN_UID?'':'none';});
+  let vAuth;
+  if(btn)btn.onclick=()=>{
+   const o=document.createElement('div');o.style.cssText='position:fixed;inset:0;z-index:999;background:#06192bcc;display:grid;place-items:center;padding:14px';
+   o.innerHTML='<div style="background:var(--white);color:var(--ink);border-radius:16px;padding:22px;width:min(920px,100%);max-height:92vh;overflow:auto"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h2 style="margin:0">Elevi și clase</h2><button class="btn white" type="button" id="admX">Închide</button></div><div id="admBody"></div></div>';
+   document.body.appendChild(o);const body=o.querySelector('#admBody');o.querySelector('#admX').onclick=()=>{o.remove();if(vAuth)A.signOut(vAuth).catch(()=>{})};
+   body.innerHTML='<p>Introdu parola administratorului pentru a încărca lista.</p><form id="admF" style="display:flex;gap:8px;flex-wrap:wrap"><input id="admP" type="password" autocomplete="current-password" placeholder="Parola administratorului" style="flex:1;min-width:200px;padding:10px;border:1px solid var(--line);border-radius:10px"><button class="btn primary" type="submit">Deschide lista</button></form><p id="admE" class="auth-err hidden" style="margin-top:12px"></p>';
+   body.querySelector('#admF').onsubmit=async e=>{e.preventDefault();const err=body.querySelector('#admE');err.classList.add('hidden');try{
+    const v=P.getApps().find(a=>a.name==='vault')||P.initializeApp(ATLAS_FIREBASE_CONFIG,'vault');vAuth=A.getAuth(v);const cred=await A.signInWithEmailAndPassword(vAuth,VAULT_EMAIL,body.querySelector('#admP').value);
+    if(cred.user.uid!==ADMIN_UID)throw Error('admin/uid-mismatch');
+    const functions=Fn.getFunctions(v);const call=name=>Fn.httpsCallable(functions,name);
+    await show(body,call);
+   }catch(x){err.textContent=x.message==='admin/uid-mismatch'?'Contul conectat nu este administratorul autorizat.':(x.code==='functions/permission-denied'?'Acces refuzat. Verifică permisiunile administratorului.':'Nu s-a putut deschide lista: '+(x.code||x.message||'eroare necunoscută'));err.classList.remove('hidden')}};
   };
-};
-async function show(body){
-  body.innerHTML='<p>Se încarcă…</p>';
-  const [pr,at]=await Promise.all([F.getDocs(F.collection(vFs,'users')),F.getDocs(F.collectionGroup(vFs,'atlas'))]);
-  const U=new Map(),raw=[],get=id=>U.get(id)||U.set(id,{email:id,cl:[]}).get(id);
-  pr.forEach(d=>{get(d.id).email=d.data().email||d.id});
-  at.forEach(d=>{const uid=d.ref.parent.parent.id;raw.push({uid,doc:d.id,data:d.data()});if(d.id.startsWith('c_'))get(uid).cl.push(d.data())});
-  const nm=s=>typeof s==='string'?s:(s&&(s.name||s.nume))||'?',n=c=>(c.students||[]).length;
-  body.innerHTML='<p>'+U.size+' utilizatori · <button class="btn light" type="button" id="admDl">Descarcă tot (JSON)</button></p>'+[...U.values()].map(u=>'<details style="border:1px solid var(--line);border-radius:10px;padding:10px;margin:8px 0"><summary><b>'+esc(u.email)+'</b> — '+u.cl.length+' clase, '+u.cl.reduce((t,c)=>t+n(c),0)+' elevi</summary>'+u.cl.map(c=>'<p><b>'+esc(c.name)+'</b> ('+n(c)+' elevi, '+(c.logs||[]).length+' înregistrări)<br>'+esc((c.students||[]).map(nm).join(', '))+'</p>').join('')+'</details>').join('');
-  body.querySelector('#admDl').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(raw,null,1)],{type:'application/json'}));a.download='atlas-toate-datele.json';a.click()};
+  async function show(body,call){
+   body.innerHTML='<p>Se încarcă elevii și clasele…</p>';
+   try{
+    const result=await call('adminListCurrentUsers')({});
+    // Cloud Function listează conturile din Firebase Authentication. Excludem și aici conturile dezactivate.
+    const users=(result.data.users||[]).filter(u=>u.disabled!==true);
+    body.innerHTML='<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:14px 0"><input id="admSearch" placeholder="Caută după nume sau e-mail…" style="flex:1;min-width:220px;padding:10px;border:1px solid var(--line);border-radius:10px"><span id="admCount"></span><button class="btn light" id="admRefresh" type="button">Reîncarcă lista</button></div><p style="color:var(--muted);font-size:13px">Sunt afișate doar conturile active din Firebase Authentication. Alege un cont pentru a vedea clasele și elevii salvați.</p><div id="admUsers"></div><div id="admDetail" style="margin-top:16px"></div>';
+    const list=body.querySelector('#admUsers'),search=body.querySelector('#admSearch'),count=body.querySelector('#admCount');
+    function render(){const q=search.value.trim().toLowerCase(),filtered=users.filter(u=>((u.email||'')+' '+(u.displayName||'')).toLowerCase().includes(q));count.textContent=filtered.length+' conturi active';list.innerHTML=filtered.length?filtered.map(u=>'<button type="button" data-uid="'+esc(u.uid)+'" style="display:block;text-align:left;width:100%;padding:13px;margin:7px 0;border:1px solid var(--line);border-radius:12px;background:var(--white);color:var(--ink);cursor:pointer"><b>👤 '+esc(u.displayName||u.email||'Cont fără e-mail')+'</b><br><small>'+esc(u.email||'Fără e-mail')+' · '+Number(u.classes||0)+' clase · '+Number(u.students||0)+' elevi</small></button>').join(''):'<p>Nu există conturi active care corespund căutării.</p>';list.querySelectorAll('[data-uid]').forEach(b=>b.onclick=()=>openUser(b.dataset.uid));}
+    search.oninput=render;body.querySelector('#admRefresh').onclick=()=>show(body,call);render();
+    async function openUser(uid){const d=body.querySelector('#admDetail');d.innerHTML='<p>Se încarcă clasele și elevii…</p>';try{const r=await call('adminGetUserData')({uid});const docs=r.data.documents||[];const classes=docs.map(x=>x.data||{}).filter(x=>Array.isArray(x.students)&&typeof x.name==='string').map(x=>({name:x.name,students:x.students}));
+      d.innerHTML='<section style="border:1px solid var(--line);border-radius:14px;padding:14px"><h3 style="margin:0 0 12px">Clase și elevi</h3><div id="admClasses"></div></section>';
+      const box=d.querySelector('#admClasses');if(!classes.length){box.innerHTML='<p>Acest cont nu are clase cu elevi salvate în ATLAS.</p>';return}
+      box.innerHTML=classes.map(c=>'<details open style="border:1px solid var(--line);border-radius:10px;padding:12px;margin:8px 0"><summary style="cursor:pointer;font-weight:750">🏫 '+esc(c.name)+' <small>· '+c.students.length+' elevi</small></summary><ol style="line-height:1.9;margin-bottom:0">'+c.students.map(s=>'<li>'+esc(typeof s==='string'?s:(s.name||s.fullName||s.nume||'Elev fără nume'))+'</li>').join('')+'</ol></details>').join('');
+     }catch(e){d.innerHTML='<p style="color:#b42318">Nu s-au putut încărca clasele: '+esc(e.code||e.message||'eroare')+'. Verifică publicarea funcțiilor Firebase.</p>'}}
+   }catch(e){body.innerHTML='<p style="color:#b42318">Nu s-a putut încărca lista conturilor active. Pentru verificarea conturilor șterse/dezactivate este necesară funcția Firebase de administrare. Detalii: '+esc(e.code||e.message||'eroare')+'</p>'}
+  }
+ }
 }
-}}
 </script>
 </body>
 </html>
