@@ -1769,12 +1769,48 @@ btn.onclick=()=>{
 async function show(body){
   body.innerHTML='<p>Se încarcă…</p>';
   const [pr,at]=await Promise.all([F.getDocs(F.collection(vFs,'users')),F.getDocs(F.collectionGroup(vFs,'atlas'))]);
-  const U=new Map(),raw=[],get=id=>U.get(id)||U.set(id,{email:id,cl:[]}).get(id);
-  pr.forEach(d=>{get(d.id).email=d.data().email||d.id});
+  const U=new Map(),raw=[],get=id=>U.get(id)||U.set(id,{uid:id,email:id,cl:[]}).get(id);
+  pr.forEach(d=>{const u=get(d.id),x=d.data();u.email=x.email||d.id;u.hasEmail=!!x.email;u.seen=x.seen&&x.seen.toMillis?x.seen.toMillis():0});
   at.forEach(d=>{const uid=d.ref.parent.parent.id;raw.push({uid,doc:d.id,data:d.data()});if(d.id.startsWith('c_'))get(uid).cl.push(d.data())});
   const nm=s=>typeof s==='string'?s:(s&&(s.name||s.nume))||'?',n=c=>(c.students||[]).length;
-  body.innerHTML='<p>'+U.size+' utilizatori · <button class="btn light" type="button" id="admDl">Descarcă tot (JSON)</button></p>'+[...U.values()].map(u=>'<details style="border:1px solid var(--line);border-radius:10px;padding:10px;margin:8px 0"><summary><b>'+esc(u.email)+'</b> — '+u.cl.length+' clase, '+u.cl.reduce((t,c)=>t+n(c),0)+' elevi</summary>'+u.cl.map(c=>'<p><b>'+esc(c.name)+'</b> ('+n(c)+' elevi, '+(c.logs||[]).length+' înregistrări)<br>'+esc((c.students||[]).map(nm).join(', '))+'</p>').join('')+'</details>').join('');
-  body.querySelector('#admDl').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(raw,null,1)],{type:'application/json'}));a.download='atlas-toate-datele.json';a.click()};
+  /* Care conturi mai există în Firebase Auth? Datele din Firestore rămân și după ce un cont a fost șters,
+     așa că le verificăm separat. fetchSignInMethodsForEmail întoarce [] pentru un email fără cont.
+     Dacă Firebase are „email enumeration protection” activ, răspunde [] pentru toți: ca să nu ascundem
+     din greșeală pe toată lumea, verificăm întâi emailul adminului (care sigur există). */
+  let reliable=false;
+  try{reliable=(await A.fetchSignInMethodsForEmail(auth,ADMIN_EMAIL)).length>0}catch(x){}
+  if(reliable)await Promise.all([...U.values()].map(async u=>{
+    u.alive=null;                                  // null = necunoscut (nu ascundem)
+    if(!u.hasEmail||u.email.indexOf('@')<0)return;
+    try{u.alive=(await A.fetchSignInMethodsForEmail(auth,u.email)).length>0}catch(x){}
+  }));
+  const all=[...U.values()].sort((a,b)=>(b.seen||0)-(a.seen||0));
+  const old=all.filter(u=>u.alive===false);
+  let showOld=false;
+  const when=ms=>ms?new Date(ms).toLocaleDateString('ro-RO',{day:'2-digit',month:'2-digit',year:'numeric'}):'—';
+  const card=u=>'<details style="border:1px solid var(--line);border-radius:10px;padding:10px;margin:8px 0'+(u.alive===false?';opacity:.6':'')+'"><summary><b>'+esc(u.email)+'</b>'+(u.alive===false?' <i>(cont șters)</i>':'')+(u.hasEmail?'':' <i>(fără email înregistrat)</i>')+' — '+u.cl.length+' clase, '+u.cl.reduce((t,c)=>t+n(c),0)+' elevi · văzut: '+when(u.seen)+'</summary>'+u.cl.map(c=>'<p><b>'+esc(c.name)+'</b> ('+n(c)+' elevi, '+(c.logs||[]).length+' înregistrări)<br>'+esc((c.students||[]).map(nm).join(', '))+'</p>').join('')+(u.alive===false?'<p><button class="btn danger" type="button" data-purge="'+esc(u.uid)+'">Șterge definitiv datele acestui cont</button></p>':'')+'</details>';
+  /* Șterge din Firestore datele unui cont deja șters din Authentication (profilul se șterge ultimul). */
+  const purge=async u=>{
+    if(u.alive!==false||!confirm('Ștergi definitiv din baza de date toate datele contului '+u.email+' ('+u.cl.length+' clase)?\nAcțiunea nu poate fi anulată. Descarcă mai întâi JSON-ul dacă vrei o copie.'))return;
+    try{
+      const snap=await F.getDocs(F.collection(vFs,'users',u.uid,'atlas'));
+      await Promise.all(snap.docs.map(d=>F.deleteDoc(d.ref)));
+      await F.deleteDoc(F.doc(vFs,'users',u.uid));
+      for(let i=raw.length-1;i>=0;i--)if(raw[i].uid===u.uid)raw.splice(i,1);
+      all.splice(all.indexOf(u),1);old.splice(old.indexOf(u),1);U.delete(u.uid);draw();
+    }catch(x){alert(x&&x.code==='permission-denied'?'Regulile Firestore nu permit ștergerea. Publică regulile actualizate din firestore.rules.':'Ștergerea a eșuat: '+(x&&x.message||x))}
+  };
+  const draw=()=>{
+    const list=showOld?all:all.filter(u=>u.alive!==false);
+    body.innerHTML='<p>'+(reliable?list.filter(u=>u.alive!==false).length+' conturi active':U.size+' utilizatori')+' · <button class="btn light" type="button" id="admDl">Descarcă tot (JSON)</button></p>'
+      +(reliable?(old.length?'<p><label><input type="checkbox" id="admOld"'+(showOld?' checked':'')+'> Arată și conturile șterse ('+old.length+')</label></p>':'')
+        :'<p class="auth-err">Nu pot verifica ce conturi mai există (în Firebase e activă protecția „email enumeration”), așa că sunt afișate toate, inclusiv cele șterse.</p>')
+      +list.map(card).join('');
+    body.querySelector('#admDl').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(raw,null,1)],{type:'application/json'}));a.download='atlas-toate-datele.json';a.click()};
+    body.querySelectorAll('[data-purge]').forEach(b=>b.onclick=()=>purge(U.get(b.dataset.purge)));
+    const cb=body.querySelector('#admOld');if(cb)cb.onchange=()=>{showOld=cb.checked;draw()};
+  };
+  draw();
 }
 }}
 </script>
