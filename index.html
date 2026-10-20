@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#061426">
+<script>window.ATLAS_AUTH_OK=false;</script>
 <meta name="description" content="ATLAS — catalog de puncte pentru Geografie, pe clase.">
 <link rel="icon" type="image/png" sizes="512x512" href="atlas-icon.png">
 <title>ATLAS | Ultimate Explorer</title>
@@ -11,6 +12,9 @@
 <style>#mapCv{width:100%;height:min(68vh,680px);min-height:380px;border-radius:14px;overflow:hidden;z-index:1}.atlas-plane-wrap{background:transparent;border:0}.atlas-plane-glyph{width:42px;height:42px;display:grid;place-items:center;transform-origin:50% 50%;filter:drop-shadow(0 4px 5px #0b274366)}.atlas-plane-glyph svg{width:38px;height:38px;overflow:visible}.atlas-plane-glyph .plane-halo{position:absolute;width:38px;height:38px;border-radius:50%;background:#f4b9422b;box-shadow:0 0 0 5px #f4b9421c,0 0 20px #f4b94288;animation:atlasPulse 1.8s ease-out infinite}.atlas-plane-glyph svg{position:relative;z-index:1}.atlas-flight-label{font:700 11px/1.3 Inter,system-ui,sans-serif;color:#102b45;background:#fff;border:1px solid #dce6ef;border-radius:8px;padding:5px 8px;box-shadow:0 3px 12px #102b4525}.atlas-destination-dot{width:16px;height:16px;border:3px solid white;border-radius:50%;background:#e9a72d;box-shadow:0 0 0 5px #e9a72d40,0 2px 8px #102b4540}@keyframes atlasPulse{0%{transform:scale(.78);opacity:.95}100%{transform:scale(1.45);opacity:0}}.leaflet-container{font:12px/1.5 Inter,system-ui,sans-serif}
 /* ATLAS Global Globe */
 .atlas-global-wrap{color:var(--ink);max-width:none!important}.atlas-global-head{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;flex-wrap:wrap;margin:4px 0 18px}.atlas-global-head h1{font-size:clamp(27px,3vw,39px);letter-spacing:-.045em;margin:7px 0;color:var(--ink)}.atlas-global-head p{color:var(--muted);font-size:13px;line-height:1.6;margin:0;max-width:720px}.atlas-globe-shell{display:grid;grid-template-columns:minmax(0,1fr) 285px;gap:14px;align-items:stretch}.atlas-globe-main{min-width:0;border:1px solid var(--line);border-radius:17px;overflow:hidden;background:radial-gradient(ellipse at 50% 42%,#163957 0%,#071522 68%);box-shadow:var(--shadow)}.atlas-globe-tools{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:12px;background:#0a1927;border-bottom:1px solid #ffffff18}.atlas-globe-tools label{display:flex;align-items:center;gap:7px;color:#9eb8cd;font-size:10px;font-weight:850;letter-spacing:.08em}.atlas-globe-tools select{background:#122a3e;color:#eef7ff;border:1px solid #31516a;border-radius:9px;padding:10px 12px;font-size:12px;max-width:100%}.atlas-globe-tools button,.atlas-globe-action{border:1px solid #31516a;background:#122a3e;color:#eef7ff;border-radius:9px;padding:10px 12px;font-size:11px;font-weight:800;cursor:pointer;min-height:40px}.atlas-globe-tools button:hover,.atlas-globe-action:hover{border-color:#68c7ff}.atlas-globe-stage{height:clamp(420px,66vh,720px);min-height:420px;position:relative}.atlas-globe-stage canvas{display:block;max-width:100%}.atlas-globe-footer{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:11px 14px;color:#a8bfd2;font-size:10px;border-top:1px solid #ffffff15}.atlas-globe-side{border:1px solid #233e53;border-radius:17px;padding:17px;background:linear-gradient(155deg,#102a40,#091725 85%);color:#eaf5ff;display:flex;flex-direction:column;gap:13px;min-width:0}.atlas-globe-side h2{margin:0;font-size:19px;letter-spacing:-.03em}.atlas-globe-side p{margin:0;color:#a8bfd2;font-size:12px;line-height:1.6}.atlas-globe-selected{border:1px solid #ffffff18;border-radius:12px;background:#ffffff08;padding:13px}.atlas-globe-selected small{display:block;color:#7ea4c1;font-size:9px;letter-spacing:.12em;font-weight:850;margin-bottom:6px}.atlas-globe-selected strong{display:block;color:#fff;font-size:17px;overflow-wrap:anywhere}.atlas-globe-facts{display:grid;grid-template-columns:1fr 1fr;gap:8px}.atlas-globe-fact{border:1px solid #ffffff13;background:#ffffff06;border-radius:10px;padding:10px;min-width:0}.atlas-globe-fact span{display:block;font-size:9px;color:#88a7bf;margin-bottom:5px}.atlas-globe-fact strong{display:block;font-size:12px;color:#f0f7ff;overflow-wrap:anywhere}.atlas-globe-legend{display:grid;gap:7px;font-size:10px;color:#b8cad9}.atlas-globe-legend div{display:flex;align-items:center;gap:8px}.atlas-globe-swatch{width:12px;height:12px;border-radius:3px;flex:none}.atlas-globe-status{font-size:11px;color:#a8bfd2;line-height:1.5;min-height:34px}.atlas-globe-primary{border:1px solid #3aabef;background:linear-gradient(105deg,#1178b8,#209bd0);color:white;border-radius:10px;padding:12px;font-size:11px;font-weight:850;cursor:pointer}.atlas-globe-note{font-size:9px!important;color:#7896ac!important;border-top:1px solid #ffffff15;padding-top:12px}.gm-tile[data-go="globe"]{border-color:#2f9dd3;background:linear-gradient(135deg,#0c2235,#123d5b)}.gm-tile[data-go="globe"] .gm-ic{background:#1b638c;color:#e7f7ff}@media(max-width:980px){.atlas-globe-shell{grid-template-columns:1fr}.atlas-globe-stage{height:540px}.atlas-globe-side{display:grid;grid-template-columns:1fr 1fr}.atlas-globe-side>h2,.atlas-globe-side>p,.atlas-globe-status,.atlas-globe-note{grid-column:1/-1}}@media(max-width:560px){.atlas-globe-stage{height:420px;min-height:360px}.atlas-globe-side{display:flex}.atlas-globe-tools{align-items:stretch}.atlas-globe-tools label{flex:1;min-width:130px;flex-direction:column;align-items:flex-start}.atlas-globe-tools select{width:100%;max-width:none}}
+body:not(.atlas-authenticated) .app{visibility:hidden!important;pointer-events:none!important}
+body:not(.atlas-authenticated) #authModal{display:flex!important;position:fixed!important;inset:0!important;z-index:20000!important;background:#061426f2!important;align-items:center!important;justify-content:center!important;overflow:auto!important}
+body:not(.atlas-authenticated) #authModal .modal{max-height:calc(100vh - 32px);overflow:auto}
 </style>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script src="https://unpkg.com/globe.gl"></script>
@@ -357,7 +361,7 @@ body.dark .atlas-map-heading h1{color:#edf5ff}body.dark .atlas-stat{background:#
   <div class="modal-actions"><button type="button" class="btn danger push-left hidden" id="classDelete">Șterge clasa</button><button type="button" class="btn white" data-close="classModal">Anulează</button><button type="submit" class="btn primary" id="classSave">Creează clasa</button></div>
 </form></div></div>
 <div class="modal-backdrop" id="authModal" role="dialog" aria-modal="true" aria-labelledby="authTitle"><div class="modal">
-  <div class="modal-head"><div><h2 id="authTitle">Contul tău ATLAS</h2><p>Autentifică-te ca să ai catalogul pe orice dispozitiv: telefon, tabletă sau calculator.</p></div><button class="close" type="button" data-close="authModal" aria-label="Închide">×</button></div>
+  <div class="modal-head"><div><h2 id="authTitle">Contul tău ATLAS</h2><p>Autentifică-te ca să ai catalogul pe orice dispozitiv: telefon, tabletă sau calculator.</p></div></div>
   <form class="modal-body" id="authForm" novalidate>
     <div class="auth-tabs" role="tablist"><button type="button" class="on" role="tab" aria-selected="true" data-auth-mode="login">Autentificare</button><button type="button" role="tab" aria-selected="false" data-auth-mode="signup">Cont nou</button></div>
     <div class="form-row"><label for="authEmail">Email</label><input id="authEmail" type="email" autocomplete="username" inputmode="email" placeholder="nume@exemplu.ro"></div>
@@ -367,7 +371,7 @@ body.dark .atlas-map-heading h1{color:#edf5ff}body.dark .atlas-stat{background:#
     <button class="btn primary auth-wide" id="authSubmit" type="submit">Intră în cont</button>
     <div class="auth-or"><span>sau</span></div>
     <button class="btn white auth-wide" type="button" id="authGoogle">Continuă cu Google</button>
-    <div class="auth-links"><button type="button" class="linkbtn" id="authForgot">Ai uitat parola?</button><button type="button" class="linkbtn" id="authSkip">Continuă fără cont</button></div>
+    <div class="auth-links"><button type="button" class="linkbtn" id="authForgot">Ai uitat parola?</button></div>
   </form>
 </div></div>
 <div class="modal-backdrop" id="syncChoiceModal" role="dialog" aria-modal="true" aria-labelledby="choiceTitle"><div class="modal">
@@ -386,7 +390,7 @@ body.dark .atlas-map-heading h1{color:#edf5ff}body.dark .atlas-stat{background:#
 'use strict';
 // Clasa inițială (XII U): folosită doar la prima pornire și la migrarea datelor din versiunea 1.
 const DEFAULT_CLASS_NAME='XII U';
-const DEFAULT_STUDENTS=["BANICA OLEG","BĂLAN NICOLETA","BESPALICO ANDREI","BUDU DIANA","CIOBANU EUGENIU","CUCOȘ NADIA","CURMEI CĂTĂLINA","DRAPAC IULIANA","FALCEA CĂTĂLINA","FILIP ROMAN","FURTUNĂ NICOLAE","GAIBU EUGENIA","GHERȚA NICOLETA","GOREA ALEXANDRINA","GUȚU ALEXANDRU","HACHI NADEJDA","LEAHU REGINA","LUNGU IRAIDA","NICHIFOREAC CĂTĂLINA","PLOP ANNA-MARIA","POPESCU MIHAELA","PUȘCAȘU ANDREEA","RAȚĂ VLAD","ROTARI ALEXANDRINA","SEVERIN SABRINA","SILI ION","STURZA AMELIA","SURDU ANDREEA","TIMUȚĂ LAURA","TRIFAN MĂDĂLINA"];
+const DEFAULT_STUDENTS=[];
 // Chei localStorage
 const STORAGE_KEY='atlas-geografie-v2';          // toate clasele: elevi + punctaje
 const OLD_STORAGE_KEY='atlas-geografie-12u-v1';  // formatul vechi (doar XII U): se citește pentru migrare, nu se șterge
@@ -398,9 +402,9 @@ const MAX_STUDENTS=200,MAX_CLASS_NAME=30,MAX_STUDENT_NAME=80;
 let db={classes:[]},activeId=null,cache=null,currentPage='catalog',toastTimer,lastFocus=null,editingClassId=null,currentProfileSid=null;
 const ASSESS_KEY='atlas-assessments-v1', SETTINGS_KEY='atlas-settings-v1';
 let assessments=readLocal(ASSESS_KEY,[]), appSettings=readLocal(SETTINGS_KEY,{dark:false,school:'',year:'2026–2027'}), quizIndex=0,quizScore=0,quizAnswered=false;
-function readLocal(k,fallback){try{return JSON.parse(localStorage.getItem(k))??fallback}catch(e){return fallback}}
-function saveAssessments(){try{localStorage.setItem(ASSESS_KEY,JSON.stringify(assessments))}catch(e){showToast('Nu s-au putut salva evaluările.',true)}}
-function saveSettings(){try{localStorage.setItem(SETTINGS_KEY,JSON.stringify(appSettings))}catch(e){} }
+function readLocal(k,fallback){if(!window.ATLAS_AUTH_OK)return fallback;try{return JSON.parse(localStorage.getItem(k))??fallback}catch(e){return fallback}}
+function saveAssessments(){if(!window.ATLAS_AUTH_OK)return false;try{localStorage.setItem(ASSESS_KEY,JSON.stringify(assessments));return true}catch(e){showToast('Nu s-au putut salva evaluările.',true);return false}}
+function saveSettings(){if(!window.ATLAS_AUTH_OK)return false;try{localStorage.setItem(SETTINGS_KEY,JSON.stringify(appSettings));return true}catch(e){return false} }
 const $=id=>document.getElementById(id);
 const norm=s=>String(s??'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLocaleLowerCase('ro');
 const cleanSpaces=s=>String(s??'').replace(/\s+/g,' ').trim();
@@ -426,18 +430,21 @@ function gradeRange(grade,max){if(max<=0)return null;const start=grade===1?0:cei
 function renderGradeScale(){const max=maxTotal();$('gradingMax').textContent=`Maximul actual: ${fmt(max)} ${pl(max,'punct','puncte')}`;$('gradeScale').innerHTML=Array.from({length:10},(_,idx)=>{const grade=idx+1,range=gradeRange(grade,max);return `<div class="grade-item ${grade===10?'top':''} ${range?'':'unavailable'}"><strong>${grade}</strong><span>${range||'—'}</span></div>`}).join('');$('gradingNote').textContent=max>0?`Barem calculat acum pentru maximul de ${fmt(max)} ${pl(max,'punct','puncte')}. Elevul cu punctajul maxim primește nota 10; dacă totalul maxim al clasei se modifică, toate notele și intervalele baremului se actualizează automat.`:'Baremul se activează după introducerea punctelor. Până atunci, nota afișată pentru fiecare elev este 1.'}
 
 // ---------- Salvare, încărcare, migrare ----------
-function saveData(quiet=false){try{localStorage.setItem(STORAGE_KEY,JSON.stringify({v:2,classes:db.classes}));return true}catch(e){if(!quiet)showToast('Nu s-au putut salva datele. Creează o copie de siguranță!',true);return false}}
-function saveActive(){try{localStorage.setItem(ACTIVE_KEY,activeId)}catch(e){}}
+function saveData(quiet=false){if(!window.ATLAS_AUTH_OK)return false;try{localStorage.setItem(STORAGE_KEY,JSON.stringify({v:2,classes:db.classes.filter(c=>c.students&&c.students.length)}));return true}catch(e){if(!quiet)showToast('Nu s-au putut salva datele. Creează o copie de siguranță!',true);return false}}
+function saveActive(){if(!window.ATLAS_AUTH_OK)return;try{localStorage.setItem(ACTIVE_KEY,activeId)}catch(e){}}
 function readJSON(key){try{return JSON.parse(localStorage.getItem(key))}catch(e){return null}}
 function sanitizeLogs(arr,sids){const ids=new Set();return (Array.isArray(arr)?arr:[]).map(x=>{if(!x||!sids.has(x.sid))return null;const p=Number(x.points);if(!Number.isInteger(p)||p<1||p>1000)return null;let id=String(x.id||uid());if(ids.has(id))id=uid();ids.add(id);return{id,sid:x.sid,points:p,note:String(x.note||'').slice(0,300),ts:Number(x.ts)||Date.now(),date:String(x.date||'')}}).filter(Boolean)}
 function sanitizeClasses(arr){const cids=new Set();return (Array.isArray(arr)?arr:[]).map(c=>{if(!c||!Array.isArray(c.students))return null;const sids=new Set(),students=[];c.students.forEach(s=>{const id=s&&String(s.id||''),name=s&&cleanSpaces(s.name).slice(0,MAX_STUDENT_NAME);if(id&&name&&!sids.has(id)){sids.add(id);students.push({id,name})}});if(!students.length)return null;let id=String(c.id||uid());if(cids.has(id))id=uid();cids.add(id);return{id,name:cleanSpaces(c.name).slice(0,MAX_CLASS_NAME)||'Clasă',students,logs:sanitizeLogs(c.logs,sids)}}).filter(Boolean)}
 // Formatul vechi (v1): o singură clasă, punctajele legate de numele elevului. Id-urile elevilor din lista inițială sunt fixe (s1…s30).
 function classFromV1(students,logs){const list=(Array.isArray(students)&&students.length?students:DEFAULT_STUDENTS).map(cleanSpaces).filter(Boolean).map((name,i)=>({id:'s'+(i+1),name}));const byName=new Map();list.forEach(s=>{if(!byName.has(s.name))byName.set(s.name,s.id)});const mapped=(Array.isArray(logs)?logs:[]).map(x=>x&&{...x,sid:byName.get(x.student)});return{id:'xii-u',name:DEFAULT_CLASS_NAME,students:list,logs:sanitizeLogs(mapped,new Set(list.map(s=>s.id)))}}
-function loadData(){const raw=readJSON(STORAGE_KEY);let classes=raw&&Array.isArray(raw.classes)?sanitizeClasses(raw.classes):[],fresh=false;
-  if(!classes.length){const old=readJSON(OLD_STORAGE_KEY);classes=[classFromV1(DEFAULT_STUDENTS,Array.isArray(old)?old:[])];fresh=true}
-  db={classes};
+function emptyClass(){return {id:'atlas-empty-session',name:'Catalogul meu',students:[],logs:[]}}
+function loadData(){
+  if(!window.ATLAS_AUTH_OK){db={classes:[emptyClass()]};activeId='atlas-empty-session';cache=null;assessments=[];appSettings={dark:false,school:'',year:'2026–2027'};return}
+  const raw=readJSON(STORAGE_KEY);let classes=raw&&Array.isArray(raw.classes)?sanitizeClasses(raw.classes):[];
+  db={classes:classes.length?classes:[emptyClass()]};
   if(!db.classes.some(c=>c.id===activeId)){let saved=null;try{saved=localStorage.getItem(ACTIVE_KEY)}catch(e){}activeId=db.classes.some(c=>c.id===saved)?saved:db.classes[0].id}
-  if(fresh)saveData(true)}
+  assessments=readLocal(ASSESS_KEY,[]);appSettings=readLocal(SETTINGS_KEY,{dark:false,school:'',year:'2026–2027'});cache=null
+}
 function showToast(message,error=false){const t=$('toast');t.textContent=message;t.classList.toggle('error',error);t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),3400)}
 function addPoints(sid,points,note=''){const p=Number(points),name=nameOf(sid);if(!name){showToast('Elev necunoscut.',true);return false}if(!Number.isInteger(p)||p<1||p>1000){showToast('Introduceți un număr întreg între 1 și 1000.',true);return false}const now=new Date();setLogs([...cls().logs,{id:uid(),sid,points:p,note:String(note||'').trim().slice(0,300),ts:now.getTime(),date:now.toLocaleString('ro-RO')}]);saveData();renderAll();showToast(`Au fost adăugate ${p} ${pl(p,'punct','puncte')} pentru ${name}.`);return true}
 
@@ -491,7 +498,7 @@ function saveClass(e){e.preventDefault();
   const lost=old?old.logs.filter(x=>removed.has(x.sid)).length:0;
   if(removed.size&&!confirm(`Se vor elimina ${removed.size} ${pl(removed.size,'elev','elevi')}${lost?` și ${lost} ${pl(lost,'înregistrare','înregistrări')} de puncte`:''} din clasa ${name}. Această acțiune nu poate fi refăcută automat. Continuați?`))return;
   if(old){const keepIds=new Set(kept.map(s=>s.id));db.classes=db.classes.map(c=>c===old?{...c,name,students,logs:c.logs.filter(x=>keepIds.has(x.sid))}:c)}
-  else{const c={id:uid(),name,students,logs:[]};db.classes=[...db.classes,c];activeId=c.id;saveActive()}
+  else{const c={id:uid(),name,students,logs:[]};db.classes=[...db.classes.filter(x=>x.students&&x.students.length),c];activeId=c.id;saveActive()}
   saveData();closeModal('classModal');renderAll();
   showToast(old?`Clasa ${name} a fost actualizată.`:`Clasa ${name} a fost creată, cu ${students.length} ${pl(students.length,'elev','elevi')}.`)}
 function deleteClass(){const c=db.classes.find(x=>x.id===editingClassId);if(!c)return;if(db.classes.length<2){showToast('Trebuie să rămână cel puțin o clasă.',true);return}
@@ -503,7 +510,7 @@ function downloadBlob(data,name,type){const a=document.createElement('a'),url=UR
 // Protecție împotriva "CSV injection": celulele care încep cu = + - @ ar fi interpretate ca formule în Excel.
 function csvCell(v){let s=String(v??'');if(/^[=+\-@\t\r]/.test(s))s="'"+s;return '"'+s.replace(/"/g,'""')+'"'}
 function exportCSV(){const c=cls(),max=maxTotal(),rows=[['Nr.','Nume și prenume','Număr înregistrări','Total puncte','Nota automată (1–10)','Maximul actual al clasei','Istoric']];c.students.forEach((s,i)=>rows.push([i+1,s.name,countFor(s.id),totalFor(s.id),gradeFor(s.id),max,c.logs.filter(x=>x.sid===s.id).map(x=>`${x.points} ${pl(x.points,'punct','puncte')} (${x.date}${x.note?' — '+x.note:''})`).join(' | ')]));const csv='﻿'+rows.map(r=>r.map(csvCell).join(';')).join('\r\n');downloadBlob(csv,`catalog_geografie_${slug(c.name)}.csv`,'text/csv;charset=utf-8;');showToast(`Catalogul clasei ${c.name} a fost exportat în CSV.`)}
-function backup(){downloadBlob(JSON.stringify({app:'ATLAS — Catalog Geografie',version:3,exportedAt:new Date().toISOString(),classes:db.classes,assessments,settings:appSettings},null,2),'atlas_geografie_backup_'+new Date().toISOString().slice(0,10)+'.json','application/json');try{localStorage.setItem(BACKUP_KEY,String(Date.now()))}catch(e){}renderBackupInfo();showToast(`Copia de siguranță a fost creată (${db.classes.length} ${pl(db.classes.length,'clasă','clase')}).`)}
+function backup(){if(!window.ATLAS_AUTH_OK)return showToast('Autentifică-te pentru a crea o copie de siguranță.',true);downloadBlob(JSON.stringify({app:'ATLAS — Catalog Geografie',version:3,exportedAt:new Date().toISOString(),classes:db.classes,assessments,settings:appSettings},null,2),'atlas_geografie_backup_'+new Date().toISOString().slice(0,10)+'.json','application/json');try{localStorage.setItem(BACKUP_KEY,String(Date.now()))}catch(e){}renderBackupInfo();showToast(`Copia de siguranță a fost creată (${db.classes.length} ${pl(db.classes.length,'clasă','clase')}).`)}
 // Acceptă copii noi (toate clasele) și copii vechi din versiunea 1 (doar clasa XII U).
 function restoreFile(file){const reader=new FileReader();reader.onerror=()=>{showToast('Fișierul nu a putut fi citit.',true);$('restoreFile').value=''};reader.onload=()=>{try{const d=JSON.parse(reader.result);
   if(d&&Array.isArray(d.classes)){const classes=sanitizeClasses(d.classes);if(!classes.length)throw Error('Format invalid');const n=classes.reduce((s,c)=>s+c.logs.length,0);if(!confirm(`Copia conține ${classes.length} ${pl(classes.length,'clasă','clase')} și ${n} ${pl(n,'înregistrare validă','înregistrări valide')}. Înlocuiți TOATE datele actuale (toate clasele) cu această copie?`))return;db={classes};if(Array.isArray(d.assessments)){assessments=d.assessments.filter(a=>a&&a.id&&a.title&&a.classId&&Number(a.max)>0);saveAssessments()}if(d.settings&&typeof d.settings==='object'){appSettings={...appSettings,...d.settings};saveSettings()}if(!db.classes.some(c=>c.id===activeId))activeId=db.classes[0].id;saveActive();saveData();renderAll();showToast('Copia de siguranță a fost restaurată.')}
@@ -550,8 +557,8 @@ $('classForm').addEventListener('submit',saveClass);$('classDelete').addEventLis
 $('scoreForm').addEventListener('submit',e=>{e.preventDefault();if(addPoints($('scoreStudent').value,$('scoreValue').value,$('scoreNote').value))closeModal('scoreModal')});
 document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',()=>closeModal(b.dataset.close)));
 // Fereastra «clasă» nu se închide la click lângă ea, ca să nu se piardă o listă lungă de elevi.
-document.querySelectorAll('.modal-backdrop').forEach(el=>el.addEventListener('mousedown',e=>{if(e.target===el&&el.id!=='classModal')closeModal(el.id)}));
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){document.querySelectorAll('.modal-backdrop.open').forEach(el=>closeModal(el.id));setSidebar(false);return}if(e.key==='Tab'){const m=document.querySelector('.modal-backdrop.open');if(!m)return;const f=[...m.querySelectorAll('button,input,select,textarea,[href]')].filter(x=>!x.disabled&&x.offsetParent!==null);if(!f.length)return;const first=f[0],last=f[f.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}}});
+document.querySelectorAll('.modal-backdrop').forEach(el=>el.addEventListener('mousedown',e=>{if(e.target===el&&el.id!=='classModal'&&(el.id!=='authModal'||window.ATLAS_AUTH_OK))closeModal(el.id)}));
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){document.querySelectorAll('.modal-backdrop.open').forEach(el=>{if(el.id!=='authModal'||window.ATLAS_AUTH_OK)closeModal(el.id)});setSidebar(false);return}if(e.key==='Tab'){const m=document.querySelector('.modal-backdrop.open');if(!m)return;const f=[...m.querySelectorAll('button,input,select,textarea,[href]')].filter(x=>!x.disabled&&x.offsetParent!==null);if(!f.length)return;const first=f[0],last=f[f.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}}});
 document.addEventListener('submit',e=>{const form=e.target.closest('.inline-score');if(!form)return;e.preventDefault();const input=form.querySelector('input'),sid=form.dataset.student;if(addPoints(sid,input.value,'')){const f=[...document.querySelectorAll('.inline-score')].find(x=>x.dataset.student===sid);if(f)f.querySelector('input').focus()}});
 document.addEventListener('click',e=>{const hist=e.target.closest('[data-history]');if(hist){openStudentHistory(hist.dataset.history);return}const add=e.target.closest('[data-add]');if(add){openScoreModal(add.dataset.add);return}const undo=e.target.closest('[data-undo]');if(undo){undoLog(undo.dataset.undo);return}
   const rm=e.target.closest('[data-stu-rm]');if(rm){const row=rm.closest('.stu-edit'),on=row.classList.toggle('removed');row.querySelector('input').disabled=on;rm.innerHTML=on?restoreIcon:trashIcon;rm.title=on?'Restabilește elevul':'Elimină elevul';rm.setAttribute('aria-label',(on?'Restabilește elevul ':'Elimină elevul ')+row.querySelector('input').value)}});
@@ -624,7 +631,7 @@ loadData();renderAll();renderQuiz();
 (function(){
 'use strict';
 var PK='atlas-perf-v1',FK='atlas-flash-v1',autoLite=false,perf=readLocal(PK,'auto');
-function store(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+function store(k,v){if(!window.ATLAS_AUTH_OK)return;try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 
 /* ---------- 1. Mod economic (fără lag pe telefon) ---------- */
 function lowEnd(){var n=navigator;return !!((n.deviceMemory&&n.deviceMemory<=2)||(n.hardwareConcurrency&&n.hardwareConcurrency<=2))}
@@ -1036,8 +1043,9 @@ function flag(storage,k,v){try{if(v===undefined)return storage.getItem(k);storag
    «main» = ordinea claselor, evaluările, școala, anul. Fiecare clasă = un document (elevi + puncte). */
 function localState(){
   const m=new Map();
-  db.classes.forEach(c=>{const data=clone({cid:c.id,name:c.name,students:c.students,logs:c.logs});m.set(docIdOf(c.id),{data,hash:hash(data)})});
-  const main=clone({order:db.classes.map(c=>c.id),assessments:assessments,school:appSettings.school||'',year:appSettings.year||''});
+  db.classes.filter(c=>c.students&&c.students.length).forEach(c=>{const data=clone({cid:c.id,name:c.name,students:c.students,logs:c.logs});m.set(docIdOf(c.id),{data,hash:hash(data)})});
+  const realClasses=db.classes.filter(c=>c.students&&c.students.length);
+  const main=clone({order:realClasses.map(c=>c.id),assessments:assessments,school:appSettings.school||'',year:appSettings.year||''});
   m.set('main',{data:main,hash:hash(main)});
   return m}
 function remoteState(docs){
@@ -1059,7 +1067,8 @@ function applyState(final){
     const main=final.get('main'),ordered=[];
     (main?main.order:db.classes.map(c=>c.id)).forEach(cid=>{if(byCid.has(cid)){ordered.push(byCid.get(cid));byCid.delete(cid)}});
     byCid.forEach(d=>ordered.push(d));
-    localStorage.setItem(STORAGE_KEY,JSON.stringify({v:2,classes:ordered.map(d=>({id:d.cid,name:d.name,students:d.students,logs:d.logs}))}));
+    if(!ordered.length)ordered.push({id:'atlas-empty-session',name:'Catalogul meu',students:[],logs:[]});
+    localStorage.setItem(STORAGE_KEY,JSON.stringify({v:2,classes:ordered.filter(d=>d.students&&d.students.length).map(d=>({id:d.cid||d.id,name:d.name,students:d.students,logs:d.logs}))}));
     if(main){
       localStorage.setItem(ASSESS_KEY,JSON.stringify(main.assessments));
       const s=readLocal(SETTINGS_KEY,{dark:false,school:'',year:'2026–2027'});s.school=main.school;if(main.year)s.year=main.year;
@@ -1101,10 +1110,10 @@ function renderAccount(){
   chip.title=S.user?('Conectat ca '+S.user.email):'Autentifică-te ca să ai datele pe orice dispozitiv';
   if(item){
     if(S.user){const t=S.lastSync?new Date(S.lastSync).toLocaleTimeString('ro-RO',{hour:'2-digit',minute:'2-digit'}):'—';item.textContent='Conectat ca '+S.user.email+'. Datele sunt salvate în cont și pe acest dispozitiv · ultima sincronizare: '+t+'.'}
-    else item.textContent='Fără cont, datele rămân doar în acest browser. Autentifică-te ca să le poți deschide de pe orice alt dispozitiv (de exemplu de pe calculator).'}
+    else item.textContent='Nu ești conectat. Datele aplicației nu sunt încărcate și nu se salvează. Autentifică-te pentru a folosi ATLAS.'}
   if(acts){
     acts.innerHTML=S.user?'<button class="btn light" type="button" id="accSync">Sincronizează acum</button><button class="btn danger" type="button" id="accOut">Ieși din cont</button>':'<button class="btn primary" type="button" id="accIn">Autentifică-te / Creează cont</button>'}
-  if(notice)notice.textContent=S.user?'Datele elevilor sunt stocate în contul tău (Google Firebase) și pot fi citite doar după autentificare, de tine și de administratorul aplicației. Pe un calculator folosit și de alte persoane, ieși din cont când termini: datele locale se șterg, iar cele din cont rămân.':'Fără cont, aplicația funcționează local și nu trimite datele elevilor pe internet. Cu cont, datele se sincronizează criptat între dispozitivele tale.'}
+  if(notice)notice.textContent=S.user?'Datele sunt legate de contul tău. La deconectare, copia locală se șterge; numai administratorul autorizat poate vedea datele tuturor conturilor.':'Nu ești conectat. Datele aplicației nu sunt încărcate și nu se salvează până la autentificare.'}
 
 /* ---------- Ciclul de sincronizare (îmbinare pe clasă, „ultima modificare câștigă”) ---------- */
 function userBusy(){const a=document.activeElement;return !!document.querySelector('.modal-backdrop.open')||!!(a&&a.closest&&a.closest('.inline-score')&&a.value)}
@@ -1181,6 +1190,7 @@ function firstSync(){
   const meta=readMeta();
   if(meta.uid===S.user.uid){S.ready=true;cycle();return}
   if(S.remote.size===0){writeMeta({uid:S.user.uid,base:{},lastSync:0});S.ready=true;cycle();return}
+  if(!db.classes.some(c=>c.students&&c.students.length)&&!assessments.length){adoptRemote();return}
   if(isPristine()){adoptRemote();return}
   S.paused=true;setStatus('paused');openChoice()}
 function remoteMap(){const m=new Map();S.remote.forEach((v,id)=>m.set(id,v.data));return m}
@@ -1225,9 +1235,8 @@ async function googleAuth(){showAuthMsg('');authBusy(true);try{await S.be.signIn
 async function forgot(){const email=$('authEmail').value.trim();if(!email)return showAuthMsg('Scrie mai întâi adresa de email, apoi apasă „Ai uitat parola?”.');
   try{await S.be.resetPassword(email);showAuthMsg('Dacă există un cont cu această adresă, ți-am trimis un email cu linkul de resetare.',true)}catch(err){showAuthMsg(authError(err))}}
 function wipeLocalAndReload(){
-  const dark=!!appSettings.dark;
-  [STORAGE_KEY,OLD_STORAGE_KEY,ASSESS_KEY,ACTIVE_KEY,BACKUP_KEY,SETTINGS_KEY,META_KEY].forEach(k=>{try{localStorage.removeItem(k)}catch(e){}});
-  try{localStorage.setItem(SETTINGS_KEY,JSON.stringify({dark,school:'',year:'2026–2027'}))}catch(e){}
+  window.ATLAS_AUTH_OK=false;document.body.classList.remove('atlas-authenticated');
+  [STORAGE_KEY,OLD_STORAGE_KEY,ASSESS_KEY,ACTIVE_KEY,BACKUP_KEY,SETTINGS_KEY,META_KEY,'atlas-perf-v1','atlas-flash-v1','atlas-pro-v1','atlas-calendar-v1','atlas-a11y-v1','atlas-greseli-v1','atlas-prezenta-v1','atlas-geografie-12u-last-backup'].forEach(k=>{try{localStorage.removeItem(k)}catch(e){}});
   location.reload()}
 async function logout(){
   if(!S.user)return;
@@ -1264,9 +1273,19 @@ async function logout(){
 function onAuth(user){
   if(S.unsub){try{S.unsub()}catch(e){}S.unsub=null}
   S.user=user;S.remote=null;S.ready=false;S.paused=false;
-  if(!user){setStatus('off');
-    if(!flag(localStorage,GUEST_KEY)&&!flag(sessionStorage,DISMISS_KEY))openAuth('login');
-    return}
+  if(!user){
+    window.ATLAS_AUTH_OK=false;document.body.classList.remove('atlas-authenticated');
+    clearTimeout(S.timer);clearTimeout(S.watch);
+    [STORAGE_KEY,OLD_STORAGE_KEY,ASSESS_KEY,ACTIVE_KEY,BACKUP_KEY,SETTINGS_KEY,META_KEY,'atlas-perf-v1','atlas-flash-v1','atlas-pro-v1','atlas-calendar-v1','atlas-a11y-v1','atlas-greseli-v1','atlas-prezenta-v1','atlas-geografie-12u-last-backup'].forEach(k=>{try{localStorage.removeItem(k)}catch(e){}});
+    try{sessionStorage.removeItem(DISMISS_KEY)}catch(e){}
+    db={classes:[{id:'atlas-empty-session',name:'Catalogul meu',students:[],logs:[]}]};activeId='atlas-empty-session';cache=null;assessments=[];appSettings={dark:false,school:'',year:'2026–2027'};renderAll();setStatus('off');openAuth('login');return
+  }
+  const oldMeta=readMeta();
+  if(oldMeta.uid!==user.uid){
+    [STORAGE_KEY,OLD_STORAGE_KEY,ASSESS_KEY,ACTIVE_KEY,BACKUP_KEY,SETTINGS_KEY,META_KEY,'atlas-perf-v1','atlas-flash-v1','atlas-pro-v1','atlas-calendar-v1','atlas-a11y-v1','atlas-greseli-v1','atlas-prezenta-v1','atlas-geografie-12u-last-backup'].forEach(k=>{try{localStorage.removeItem(k)}catch(e){}});
+    db={classes:[{id:'atlas-empty-session',name:'Catalogul meu',students:[],logs:[]}]};activeId='atlas-empty-session';cache=null;assessments=[];appSettings={dark:false,school:'',year:'2026–2027'};
+  }
+  window.ATLAS_AUTH_OK=true;document.body.classList.add('atlas-authenticated');loadData();renderAll();
   closeModal('authModal');setStatus('connecting');
   clearTimeout(S.watch);S.watch=setTimeout(()=>{if(S.user&&!S.ready&&!S.paused){setStatus('error');showToast('Nu mă pot conecta la baza de date. Verifică în Firebase: Firestore Database creată și regulile publicate. Dezactivează și blocantul de reclame pentru acest site.',true)}},15000);
   S.unsub=S.be.listen(user.uid,onSnapshot,e=>{const c=e&&e.code||'';setStatus(c==='permission-denied'?'error':'offline');showToast(c==='permission-denied'?'Firestore a refuzat accesul. Publică regulile din firestore.rules (Firestore → Rules → Publish).':'Eroare la baza de date'+(c?' ('+c+')':'')+'. Verifică dacă Firestore Database este creată în proiectul Firebase.',true);console.error('ATLAS sync:',e)})}
@@ -1285,14 +1304,13 @@ document.addEventListener('click',e=>{
   if(t.dataset.authMode){setAuthMode(t.dataset.authMode);return}
   if(t.id==='authGoogle'){googleAuth();return}
   if(t.id==='authForgot'){forgot();return}
-  if(t.id==='authSkip'){flag(localStorage,GUEST_KEY,'1');closeModal('authModal');showToast('Lucrezi fără cont. Te poți autentifica oricând din Setări.');return}
   if(t.id==='choiceMerge'){closeModal('syncChoiceModal');adoptMerged();showToast('Datele din cont și cele de pe acest dispozitiv au fost combinate.');return}
   if(t.id==='choiceCloud'){closeModal('syncChoiceModal');try{backup()}catch(err){}adoptRemote();showToast('Am folosit datele din cont. Datele vechi de pe acest dispozitiv au fost descărcate ca fișier de siguranță.');return}
   if(t.id==='choiceLocal'){if(!confirm('Datele din cont vor fi înlocuite cu cele de pe acest dispozitiv. Continui?'))return;closeModal('syncChoiceModal');adoptLocal();showToast('Contul a fost actualizat cu datele de pe acest dispozitiv.');return}
 });
 $('authForm').addEventListener('submit',submitAuth);
 // Dacă fereastra de login e închisă fără alegere, nu o mai afișăm până la următoarea deschidere a aplicației.
-new MutationObserver(()=>{if(!$('authModal').classList.contains('open')&&!S.user)flag(sessionStorage,DISMISS_KEY,'1')}).observe($('authModal'),{attributes:true,attributeFilter:['class']});
+
 window.addEventListener('online',()=>{renderAccount();if(S.user&&S.ready)schedule(500)});window.addEventListener('offline',renderAccount);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&S.user&&S.ready)schedule(300)});
 start();
@@ -1307,7 +1325,7 @@ body.fs1{zoom:1.1}body.fs2{zoom:1.22}body.hc{--ink:#000;--muted:#25384a;--line:#
 /* ===== ATLAS Plus 3 · hartă, quiz pe categorii, prezență, calendar, diplome, accesibilitate, PWA ===== */
 (function(){
 'use strict';
-var $=function(i){return document.getElementById(i)},LS=function(k,d){try{return JSON.parse(localStorage.getItem(k))||d}catch(e){return d}},SV=function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+var $=function(i){return document.getElementById(i)},LS=function(k,d){if(!window.ATLAS_AUTH_OK)return d;try{return JSON.parse(localStorage.getItem(k))||d}catch(e){return d}},SV=function(k,v){if(!window.ATLAS_AUTH_OK)return;try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
 var esc=window.escapeHtml;
 
 /* ecran de pornire */
@@ -1649,7 +1667,7 @@ key=rows().map(function(x){return x.n+x.p}).join('|');podium()});
 /* 7. Setări noi și notificări (în pagina Setări) */
 run(function(){var K='atlas-pro-v1',D={glass:1,tilt:1,podium:1,calm:0,inapp:1,device:0,timer:1,lucrari:'3',backup:'14',seen:{}},S=Object.assign({},D);
 try{S=Object.assign({},D,JSON.parse(localStorage.getItem(K)||'{}'))}catch(e){}
-function save(){try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}}
+function save(){if(!window.ATLAS_AUTH_OK)return;try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}}
 function apply(){var g=document.getElementById('atlas-glass-css');if(g)g.disabled=!S.glass;var b=document.body.classList;b.toggle('pro-no-tilt',!S.tilt);b.toggle('pro-no-podium',!S.podium);b.toggle('pro-calm',!!S.calm)}
 function go(p){var b=q('.nav [data-page="'+p+'"]');if(b)b.click()}
 /* --- carduri de notificare --- */
