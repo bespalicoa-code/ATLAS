@@ -1788,10 +1788,11 @@ async function show(body){
   const old=all.filter(u=>u.alive===false);
   let showOld=false;
   const when=ms=>ms?new Date(ms).toLocaleDateString('ro-RO',{day:'2-digit',month:'2-digit',year:'numeric'}):'—';
-  const card=u=>'<details style="border:1px solid var(--line);border-radius:10px;padding:10px;margin:8px 0'+(u.alive===false?';opacity:.6':'')+'"><summary><b>'+esc(u.email)+'</b>'+(u.alive===false?' <i>(cont șters)</i>':'')+(u.hasEmail?'':' <i>(fără email înregistrat)</i>')+' — '+u.cl.length+' clase, '+u.cl.reduce((t,c)=>t+n(c),0)+' elevi · văzut: '+when(u.seen)+'</summary>'+u.cl.map(c=>'<p><b>'+esc(c.name)+'</b> ('+n(c)+' elevi, '+(c.logs||[]).length+' înregistrări)<br>'+esc((c.students||[]).map(nm).join(', '))+'</p>').join('')+(u.alive===false?'<p><button class="btn danger" type="button" data-purge="'+esc(u.uid)+'">Șterge definitiv datele acestui cont</button></p>':'')+'</details>';
-  /* Șterge din Firestore datele unui cont deja șters din Authentication (profilul se șterge ultimul). */
+  const card=u=>'<details style="border:1px solid var(--line);border-radius:10px;padding:10px;margin:8px 0'+(u.alive===false?';opacity:.6':'')+'"><summary><b>'+esc(u.email)+'</b>'+(u.alive===false?' <i>(cont șters)</i>':'')+(u.hasEmail?'':' <i>(fără email înregistrat)</i>')+' — '+u.cl.length+' clase, '+u.cl.reduce((t,c)=>t+n(c),0)+' elevi · văzut: '+when(u.seen)+'</summary>'+u.cl.map(c=>'<p><b>'+esc(c.name)+'</b> ('+n(c)+' elevi, '+(c.logs||[]).length+' înregistrări)<br>'+esc((c.students||[]).map(nm).join(', '))+'</p>').join('')+(isMe(u)?'':'<p><button class="btn danger" type="button" data-purge="'+esc(u.uid)+'">Șterge datele acestui utilizator</button></p>')+'</details>';
+  /* Șterge din Firestore datele unui utilizator, la alegerea adminului (profilul se șterge ultimul). Contul tău nu se poate șterge de aici. */
+  const isMe=u=>(u.email||'').toLowerCase()===ADMIN_EMAIL.toLowerCase();
   const purge=async u=>{
-    if(u.alive!==false||!confirm('Ștergi definitiv din baza de date toate datele contului '+u.email+' ('+u.cl.length+' clase)?\nAcțiunea nu poate fi anulată. Descarcă mai întâi JSON-ul dacă vrei o copie.'))return;
+    if(isMe(u)||!confirm('Ștergi definitiv din baza de date toate datele utilizatorului '+u.email+' ('+u.cl.length+' clase)?'+(u.alive===false?'':'\n\nATENȚIE: contul nu apare ca șters, deci posibil mai există.')+'\nAcțiunea nu poate fi anulată. Descarcă mai întâi JSON-ul dacă vrei o copie.'))return;
     try{
       const snap=await F.getDocs(F.collection(vFs,'users',u.uid,'atlas'));
       await Promise.all(snap.docs.map(d=>F.deleteDoc(d.ref)));
