@@ -307,6 +307,7 @@ body.dark .atlas-map-heading h1{color:#edf5ff}body.dark .atlas-stat{background:#
     <button id="navAdd"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>Adaugă puncte</button>
     <button id="navSettings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="m19.4 15 .1.1 1.4 1.1-1.5 2.6-1.7-.6a8 8 0 0 1-1.7 1l-.3 1.8h-3l-.3-1.8a8 8 0 0 1-1.7-1l-1.7.6-1.5-2.6 1.4-1.1a7 7 0 0 1 0-2l-1.4-1.1 1.5-2.6 1.7.6a8 8 0 0 1 1.7-1l.3-1.8h3l.3 1.8a8 8 0 0 1 1.7 1l1.7-.6 1.5 2.6-1.4 1.1a7 7 0 0 1 0 2z"/></svg>Setări</button>
     <button id="navAccount"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>Cont și sincronizare</button>
+    <button id="navAdmin" style="display:none"><svg viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>Administrare</button>
     <button id="navExport"><svg viewBox="0 0 24 24"><path d="M12 3v12m-5-5 5 5 5-5M4 17v3h16v-3"/></svg>Exportă catalogul</button>
     <button id="navBackup"><svg viewBox="0 0 24 24"><path d="M12 16V4m-5 5 5-5 5 5M4 16v4h16v-4"/></svg>Copie de siguranță</button>
     <button id="navRestore"><svg viewBox="0 0 24 24"><path d="M12 4v12m-5-5 5 5 5-5M4 4h16"/></svg>Restaurează copia</button>
@@ -1103,7 +1104,7 @@ function renderAccount(){
     else item.textContent='Fără cont, datele rămân doar în acest browser. Autentifică-te ca să le poți deschide de pe orice alt dispozitiv (de exemplu de pe calculator).'}
   if(acts){
     acts.innerHTML=S.user?'<button class="btn light" type="button" id="accSync">Sincronizează acum</button><button class="btn danger" type="button" id="accOut">Ieși din cont</button>':'<button class="btn primary" type="button" id="accIn">Autentifică-te / Creează cont</button>'}
-  if(notice)notice.textContent=S.user?'Datele elevilor sunt stocate în contul tău (Google Firebase) și pot fi citite doar după autentificare. Pe un calculator folosit și de alte persoane, ieși din cont când termini: datele locale se șterg, iar cele din cont rămân.':'Fără cont, aplicația funcționează local și nu trimite datele elevilor pe internet. Cu cont, datele se sincronizează criptat între dispozitivele tale.'}
+  if(notice)notice.textContent=S.user?'Datele elevilor sunt stocate în contul tău (Google Firebase) și pot fi citite doar după autentificare, de tine și de administratorul aplicației. Pe un calculator folosit și de alte persoane, ieși din cont când termini: datele locale se șterg, iar cele din cont rămân.':'Fără cont, aplicația funcționează local și nu trimite datele elevilor pe internet. Cu cont, datele se sincronizează criptat între dispozitivele tale.'}
 
 /* ---------- Ciclul de sincronizare (îmbinare pe clasă, „ultima modificare câștigă”) ---------- */
 function userBusy(){const a=document.activeElement;return !!document.querySelector('.modal-backdrop.open')||!!(a&&a.closest&&a.closest('.inline-score')&&a.value)}
@@ -1712,6 +1713,52 @@ var b=document.createElement('button');b.type='button';b.textContent=name;b.oncl
 lab.insertBefore(hero,gr)});
 
 })();
+</script>
+<script type="module">
+/* ATLAS · Administrare: cont de admin + parolă separată pentru baza de date a utilizatorilor.
+   Securitatea reală stă în firestore.rules (UID-ul contului-seif), nu în acest cod. */
+const ADMIN_EMAIL='bespalicoa@gmail.com';  // emailul cu care te loghezi ca admin în ATLAS
+const VAULT_EMAIL='bespalicoa@gmail.com';  // emailul contului-seif (creat în Firebase Console); parola lui = „parola bazei de date”
+const SDK='https://www.gstatic.com/firebasejs/10.14.1/';
+if(ADMIN_EMAIL&&VAULT_EMAIL){
+const [P,A,F]=await Promise.all([import(SDK+'firebase-app.js'),import(SDK+'firebase-auth.js'),import(SDK+'firebase-firestore.js')]);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let app;for(let i=0;i<60&&!app;i++){app=P.getApps().find(a=>a.name==='[DEFAULT]');if(!app)await new Promise(r=>setTimeout(r,500))}
+if(app){
+const auth=A.getAuth(app),fs=F.getFirestore(app),btn=document.getElementById('navAdmin');
+A.onAuthStateChanged(auth,u=>{
+  btn.style.display=u&&(u.email||'').toLowerCase()===ADMIN_EMAIL.toLowerCase()?'':'none';
+  if(u&&u.email)F.setDoc(F.doc(fs,'users',u.uid),{email:u.email,seen:F.serverTimestamp()},{merge:true}).catch(()=>{});
+});
+let vAuth,vFs;
+btn.onclick=()=>{
+  const o=document.createElement('div');
+  o.style.cssText='position:fixed;inset:0;z-index:99;background:#06192bcc;display:grid;place-items:center;padding:14px';
+  o.innerHTML='<div style="background:var(--white);color:var(--ink);border-radius:16px;padding:22px;width:min(760px,100%);max-height:88vh;overflow:auto"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h2 style="margin:0">Administrare</h2><button class="btn white" type="button" id="admX">Închide</button></div><div id="admBody"></div></div>';
+  document.body.appendChild(o);
+  const body=o.querySelector('#admBody');
+  o.querySelector('#admX').onclick=()=>{o.remove();if(vAuth)A.signOut(vAuth).catch(()=>{})};
+  body.innerHTML='<p>Introdu parola bazei de date ca să vezi datele tuturor utilizatorilor.</p><form id="admF" style="display:flex;gap:8px"><input id="admP" type="password" autocomplete="off" placeholder="Parola bazei de date" style="flex:1;padding:10px;border:1px solid var(--line);border-radius:10px"><button class="btn primary" type="submit">Deschide</button></form><p id="admE" class="auth-err hidden" style="margin-top:12px"></p>';
+  body.querySelector('#admF').onsubmit=async e=>{
+    e.preventDefault();const err=body.querySelector('#admE');err.classList.add('hidden');
+    try{
+      const v=P.getApps().find(a=>a.name==='vault')||P.initializeApp(ATLAS_FIREBASE_CONFIG,'vault');
+      vAuth=A.getAuth(v);await A.signInWithEmailAndPassword(vAuth,VAULT_EMAIL,body.querySelector('#admP').value);
+      vFs=F.getFirestore(v);await show(body);
+    }catch(x){err.textContent=x.code==='permission-denied'?'Contul-seif nu are acces: verifică UID-ul din firestore.rules.':'Parolă greșită sau eroare de conectare.';err.classList.remove('hidden')}
+  };
+};
+async function show(body){
+  body.innerHTML='<p>Se încarcă…</p>';
+  const [pr,at]=await Promise.all([F.getDocs(F.collection(vFs,'users')),F.getDocs(F.collectionGroup(vFs,'atlas'))]);
+  const U=new Map(),raw=[],get=id=>U.get(id)||U.set(id,{email:id,cl:[]}).get(id);
+  pr.forEach(d=>{get(d.id).email=d.data().email||d.id});
+  at.forEach(d=>{const uid=d.ref.parent.parent.id;raw.push({uid,doc:d.id,data:d.data()});if(d.id.startsWith('c_'))get(uid).cl.push(d.data())});
+  const nm=s=>typeof s==='string'?s:(s&&(s.name||s.nume))||'?',n=c=>(c.students||[]).length;
+  body.innerHTML='<p>'+U.size+' utilizatori · <button class="btn light" type="button" id="admDl">Descarcă tot (JSON)</button></p>'+[...U.values()].map(u=>'<details style="border:1px solid var(--line);border-radius:10px;padding:10px;margin:8px 0"><summary><b>'+esc(u.email)+'</b> — '+u.cl.length+' clase, '+u.cl.reduce((t,c)=>t+n(c),0)+' elevi</summary>'+u.cl.map(c=>'<p><b>'+esc(c.name)+'</b> ('+n(c)+' elevi, '+(c.logs||[]).length+' înregistrări)<br>'+esc((c.students||[]).map(nm).join(', '))+'</p>').join('')+'</details>').join('');
+  body.querySelector('#admDl').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(raw,null,1)],{type:'application/json'}));a.download='atlas-toate-datele.json';a.click()};
+}
+}}
 </script>
 </body>
 </html>
