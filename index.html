@@ -1113,7 +1113,7 @@ function renderAccount(){
     else item.textContent='Nu ești conectat. Datele aplicației nu sunt încărcate și nu se salvează. Autentifică-te pentru a folosi ATLAS.'}
   if(acts){
     acts.innerHTML=S.user?'<button class="btn light" type="button" id="accSync">Sincronizează acum</button><button class="btn danger" type="button" id="accOut">Ieși din cont</button>':'<button class="btn primary" type="button" id="accIn">Autentifică-te / Creează cont</button>'}
-  if(notice)notice.textContent=S.user?'Datele sunt legate de contul tău. La deconectare, copia locală se șterge; numai administratorul autorizat poate vedea datele tuturor conturilor.':'Nu ești conectat. Datele aplicației nu sunt încărcate și nu se salvează până la autentificare.'}
+  if(notice)notice.textContent=S.user?'Datele sunt legate de contul tău. La deconectare, copia locală se șterge; numai administratorul autorizat poate vedea datele și jurnalul de activitate al tuturor conturilor (conectări, clase, elevi, puncte).':'Nu ești conectat. Datele aplicației nu sunt încărcate și nu se salvează până la autentificare.'}
 
 /* ---------- Ciclul de sincronizare (îmbinare pe clasă, „ultima modificare câștigă”) ---------- */
 function userBusy(){const a=document.activeElement;return !!document.querySelector('.modal-backdrop.open')||!!(a&&a.closest&&a.closest('.inline-score')&&a.value)}
@@ -1734,7 +1734,9 @@ lab.insertBefore(hero,gr)});
 </script>
 <script type="module">
 /* ATLAS · Administrare: cont de admin + parolă separată pentru baza de date a utilizatorilor.
-   Securitatea reală stă în firestore.rules (UID-ul contului-seif), nu în acest cod. */
+   Securitatea reală stă în firestore.rules (UID-ul contului-seif), nu în acest cod.
+   Include și JURNALUL DE ACTIVITATE: fiecare cont scrie evenimente în colecția „activity”,
+   iar panoul de administrare le arată live, împreună cu punctajele deja existente în clase. */
 const ADMIN_EMAIL='bespalicoa@gmail.com';  // emailul cu care te loghezi ca admin în ATLAS
 const VAULT_EMAIL='bespalicoa@gmail.com';  // emailul contului-seif (creat în Firebase Console); parola lui = „parola bazei de date”
 const SDK='https://www.gstatic.com/firebasejs/10.14.1/';
@@ -1744,19 +1746,98 @@ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 let app;for(let i=0;i<60&&!app;i++){app=P.getApps().find(a=>a.name==='[DEFAULT]');if(!app)await new Promise(r=>setTimeout(r,500))}
 if(app){
 const auth=A.getAuth(app),fs=F.getFirestore(app),btn=document.getElementById('navAdmin');
+const isAdminUser=u=>!!u&&(u.email||'').toLowerCase()===ADMIN_EMAIL.toLowerCase();
+
+/* ===================== 1. JURNAL DE ACTIVITATE (scris de fiecare cont) ===================== */
+const TY={
+  points:['⭐','Puncte acordate'],login:['🔑','Autentificări'],open:['👋','Deschideri aplicație'],signup:['🆕','Conturi noi'],
+  page:['🧭','Secțiuni deschise'],class_new:['🏫','Clase create'],class_ren:['✏️','Clase redenumite'],class_del:['🗑️','Clase șterse'],
+  stud_add:['👤','Elevi adăugați'],stud_del:['🚫','Elevi șterși'],undo:['↩️','Puncte anulate'],
+  assess_new:['📝','Evaluări create'],assess_del:['🧹','Evaluări șterse'],other:['•','Altele']
+};
+const devName=()=>{const u=navigator.userAgent||'';
+  return (/iPhone|iPad/.test(u)?'iPhone/iPad':/Android/.test(u)?'Android':/Windows/.test(u)?'Windows':/Mac/.test(u)?'Mac':/Linux/.test(u)?'Linux':'dispozitiv necunoscut')
+   +' · '+(/Edg\//.test(u)?'Edge':/OPR\//.test(u)?'Opera':/Chrome\//.test(u)?'Chrome':/Safari\//.test(u)?'Safari':/Firefox\//.test(u)?'Firefox':'browser')};
+const track=(type,text,cls)=>{
+  const u=auth.currentUser;if(!u||!u.email)return;
+  F.addDoc(F.collection(fs,'activity'),{uid:u.uid,email:u.email,type:type,text:String(text).slice(0,300),cls:String(cls||'').slice(0,80),dev:devName(),ts:F.serverTimestamp()}).catch(()=>{})};
+const beat=()=>{const u=auth.currentUser;
+  if(u&&u.email&&document.visibilityState==='visible')F.setDoc(F.doc(fs,'users',u.uid),{email:u.email,seen:F.serverTimestamp()},{merge:true}).catch(()=>{})};
+
 A.onAuthStateChanged(auth,u=>{
-  btn.style.display=u&&(u.email||'').toLowerCase()===ADMIN_EMAIL.toLowerCase()?'':'none';
+  btn.style.display=isAdminUser(u)?'':'none';
   if(u&&u.email)F.setDoc(F.doc(fs,'users',u.uid),{email:u.email,seen:F.serverTimestamp()},{merge:true}).catch(()=>{});
+  if(!u||!u.email)return;
+  try{
+    const m=u.metadata||{},k='atlas-act-last-'+u.uid,prev=localStorage.getItem(k),cur=String(m.lastSignInTime||'');
+    const recent=Math.abs(Date.now()-Date.parse(m.lastSignInTime||0))<600000;
+    const isNew=recent&&Math.abs(Date.parse(m.lastSignInTime||0)-Date.parse(m.creationTime||0))<600000;
+    if(isNew&&prev!==cur)track('signup','Cont nou creat','');
+    else if(recent&&prev!==cur)track('login','S-a autentificat în cont','');
+    else if(!sessionStorage.getItem('atlas-act-open'))track('open','A deschis aplicația','');
+    localStorage.setItem(k,cur);sessionStorage.setItem('atlas-act-open','1');
+  }catch(e){}
 });
-let vAuth,vFs;
+setInterval(beat,120000);document.addEventListener('visibilitychange',beat);
+
+/* secțiunile deschise (o dată pe secțiune, pe sesiune) */
+try{
+  const pt=document.getElementById('pageTitle');
+  if(pt)new MutationObserver(()=>{
+    if(!window.ATLAS_AUTH_OK)return;
+    const t=(pt.textContent||'').trim();if(!t)return;
+    let seen=[];try{seen=JSON.parse(sessionStorage.getItem('atlas-act-pages')||'[]')}catch(e){}
+    if(seen.indexOf(t)>=0)return;seen.push(t);
+    try{sessionStorage.setItem('atlas-act-pages',JSON.stringify(seen))}catch(e){}
+    track('page','A deschis secțiunea „'+t+'”','');
+  }).observe(pt,{childList:true,characterData:true,subtree:true});
+}catch(e){}
+
+/* modificări în catalog: comparăm ce era salvat înainte cu ce se salvează acum */
+const readCls=()=>{try{const d=JSON.parse(localStorage.getItem(STORAGE_KEY));return Array.isArray(d&&d.classes)?d.classes:[]}catch(e){return[]}};
+const readAss=()=>{try{const d=JSON.parse(localStorage.getItem(ASSESS_KEY));return Array.isArray(d)?d:[]}catch(e){return[]}};
+const sname=(c,sid)=>{const s=((c&&c.students)||[]).find(x=>x.id===sid);return s?(s.name||'?'):'elev șters'};
+const nlist=a=>a.slice(0,4).map(s=>s.name||'?').join(', ')+(a.length>4?'…':'');
+function diffClasses(prev,next){
+  const Pm=new Map(prev.map(c=>[c.id,c])),Nm=new Map(next.map(c=>[c.id,c])),ev=[];
+  Nm.forEach((c,id)=>{
+    const o=Pm.get(id);
+    if(!o){ev.push(['class_new','A creat clasa „'+c.name+'” ('+c.students.length+' elevi)',c.name]);return}
+    if(o.name!==c.name)ev.push(['class_ren','A redenumit clasa „'+o.name+'” în „'+c.name+'”',c.name]);
+    const os=new Set((o.students||[]).map(s=>s.id)),ns=new Set((c.students||[]).map(s=>s.id));
+    const add=(c.students||[]).filter(s=>!os.has(s.id)),del=(o.students||[]).filter(s=>!ns.has(s.id));
+    if(add.length)ev.push(['stud_add','A adăugat '+add.length+(add.length===1?' elev: ':' elevi: ')+nlist(add),c.name]);
+    if(del.length)ev.push(['stud_del','A șters '+del.length+(del.length===1?' elev: ':' elevi: ')+nlist(del),c.name]);
+    const nl=new Set((c.logs||[]).map(l=>l.id));
+    const gone=(o.logs||[]).filter(l=>!nl.has(l.id)&&ns.has(l.sid));
+    if(gone.length)ev.push(['undo','A anulat '+gone.length+(gone.length===1?' înregistrare':' înregistrări')+' de puncte: '+gone.slice(0,3).map(l=>'+'+l.points+' '+sname(o,l.sid)).join(', ')+(gone.length>3?'…':''),c.name]);
+  });
+  Pm.forEach((o,id)=>{if(!Nm.has(id))ev.push(['class_del','A șters clasa „'+o.name+'” ('+(o.students||[]).length+' elevi, '+(o.logs||[]).length+' înregistrări)',o.name])});
+  ev.slice(0,8).forEach(e=>track(e[0],e[1],e[2]));
+  if(ev.length>8)track('other','Încă '+(ev.length-8)+' modificări într-o singură acțiune','');
+}
+function diffAssess(prev,next){
+  const po=new Set(prev.map(a=>a.id)),no=new Set(next.map(a=>a.id));
+  next.filter(a=>!po.has(a.id)).slice(0,5).forEach(a=>track('assess_new','A creat evaluarea „'+(a.title||'?')+'” (max. '+a.max+' puncte)',''));
+  prev.filter(a=>!no.has(a.id)).slice(0,5).forEach(a=>track('assess_del','A șters evaluarea „'+(a.title||'?')+'”',''));
+}
+const wrap=(name,pre,post)=>{
+  const o=window[name];if(typeof o!=='function'||o.__act)return;
+  const w=function(){let pv;try{pv=pre()}catch(e){}const r=o.apply(this,arguments);try{if(r!==false&&pv!==undefined)post(pv)}catch(e){}return r};
+  w.__act=1;window[name]=w};
+wrap('saveData',readCls,prev=>diffClasses(prev,db.classes.filter(c=>c.students&&c.students.length)));
+wrap('saveAssessments',readAss,prev=>diffAssess(prev,assessments));
+
+/* ===================== 2. PANOUL DE ADMINISTRARE ===================== */
+let vAuth,vFs,stop=()=>{};
 btn.onclick=()=>{
   const o=document.createElement('div');
   o.style.cssText='position:fixed;inset:0;z-index:99;background:#06192bcc;display:grid;place-items:center;padding:14px';
-  o.innerHTML='<div style="background:var(--white);color:var(--ink);border-radius:16px;padding:22px;width:min(760px,100%);max-height:88vh;overflow:auto"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h2 style="margin:0">Administrare</h2><button class="btn white" type="button" id="admX">Închide</button></div><div id="admBody"></div></div>';
+  o.innerHTML='<div style="background:var(--white);color:var(--ink);border-radius:16px;padding:22px;width:min(1000px,100%);max-height:90vh;overflow:auto"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h2 style="margin:0">Administrare</h2><button class="btn white" type="button" id="admX">Închide</button></div><div id="admBody"></div></div>';
   document.body.appendChild(o);
   const body=o.querySelector('#admBody');
-  o.querySelector('#admX').onclick=()=>{o.remove();if(vAuth)A.signOut(vAuth).catch(()=>{})};
-  body.innerHTML='<p>Introdu parola bazei de date ca să vezi datele tuturor utilizatorilor.</p><form id="admF" style="display:flex;gap:8px"><input id="admP" type="password" autocomplete="off" placeholder="Parola bazei de date" style="flex:1;padding:10px;border:1px solid var(--line);border-radius:10px"><button class="btn primary" type="submit">Deschide</button></form><p id="admE" class="auth-err hidden" style="margin-top:12px"></p>';
+  o.querySelector('#admX').onclick=()=>{stop();stop=()=>{};o.remove();if(vAuth)A.signOut(vAuth).catch(()=>{})};
+  body.innerHTML='<p>Introdu parola bazei de date ca să vezi datele și activitatea tuturor utilizatorilor.</p><form id="admF" style="display:flex;gap:8px"><input id="admP" type="password" autocomplete="off" placeholder="Parola bazei de date" style="flex:1;padding:10px;border:1px solid var(--line);border-radius:10px"><button class="btn primary" type="submit">Deschide</button></form><p id="admE" class="auth-err hidden" style="margin-top:12px"></p>';
   body.querySelector('#admF').onsubmit=async e=>{
     e.preventDefault();const err=body.querySelector('#admE');err.classList.add('hidden');
     try{
@@ -1766,13 +1847,23 @@ btn.onclick=()=>{
     }catch(x){err.textContent=x.code==='permission-denied'?'Contul-seif nu are acces: verifică UID-ul din firestore.rules.':'Parolă greșită sau eroare de conectare.';err.classList.remove('hidden')}
   };
 };
+
 async function show(body){
+  stop();stop=()=>{};
   body.innerHTML='<p>Se încarcă…</p>';
   const [pr,at]=await Promise.all([F.getDocs(F.collection(vFs,'users')),F.getDocs(F.collectionGroup(vFs,'atlas'))]);
-  const U=new Map(),raw=[],get=id=>U.get(id)||U.set(id,{uid:id,email:id,cl:[]}).get(id);
-  pr.forEach(d=>{const u=get(d.id),x=d.data();u.email=x.email||d.id;u.hasEmail=!!x.email;u.seen=x.seen&&x.seen.toMillis?x.seen.toMillis():0});
-  at.forEach(d=>{const uid=d.ref.parent.parent.id;raw.push({uid,doc:d.id,data:d.data()});if(d.id.startsWith('c_'))get(uid).cl.push(d.data())});
+  const U=new Map(),raw=[],pts=[],get=id=>U.get(id)||U.set(id,{uid:id,email:id,cl:[]}).get(id);
   const nm=s=>typeof s==='string'?s:(s&&(s.name||s.nume))||'?',n=c=>(c.students||[]).length;
+  const ms=t=>t&&t.toMillis?t.toMillis():0;
+  pr.forEach(d=>{const u=get(d.id),x=d.data();u.email=x.email||d.id;u.hasEmail=!!x.email;u.seen=ms(x.seen)});
+  at.forEach(d=>{
+    const uid=d.ref.parent.parent.id;raw.push({uid,doc:d.id,data:d.data()});
+    if(!d.id.startsWith('c_'))return;
+    const x=d.data();get(uid).cl.push(x);
+    const S=new Map((x.students||[]).map(s=>[s.id,nm(s)]));
+    (x.logs||[]).forEach(l=>{if(l&&l.ts)pts.push({id:'p'+uid+l.id,ms:+l.ts,uid:uid,email:'',type:'points',text:'+'+(l.points==null?'?':l.points)+' pct. · '+(S.get(l.sid)||'elev șters')+(l.note?' · '+l.note:''),cls:x.name||'',dev:''})});
+  });
+  pts.forEach(e=>{e.email=get(e.uid).email});
   /* Care conturi mai există în Firebase Auth? Datele din Firestore rămân și după ce un cont a fost șters,
      așa că le verificăm separat. fetchSignInMethodsForEmail întoarce [] pentru un email fără cont.
      Dacă Firebase are „email enumeration protection” activ, răspunde [] pentru toți: ca să nu ascundem
@@ -1784,34 +1875,147 @@ async function show(body){
     if(!u.hasEmail||u.email.indexOf('@')<0)return;
     try{u.alive=(await A.fetchSignInMethodsForEmail(auth,u.email)).length>0}catch(x){}
   }));
-  const all=[...U.values()].sort((a,b)=>(b.seen||0)-(a.seen||0));
-  const old=all.filter(u=>u.alive===false);
-  let showOld=false;
-  const when=ms=>ms?new Date(ms).toLocaleDateString('ro-RO',{day:'2-digit',month:'2-digit',year:'numeric'}):'—';
-  const card=u=>'<details style="border:1px solid var(--line);border-radius:10px;padding:10px;margin:8px 0'+(u.alive===false?';opacity:.6':'')+'"><summary><b>'+esc(u.email)+'</b>'+(u.alive===false?' <i>(cont șters)</i>':'')+(u.hasEmail?'':' <i>(fără email înregistrat)</i>')+' — '+u.cl.length+' clase, '+u.cl.reduce((t,c)=>t+n(c),0)+' elevi · văzut: '+when(u.seen)+'</summary>'+u.cl.map(c=>'<p><b>'+esc(c.name)+'</b> ('+n(c)+' elevi, '+(c.logs||[]).length+' înregistrări)<br>'+esc((c.students||[]).map(nm).join(', '))+'</p>').join('')+(isMe(u)?'':'<p><button class="btn danger" type="button" data-purge="'+esc(u.uid)+'">Șterge datele acestui utilizator</button></p>')+'</details>';
-  /* Șterge din Firestore datele unui utilizator, la alegerea adminului (profilul se șterge ultimul). Contul tău nu se poate șterge de aici. */
+
+  /* ---- stare ---- */
+  let tab='act',fAcc='',fType='',fQ='',shown=80,showOld=false,acts=[],actErr='';
+  const openSet=new Set(),un=[];let rt,tick;
   const isMe=u=>(u.email||'').toLowerCase()===ADMIN_EMAIL.toLowerCase();
+  const allU=()=>[...U.values()].sort((a,b)=>(b.seen||0)-(a.seen||0));
+  const oldU=()=>allU().filter(u=>u.alive===false);
+  const allEv=()=>acts.concat(pts).sort((a,b)=>b.ms-a.ms);
+  const when=t=>t?new Date(t).toLocaleDateString('ro-RO',{day:'2-digit',month:'2-digit',year:'numeric'}):'—';
+  const full=t=>t?new Date(t).toLocaleString('ro-RO'):'—';
+  const hm=t=>new Date(t).toLocaleTimeString('ro-RO',{hour:'2-digit',minute:'2-digit'});
+  const ago=t=>{if(!t)return'—';const s=Math.max(0,(Date.now()-t)/1000);
+    if(s<60)return'acum câteva secunde';if(s<3600)return'acum '+Math.floor(s/60)+' min';if(s<86400)return'acum '+Math.floor(s/3600)+' h';
+    if(s<604800)return'acum '+Math.floor(s/86400)+(s<172800?' zi':' zile');return when(t)};
+  const dayLabel=t=>{const d=new Date(t),a=new Date().toDateString(),b=new Date(Date.now()-864e5).toDateString();
+    return d.toDateString()===a?'Azi':d.toDateString()===b?'Ieri':d.toLocaleDateString('ro-RO',{weekday:'long',day:'numeric',month:'long',year:'numeric'})};
+  const tyi=t=>(TY[t]||TY.other);
+
+  body.innerHTML='<div id="admSt"></div><div id="admTabs" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px"></div><div id="admTools"></div><div id="admList"></div>';
+  const $st=body.querySelector('#admSt'),$tabs=body.querySelector('#admTabs'),$tools=body.querySelector('#admTools'),$list=body.querySelector('#admList');
+
+  /* ---- 1) cifre generale ---- */
+  const drawStats=()=>{
+    const now=Date.now(),act=allU().filter(u=>u.alive!==false),L=new Map();
+    allEv().forEach(e=>{if(!L.has(e.uid))L.set(e.uid,e.ms)});
+    const lastOf=u=>Math.max(u.seen||0,L.get(u.uid)||0);
+    const live=act.filter(u=>now-(u.seen||0)<300000).length,d1=act.filter(u=>now-lastOf(u)<864e5).length;
+    const p7=pts.filter(e=>now-e.ms<6048e5).length;
+    const cl=act.reduce((t,u)=>t+u.cl.length,0),st=act.reduce((t,u)=>t+u.cl.reduce((s,c)=>s+n(c),0),0);
+    const cards=[['Conturi active',act.length],['Online acum',live],['Active în ultimele 24 h',d1],['Puncte acordate (7 zile)',p7],['Clase',cl],['Elevi',st]];
+    $st.innerHTML='<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin:14px 0">'
+      +cards.map(c=>'<div style="border:1px solid var(--line);border-radius:12px;padding:10px"><div style="font-size:12px;color:var(--muted)">'+c[0]+'</div><div style="font-size:24px;font-weight:800">'+c[1]+'</div></div>').join('')+'</div>'};
+
+  /* ---- 2) taburi ---- */
+  const drawTabs=()=>{
+    $tabs.innerHTML=[['act','Activitate'],['acc','Conturi']].map(t=>'<button type="button" class="btn '+(tab===t[0]?'primary':'light')+'" data-tab="'+t[0]+'">'+t[1]+'</button>').join('');
+    $tabs.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{tab=b.dataset.tab;shown=80;drawTabs();drawTools();drawList()})};
+
+  /* ---- 3) bară de unelte (se reface doar la schimbarea tabului) ---- */
+  const drawTools=()=>{
+    if(tab==='act'){
+      const accs=allU().filter(u=>u.alive!==false||showOld);
+      $tools.innerHTML='<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px">'
+        +'<select id="fAcc" style="padding:9px;border:1px solid var(--line);border-radius:10px;max-width:100%"><option value="">Toate conturile</option>'+accs.map(u=>'<option value="'+esc(u.uid)+'"'+(fAcc===u.uid?' selected':'')+'>'+esc(u.email)+'</option>').join('')+'</select>'
+        +'<select id="fType" style="padding:9px;border:1px solid var(--line);border-radius:10px"><option value="">Toate tipurile</option>'+Object.keys(TY).map(k=>'<option value="'+k+'"'+(fType===k?' selected':'')+'>'+TY[k][0]+' '+TY[k][1]+'</option>').join('')+'</select>'
+        +'<input id="fQ" type="search" placeholder="Caută (nume elev, clasă, text)…" value="'+esc(fQ)+'" style="flex:1;min-width:150px;padding:9px;border:1px solid var(--line);border-radius:10px">'
+        +'<button class="btn light" type="button" id="admCsv">Exportă CSV</button><button class="btn light" type="button" id="admRef">Reîncarcă</button></div>'
+        +'<div id="admWarn"></div>';
+      $tools.querySelector('#fAcc').onchange=e=>{fAcc=e.target.value;shown=80;drawList()};
+      $tools.querySelector('#fType').onchange=e=>{fType=e.target.value;shown=80;drawList()};
+      $tools.querySelector('#fQ').oninput=e=>{fQ=e.target.value;shown=80;drawList()};
+      $tools.querySelector('#admCsv').onclick=exportCsv;
+      $tools.querySelector('#admRef').onclick=()=>{stop();show(body).catch(x=>{body.innerHTML='<p class="auth-err">Eroare la reîncărcare: '+esc(x&&x.message||x)+'</p>'})};
+    }else{
+      const old=oldU();
+      $tools.innerHTML='<p>'+(reliable?allU().filter(u=>u.alive!==false).length+' conturi active':U.size+' utilizatori')+' · <button class="btn light" type="button" id="admDl">Descarcă tot (JSON)</button> <button class="btn danger" type="button" id="admClean">Șterge jurnalul mai vechi de 90 de zile</button></p>'
+        +(reliable?(old.length?'<p><label><input type="checkbox" id="admOld"'+(showOld?' checked':'')+'> Arată și conturile șterse ('+old.length+')</label></p>':'')
+          :'<p class="auth-err">Nu pot verifica ce conturi mai există (în Firebase e activă protecția „email enumeration”), așa că sunt afișate toate, inclusiv cele șterse.</p>');
+      $tools.querySelector('#admDl').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(raw,null,1)],{type:'application/json'}));a.download='atlas-toate-datele.json';a.click()};
+      $tools.querySelector('#admClean').onclick=cleanOld;
+      const cb=$tools.querySelector('#admOld');if(cb)cb.onchange=()=>{showOld=cb.checked;drawList()};
+    }};
+
+  /* ---- 4) lista (se redesenează la fiecare eveniment live) ---- */
+  const filtered=()=>{const q=fQ.trim().toLowerCase();
+    return allEv().filter(e=>(!fAcc||e.uid===fAcc)&&(!fType||e.type===fType)&&(!q||(e.text+' '+e.cls+' '+e.email).toLowerCase().indexOf(q)>=0))};
+  const evRow=e=>{const t=tyi(e.type);
+    return '<div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)"><div style="font-size:20px;width:28px;text-align:center" title="'+esc(t[1])+'">'+t[0]+'</div>'
+      +'<div style="flex:1;min-width:0;overflow-wrap:anywhere"><div><b>'+esc(e.email)+'</b>'+(e.cls?' <span style="color:var(--muted)">· '+esc(e.cls)+'</span>':'')+'</div><div>'+esc(e.text)+'</div>'
+      +(e.dev?'<div style="font-size:12px;color:var(--muted)">'+esc(e.dev)+'</div>':'')+'</div>'
+      +'<div style="text-align:right;font-size:12px;color:var(--muted);white-space:nowrap" title="'+esc(full(e.ms))+'">'+esc(ago(e.ms))+'<br>'+esc(hm(e.ms))+'</div></div>'};
+  const drawWarn=()=>{const w=$tools.querySelector('#admWarn');if(!w)return;
+    w.innerHTML=actErr?'<p class="auth-err">Jurnalul detaliat nu este activ încă ('+esc(actErr)+'). Publică regulile din <b>firestore-activity-rules.txt</b> în Firebase (Firestore → Rules). Până atunci se văd doar punctajele acordate și ultima conectare.</p>':''};
+  const drawList=()=>{
+    if(tab==='act'){
+      drawWarn();
+      const f=filtered(),vis=f.slice(0,shown);let last='',html='';
+      vis.forEach(e=>{const d=dayLabel(e.ms);if(d!==last){last=d;html+='<h3 style="margin:16px 0 4px;text-transform:capitalize">'+esc(d)+'</h3>'}html+=evRow(e)});
+      $list.innerHTML=(f.length?'<p style="color:var(--muted);margin:0">'+f.length+' evenimente'+(acts.length?'':' (doar punctaje)')+'</p>':'')+(html||'<p>Nu există activitate pentru filtrele alese.</p>')
+        +(f.length>shown?'<p><button class="btn light" type="button" id="admMore">Arată mai mult ('+(f.length-shown)+')</button></p>':'');
+      const m=$list.querySelector('#admMore');if(m)m.onclick=()=>{shown+=80;drawList()};
+    }else{
+      const list=allU().filter(u=>showOld||u.alive!==false),now=Date.now(),evs=allEv();
+      $list.innerHTML=list.map(u=>{
+        const mine=evs.filter(e=>e.uid===u.uid),lastMs=Math.max(u.seen||0,mine.length?mine[0].ms:0),live=now-(u.seen||0)<300000;
+        return '<details data-uid="'+esc(u.uid)+'"'+(openSet.has(u.uid)?' open':'')+' style="border:1px solid var(--line);border-radius:10px;padding:10px;margin:8px 0'+(u.alive===false?';opacity:.6':'')+'"><summary>'
+          +'<span title="'+(live?'online acum':'offline')+'" style="display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;background:'+(live?'var(--green)':'var(--line)')+'"></span>'
+          +'<b>'+esc(u.email)+'</b>'+(u.alive===false?' <i>(cont șters)</i>':'')+(u.hasEmail?'':' <i>(fără email înregistrat)</i>')
+          +' — '+u.cl.length+' clase, '+u.cl.reduce((t,c)=>t+n(c),0)+' elevi · ultima activitate: '+esc(ago(lastMs))+'</summary>'
+          +u.cl.map(c=>'<p><b>'+esc(c.name)+'</b> ('+n(c)+' elevi, '+(c.logs||[]).length+' înregistrări)<br>'+esc((c.students||[]).map(nm).join(', '))+'</p>').join('')
+          +(mine.length?'<div style="margin-top:8px"><b>Ultimele activități</b>'+mine.slice(0,5).map(evRow).join('')+'<p><button class="btn light" type="button" data-see="'+esc(u.uid)+'">Vezi toată activitatea acestui cont</button></p></div>':'<p style="color:var(--muted)">Nicio activitate înregistrată încă.</p>')
+          +(isMe(u)?'':'<p><button class="btn danger" type="button" data-purge="'+esc(u.uid)+'">Șterge datele acestui utilizator</button></p>')+'</details>'}).join('')||'<p>Nu există conturi.</p>';
+      $list.querySelectorAll('[data-purge]').forEach(b=>b.onclick=()=>purge(U.get(b.dataset.purge)));
+      $list.querySelectorAll('[data-see]').forEach(b=>b.onclick=()=>{fAcc=b.dataset.see;fType='';fQ='';shown=80;tab='act';drawTabs();drawTools();drawList()});
+    }};
+  $list.addEventListener('toggle',e=>{const d=e.target;if(d&&d.dataset&&d.dataset.uid){if(d.open)openSet.add(d.dataset.uid);else openSet.delete(d.dataset.uid)}},true);
+  const refresh=()=>{clearTimeout(rt);rt=setTimeout(()=>{drawStats();drawList()},150)};
+
+  /* ---- 5) acțiuni ---- */
+  const exportCsv=()=>{
+    const q=s=>'"'+String(s==null?'':s).replace(/"/g,'""')+'"';
+    const rows=[['Data și ora','Cont','Tip','Clasă','Descriere','Dispozitiv']].concat(filtered().map(e=>[full(e.ms),e.email,tyi(e.type)[1],e.cls,e.text,e.dev]));
+    const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+rows.map(r=>r.map(q).join(',')).join('\n')],{type:'text/csv;charset=utf-8'}));a.download='atlas-activitate.csv';a.click()};
+  const cleanOld=async()=>{
+    if(!confirm('Ștergi definitiv din jurnal evenimentele mai vechi de 90 de zile? Punctajele din clase nu sunt afectate.'))return;
+    try{
+      const cut=F.Timestamp.fromMillis(Date.now()-90*864e5);let k=0;
+      for(;;){
+        const s=await F.getDocs(F.query(F.collection(vFs,'activity'),F.where('ts','<',cut),F.limit(400)));
+        if(s.empty)break;
+        const b=F.writeBatch(vFs);s.docs.forEach(d=>b.delete(d.ref));await b.commit();k+=s.size;
+      }
+      alert('Au fost șterse '+k+' evenimente din jurnal.');
+    }catch(x){alert('Nu am putut șterge jurnalul: '+(x&&x.message||x))}};
+  /* Șterge din Firestore datele unui utilizator, la alegerea adminului (profilul se șterge ultimul). Contul tău nu se poate șterge de aici. */
   const purge=async u=>{
-    if(isMe(u)||!confirm('Ștergi definitiv din baza de date toate datele utilizatorului '+u.email+' ('+u.cl.length+' clase)?'+(u.alive===false?'':'\n\nATENȚIE: contul nu apare ca șters, deci posibil mai există.')+'\nAcțiunea nu poate fi anulată. Descarcă mai întâi JSON-ul dacă vrei o copie.'))return;
+    if(!u||isMe(u)||!confirm('Ștergi definitiv din baza de date toate datele utilizatorului '+u.email+' ('+u.cl.length+' clase) și jurnalul lui de activitate?'+(u.alive===false?'':'\n\nATENȚIE: contul nu apare ca șters, deci posibil mai există.')+'\nAcțiunea nu poate fi anulată. Descarcă mai întâi JSON-ul dacă vrei o copie.'))return;
     try{
       const snap=await F.getDocs(F.collection(vFs,'users',u.uid,'atlas'));
       await Promise.all(snap.docs.map(d=>F.deleteDoc(d.ref)));
+      try{const ev=await F.getDocs(F.query(F.collection(vFs,'activity'),F.where('uid','==',u.uid)));await Promise.all(ev.docs.map(d=>F.deleteDoc(d.ref)))}catch(x){}
       await F.deleteDoc(F.doc(vFs,'users',u.uid));
       for(let i=raw.length-1;i>=0;i--)if(raw[i].uid===u.uid)raw.splice(i,1);
-      all.splice(all.indexOf(u),1);old.splice(old.indexOf(u),1);U.delete(u.uid);draw();
+      for(let i=pts.length-1;i>=0;i--)if(pts[i].uid===u.uid)pts.splice(i,1);
+      U.delete(u.uid);if(fAcc===u.uid)fAcc='';drawStats();drawTools();drawList();
     }catch(x){alert(x&&x.code==='permission-denied'?'Regulile Firestore nu permit ștergerea. Publică regulile actualizate din firestore.rules.':'Ștergerea a eșuat: '+(x&&x.message||x))}
   };
-  const draw=()=>{
-    const list=showOld?all:all.filter(u=>u.alive!==false);
-    body.innerHTML='<p>'+(reliable?list.filter(u=>u.alive!==false).length+' conturi active':U.size+' utilizatori')+' · <button class="btn light" type="button" id="admDl">Descarcă tot (JSON)</button></p>'
-      +(reliable?(old.length?'<p><label><input type="checkbox" id="admOld"'+(showOld?' checked':'')+'> Arată și conturile șterse ('+old.length+')</label></p>':'')
-        :'<p class="auth-err">Nu pot verifica ce conturi mai există (în Firebase e activă protecția „email enumeration”), așa că sunt afișate toate, inclusiv cele șterse.</p>')
-      +list.map(card).join('');
-    body.querySelector('#admDl').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(raw,null,1)],{type:'application/json'}));a.download='atlas-toate-datele.json';a.click()};
-    body.querySelectorAll('[data-purge]').forEach(b=>b.onclick=()=>purge(U.get(b.dataset.purge)));
-    const cb=body.querySelector('#admOld');if(cb)cb.onchange=()=>{showOld=cb.checked;draw()};
-  };
-  draw();
+
+  /* ---- 6) pornire + actualizare live ---- */
+  drawStats();drawTabs();drawTools();drawList();
+  try{un.push(F.onSnapshot(F.query(F.collection(vFs,'activity'),F.orderBy('ts','desc'),F.limit(500)),s=>{
+    actErr='';
+    acts=s.docs.map(d=>{const x=d.data(),uid=x.uid||'';return{id:d.id,ms:ms(x.ts)||Date.now(),uid:uid,email:x.email||get(uid).email,type:x.type||'other',text:x.text||'',cls:x.cls||'',dev:x.dev||''}});
+    refresh();
+  },e=>{actErr=(e&&e.code)||'eroare';refresh()}))}catch(e){}
+  try{un.push(F.onSnapshot(F.collection(vFs,'users'),s=>{
+    s.docChanges().forEach(ch=>{if(ch.type==='removed')return;const x=ch.doc.data(),u=get(ch.doc.id);u.email=x.email||u.email;u.hasEmail=!!x.email;u.seen=ms(x.seen)});
+    refresh();
+  },()=>{}))}catch(e){}
+  tick=setInterval(()=>{drawStats();if(tab==='act'||!$list.querySelector('details[open]'))drawList()},30000);   // actualizează „acum 5 min”
+  stop=()=>{clearTimeout(rt);clearInterval(tick);un.forEach(f=>{try{f()}catch(e){}});un.length=0};
 }
 }}
 </script>
