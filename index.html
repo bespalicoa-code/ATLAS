@@ -1828,6 +1828,29 @@ const wrap=(name,pre,post)=>{
 wrap('saveData',readCls,prev=>diffClasses(prev,db.classes.filter(c=>c.students&&c.students.length)));
 wrap('saveAssessments',readAss,prev=>diffAssess(prev,assessments));
 
+/* ===================== 3. ANUNȚURI + BLOCARE (în aplicație, pentru toți utilizatorii) ===================== */
+let unAnn=()=>{},unBlk=()=>{},annList=[],blkEl=null;
+const annHost=document.createElement('div');
+annHost.style.cssText='position:fixed;top:10px;left:50%;transform:translateX(-50%);z-index:80;width:min(640px,calc(100% - 20px));display:grid;gap:8px;pointer-events:none';
+document.body.appendChild(annHost);
+const seenAnn=()=>{try{return JSON.parse(localStorage.getItem('atlas-ann-seen')||'[]')}catch(e){return[]}};
+const drawAnn=()=>{
+  const seen=seenAnn(),items=annList.filter(a=>a.active&&seen.indexOf(a.id)<0).slice(0,3);
+  annHost.innerHTML=items.map(a=>'<div role="status" style="pointer-events:auto;background:var(--white);color:var(--ink);border:1px solid var(--line);border-left:5px solid var(--gold);border-radius:14px;padding:12px 14px;box-shadow:0 12px 32px rgba(20,55,84,.25);display:flex;gap:10px;align-items:flex-start"><div style="flex:1;min-width:0;overflow-wrap:anywhere"><b>📢 '+esc(a.title||'Anunț de la administrator')+'</b><div style="white-space:pre-wrap">'+esc(a.text)+'</div></div><button type="button" class="btn light" data-ann="'+esc(a.id)+'">Am înțeles</button></div>').join('');
+  annHost.querySelectorAll('[data-ann]').forEach(b=>b.onclick=()=>{const s=seenAnn();s.push(b.dataset.ann);try{localStorage.setItem('atlas-ann-seen',JSON.stringify(s.slice(-50)))}catch(e){}drawAnn()})};
+const showBlock=d=>{
+  if(!blkEl){blkEl=document.createElement('div');blkEl.style.cssText='position:fixed;inset:0;z-index:300;background:#06192bf2;display:grid;place-items:center;padding:20px';document.body.appendChild(blkEl)}
+  blkEl.innerHTML='<div style="background:var(--white);color:var(--ink);border-radius:16px;padding:24px;max-width:460px;text-align:center"><h2 style="margin-top:0">Cont suspendat</h2><p>Accesul tău la ATLAS a fost suspendat de administrator.</p>'+(d&&d.reason?'<p><i>'+esc(d.reason)+'</i></p>':'')+'<button class="btn primary" type="button" id="blkOut">Ieși din cont</button></div>';
+  blkEl.querySelector('#blkOut').onclick=()=>A.signOut(auth).catch(()=>{})};
+const hideBlock=()=>{if(blkEl){blkEl.remove();blkEl=null}};
+A.onAuthStateChanged(auth,u=>{
+  unAnn();unBlk();unAnn=unBlk=()=>{};annList=[];drawAnn();hideBlock();
+  if(!u)return;
+  try{unAnn=F.onSnapshot(F.query(F.collection(fs,'announcements'),F.orderBy('ts','desc'),F.limit(5)),s=>{
+    annList=s.docs.map(d=>{const x=d.data();return{id:d.id,title:x.title||'',text:x.text||'',active:x.active!==false}});drawAnn()},()=>{})}catch(e){}
+  try{unBlk=F.onSnapshot(F.doc(fs,'blocked',u.uid),s=>{if(s.exists())showBlock(s.data());else hideBlock()},()=>{})}catch(e){}
+});
+
 /* ===================== 2. PANOUL DE ADMINISTRARE ===================== */
 let vAuth,vFs,stop=()=>{};
 btn.onclick=()=>{
@@ -1877,7 +1900,8 @@ async function show(body){
   }));
 
   /* ---- stare ---- */
-  let tab='act',fAcc='',fType='',fQ='',shown=80,showOld=false,acts=[],actErr='';
+  let tab='act',fAcc='',fType='',fQ='',shown=80,showOld=false,acts=[],actErr='',anns=[];
+  const bl=new Map(),openCls=new Set();
   const openSet=new Set(),un=[];let rt,tick;
   const isMe=u=>(u.email||'').toLowerCase()===ADMIN_EMAIL.toLowerCase();
   const allU=()=>[...U.values()].sort((a,b)=>(b.seen||0)-(a.seen||0));
@@ -1896,6 +1920,19 @@ async function show(body){
   body.innerHTML='<div id="admSt"></div><div id="admTabs" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px"></div><div id="admTools"></div><div id="admList"></div>';
   const $st=body.querySelector('#admSt'),$tabs=body.querySelector('#admTabs'),$tools=body.querySelector('#admTools'),$list=body.querySelector('#admList');
 
+  /* vedere detaliată (doar citire) a unei clase */
+  const clsView=c=>{
+    const st=c.students||[],lg=c.logs||[],tot=new Map(),cnt=new Map(),sn=new Map(st.map(s=>[s.id,nm(s)]));
+    lg.forEach(l=>{tot.set(l.sid,(tot.get(l.sid)||0)+(+l.points||0));cnt.set(l.sid,(cnt.get(l.sid)||0)+1)});
+    const max=Math.max(0,...st.map(s=>tot.get(s.id)||0));
+    const grade=t=>(max<=0||t<=0)?1:Math.max(1,Math.min(10,Math.floor((t*20+max)/(2*max))));
+    const rows=st.map(s=>({n:nm(s),t:tot.get(s.id)||0,c:cnt.get(s.id)||0})).sort((a,b)=>b.t-a.t||a.n.localeCompare(b.n,'ro'));
+    const recent=lg.slice().sort((a,b)=>(b.ts||0)-(a.ts||0)).slice(0,15);
+    const td='padding:6px 8px;border-bottom:1px solid var(--line);text-align:left';
+    return '<div style="margin:8px 0 14px;overflow-x:auto"><table style="width:100%;border-collapse:collapse"><thead><tr><th style="'+td+'">Loc</th><th style="'+td+'">Elev</th><th style="'+td+'">Înregistrări</th><th style="'+td+'">Puncte</th><th style="'+td+'">Nota</th></tr></thead><tbody>'
+      +rows.map((r,i)=>'<tr><td style="'+td+'">'+(i+1)+'</td><td style="'+td+'">'+esc(r.n)+'</td><td style="'+td+'">'+r.c+'</td><td style="'+td+'">'+r.t+'</td><td style="'+td+'">'+grade(r.t)+'</td></tr>').join('')+'</tbody></table></div>'
+      +(recent.length?'<div style="margin-bottom:10px"><b>Ultimele înregistrări</b>'+recent.map(l=>'<div style="padding:5px 0;border-bottom:1px solid var(--line)">+'+esc(l.points)+' pct. · '+esc(sn.get(l.sid)||'elev șters')+(l.note?' · '+esc(l.note):'')+' <span style="color:var(--muted);font-size:12px">· '+esc(l.date||full(l.ts))+'</span></div>').join('')+'</div>':'')};
+
   /* ---- 1) cifre generale ---- */
   const drawStats=()=>{
     const now=Date.now(),act=allU().filter(u=>u.alive!==false),L=new Map();
@@ -1904,13 +1941,13 @@ async function show(body){
     const live=act.filter(u=>now-(u.seen||0)<300000).length,d1=act.filter(u=>now-lastOf(u)<864e5).length;
     const p7=pts.filter(e=>now-e.ms<6048e5).length;
     const cl=act.reduce((t,u)=>t+u.cl.length,0),st=act.reduce((t,u)=>t+u.cl.reduce((s,c)=>s+n(c),0),0);
-    const cards=[['Conturi active',act.length],['Online acum',live],['Active în ultimele 24 h',d1],['Puncte acordate (7 zile)',p7],['Clase',cl],['Elevi',st]];
+    const cards=[['Conturi active',act.length],['Online acum',live],['Active în ultimele 24 h',d1],['Puncte acordate (7 zile)',p7],['Clase',cl],['Elevi',st],['Conturi blocate',bl.size]];
     $st.innerHTML='<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin:14px 0">'
       +cards.map(c=>'<div style="border:1px solid var(--line);border-radius:12px;padding:10px"><div style="font-size:12px;color:var(--muted)">'+c[0]+'</div><div style="font-size:24px;font-weight:800">'+c[1]+'</div></div>').join('')+'</div>'};
 
   /* ---- 2) taburi ---- */
   const drawTabs=()=>{
-    $tabs.innerHTML=[['act','Activitate'],['acc','Conturi']].map(t=>'<button type="button" class="btn '+(tab===t[0]?'primary':'light')+'" data-tab="'+t[0]+'">'+t[1]+'</button>').join('');
+    $tabs.innerHTML=[['act','Activitate'],['acc','Conturi'],['ann','Anunțuri']].map(t=>'<button type="button" class="btn '+(tab===t[0]?'primary':'light')+'" data-tab="'+t[0]+'">'+t[1]+'</button>').join('');
     $tabs.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{tab=b.dataset.tab;shown=80;drawTabs();drawTools();drawList()})};
 
   /* ---- 3) bară de unelte (se reface doar la schimbarea tabului) ---- */
@@ -1928,6 +1965,13 @@ async function show(body){
       $tools.querySelector('#fQ').oninput=e=>{fQ=e.target.value;shown=80;drawList()};
       $tools.querySelector('#admCsv').onclick=exportCsv;
       $tools.querySelector('#admRef').onclick=()=>{stop();show(body).catch(x=>{body.innerHTML='<p class="auth-err">Eroare la reîncărcare: '+esc(x&&x.message||x)+'</p>'})};
+    }else if(tab==='ann'){
+      $tools.innerHTML='<p style="margin:0 0 8px">Mesajul apare în aplicație, la toți utilizatorii conectați, până apasă „Am înțeles”.</p><div style="display:grid;gap:8px;margin-bottom:10px"><input id="aT" maxlength="80" placeholder="Titlu (opțional)" style="padding:10px;border:1px solid var(--line);border-radius:10px"><textarea id="aX" rows="3" maxlength="500" placeholder="Scrie anunțul…" style="padding:10px;border:1px solid var(--line);border-radius:10px;font:inherit"></textarea><div><button class="btn primary" type="button" id="aPub">Publică anunțul</button></div></div>';
+      $tools.querySelector('#aPub').onclick=async()=>{
+        const t=$tools.querySelector('#aT').value.trim(),x=$tools.querySelector('#aX').value.trim();
+        if(!x){alert('Scrie textul anunțului.');return}
+        try{await F.addDoc(F.collection(vFs,'announcements'),{title:t,text:x,active:true,ts:F.serverTimestamp()});$tools.querySelector('#aT').value='';$tools.querySelector('#aX').value=''}
+        catch(e){alert(e&&e.code==='permission-denied'?'Regulile Firestore nu permit încă anunțurile. Publică regulile actualizate.':'Nu am putut publica: '+(e&&e.message||e))}};
     }else{
       const old=oldU();
       $tools.innerHTML='<p>'+(reliable?allU().filter(u=>u.alive!==false).length+' conturi active':U.size+' utilizatori')+' · <button class="btn light" type="button" id="admDl">Descarcă tot (JSON)</button> <button class="btn danger" type="button" id="admClean">Șterge jurnalul mai vechi de 90 de zile</button></p>'
@@ -1956,19 +2000,36 @@ async function show(body){
       $list.innerHTML=(f.length?'<p style="color:var(--muted);margin:0">'+f.length+' evenimente'+(acts.length?'':' (doar punctaje)')+'</p>':'')+(html||'<p>Nu există activitate pentru filtrele alese.</p>')
         +(f.length>shown?'<p><button class="btn light" type="button" id="admMore">Arată mai mult ('+(f.length-shown)+')</button></p>':'');
       const m=$list.querySelector('#admMore');if(m)m.onclick=()=>{shown+=80;drawList()};
+    }else if(tab==='ann'){
+      $list.innerHTML=anns.length?anns.map(a=>'<div style="border:1px solid var(--line);border-radius:10px;padding:10px;margin:8px 0'+(a.active?'':';opacity:.6')+'"><b>'+esc(a.title||'Anunț de la administrator')+'</b> <span style="color:var(--muted);font-size:12px">· '+esc(full(a.ms))+' · '+(a.active?'activ':'dezactivat')+'</span><div style="white-space:pre-wrap;overflow-wrap:anywhere">'+esc(a.text)+'</div><p style="margin:8px 0 0"><button class="btn light" type="button" data-atog="'+esc(a.id)+'">'+(a.active?'Dezactivează':'Activează')+'</button> <button class="btn danger" type="button" data-adel="'+esc(a.id)+'">Șterge</button></p></div>').join(''):'<p>Nu ai publicat niciun anunț.</p>';
+      $list.querySelectorAll('[data-atog]').forEach(b=>b.onclick=async()=>{const a=anns.find(x=>x.id===b.dataset.atog);if(!a)return;try{await F.updateDoc(F.doc(vFs,'announcements',a.id),{active:!a.active})}catch(e){alert('Nu am putut modifica anunțul: '+(e&&e.code||e))}});
+      $list.querySelectorAll('[data-adel]').forEach(b=>b.onclick=async()=>{if(!confirm('Ștergi definitiv acest anunț?'))return;try{await F.deleteDoc(F.doc(vFs,'announcements',b.dataset.adel))}catch(e){alert('Nu am putut șterge anunțul: '+(e&&e.code||e))}});
     }else{
       const list=allU().filter(u=>showOld||u.alive!==false),now=Date.now(),evs=allEv();
       $list.innerHTML=list.map(u=>{
         const mine=evs.filter(e=>e.uid===u.uid),lastMs=Math.max(u.seen||0,mine.length?mine[0].ms:0),live=now-(u.seen||0)<300000;
         return '<details data-uid="'+esc(u.uid)+'"'+(openSet.has(u.uid)?' open':'')+' style="border:1px solid var(--line);border-radius:10px;padding:10px;margin:8px 0'+(u.alive===false?';opacity:.6':'')+'"><summary>'
           +'<span title="'+(live?'online acum':'offline')+'" style="display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;background:'+(live?'var(--green)':'var(--line)')+'"></span>'
-          +'<b>'+esc(u.email)+'</b>'+(u.alive===false?' <i>(cont șters)</i>':'')+(u.hasEmail?'':' <i>(fără email înregistrat)</i>')
+          +'<b>'+esc(u.email)+'</b>'+(u.alive===false?' <i>(cont șters)</i>':'')+(u.hasEmail?'':' <i>(fără email înregistrat)</i>')+(bl.has(u.uid)?' <b style="color:var(--red)">· BLOCAT</b>':'')
           +' — '+u.cl.length+' clase, '+u.cl.reduce((t,c)=>t+n(c),0)+' elevi · ultima activitate: '+esc(ago(lastMs))+'</summary>'
-          +u.cl.map(c=>'<p><b>'+esc(c.name)+'</b> ('+n(c)+' elevi, '+(c.logs||[]).length+' înregistrări)<br>'+esc((c.students||[]).map(nm).join(', '))+'</p>').join('')
+          +u.cl.map(c=>{const k=u.uid+'|'+(c.cid||c.name),o=openCls.has(k);return '<div><p><b>'+esc(c.name)+'</b> ('+n(c)+' elevi, '+(c.logs||[]).length+' înregistrări) <button class="btn light" type="button" data-cls="'+esc(k)+'">'+(o?'Ascunde detaliile':'Vezi detalii')+'</button>'+(o?'':'<br>'+esc((c.students||[]).map(nm).join(', ')))+'</p>'+(o?clsView(c):'')+'</div>'}).join('')
           +(mine.length?'<div style="margin-top:8px"><b>Ultimele activități</b>'+mine.slice(0,5).map(evRow).join('')+'<p><button class="btn light" type="button" data-see="'+esc(u.uid)+'">Vezi toată activitatea acestui cont</button></p></div>':'<p style="color:var(--muted)">Nicio activitate înregistrată încă.</p>')
+          +(bl.has(u.uid)&&bl.get(u.uid).reason?'<p><i>Motiv blocare: '+esc(bl.get(u.uid).reason)+'</i></p>':'')+'<p style="display:flex;flex-wrap:wrap;gap:8px">'+(u.email.indexOf('@')>0?'<button class="btn light" type="button" data-reset="'+esc(u.uid)+'">Trimite email de resetare parolă</button>':'')+(isMe(u)?'':'<button class="btn '+(bl.has(u.uid)?'light':'danger')+'" type="button" data-block="'+esc(u.uid)+'">'+(bl.has(u.uid)?'Deblochează accesul':'Blochează accesul')+'</button>')+'</p>'
           +(isMe(u)?'':'<p><button class="btn danger" type="button" data-purge="'+esc(u.uid)+'">Șterge datele acestui utilizator</button></p>')+'</details>'}).join('')||'<p>Nu există conturi.</p>';
       $list.querySelectorAll('[data-purge]').forEach(b=>b.onclick=()=>purge(U.get(b.dataset.purge)));
       $list.querySelectorAll('[data-see]').forEach(b=>b.onclick=()=>{fAcc=b.dataset.see;fType='';fQ='';shown=80;tab='act';drawTabs();drawTools();drawList()});
+      $list.querySelectorAll('[data-cls]').forEach(b=>b.onclick=()=>{const k=b.dataset.cls;if(openCls.has(k))openCls.delete(k);else openCls.add(k);drawList()});
+      $list.querySelectorAll('[data-reset]').forEach(b=>b.onclick=async()=>{
+        const u=U.get(b.dataset.reset);if(!u||!confirm('Trimiți un email de resetare a parolei la '+u.email+'?'))return;
+        try{await A.sendPasswordResetEmail(auth,u.email);alert('Dacă există un cont cu adresa '+u.email+', emailul de resetare a fost trimis.')}
+        catch(x){alert('Nu am putut trimite emailul: '+(x&&x.code||x))}});
+      $list.querySelectorAll('[data-block]').forEach(b=>b.onclick=async()=>{
+        const u=U.get(b.dataset.block);if(!u||isMe(u))return;
+        try{
+          if(bl.has(u.uid)){if(!confirm('Deblochezi accesul pentru '+u.email+'?'))return;await F.deleteDoc(F.doc(vFs,'blocked',u.uid))}
+          else{const r=prompt('Blochezi accesul pentru '+u.email+'?\nPoți scrie un motiv (opțional; îl vede utilizatorul):','');if(r===null)return;
+            await F.setDoc(F.doc(vFs,'blocked',u.uid),{email:u.email,reason:String(r).slice(0,200),ts:F.serverTimestamp()})}
+        }catch(x){alert(x&&x.code==='permission-denied'?'Regulile Firestore nu permit blocarea. Publică regulile actualizate.':'Nu am putut face modificarea: '+(x&&x.code||x))}});
     }};
   $list.addEventListener('toggle',e=>{const d=e.target;if(d&&d.dataset&&d.dataset.uid){if(d.open)openSet.add(d.dataset.uid);else openSet.delete(d.dataset.uid)}},true);
   const refresh=()=>{clearTimeout(rt);rt=setTimeout(()=>{drawStats();drawList()},150)};
@@ -2013,6 +2074,13 @@ async function show(body){
   try{un.push(F.onSnapshot(F.collection(vFs,'users'),s=>{
     s.docChanges().forEach(ch=>{if(ch.type==='removed')return;const x=ch.doc.data(),u=get(ch.doc.id);u.email=x.email||u.email;u.hasEmail=!!x.email;u.seen=ms(x.seen)});
     refresh();
+  },()=>{}))}catch(e){}
+  try{un.push(F.onSnapshot(F.query(F.collection(vFs,'announcements'),F.orderBy('ts','desc'),F.limit(50)),s=>{
+    anns=s.docs.map(d=>{const x=d.data();return{id:d.id,title:x.title||'',text:x.text||'',active:x.active!==false,ms:ms(x.ts)}});
+    if(tab==='ann')drawList();
+  },()=>{}))}catch(e){}
+  try{un.push(F.onSnapshot(F.collection(vFs,'blocked'),s=>{
+    bl.clear();s.docs.forEach(d=>bl.set(d.id,d.data()));refresh();
   },()=>{}))}catch(e){}
   tick=setInterval(()=>{drawStats();if(tab==='act'||!$list.querySelector('details[open]'))drawList()},30000);   // actualizează „acum 5 min”
   stop=()=>{clearTimeout(rt);clearInterval(tick);un.forEach(f=>{try{f()}catch(e){}});un.length=0};
