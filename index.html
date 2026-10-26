@@ -1584,5 +1584,31 @@ body.dark .quick-action{background:rgba(24,43,61,.86);border-color:#2c4256;color
 /* Dashboard: acțiuni rapide, fără a modifica datele existente. */
 (function(){const stats=document.getElementById('statsCards');if(!stats||document.getElementById('quickActions'))return;stats.insertAdjacentHTML('afterend','<section class="quick-dashboard" id="quickActions"><div class="quick-heading"><h2>Acțiuni rapide</h2><span>Lucrează mai repede în catalog</span></div><div class="quick-actions"><button class="quick-action" type="button" id="quickAdd"><span class="quick-action-icon">＋</span><span class="quick-action-copy"><strong>Adaugă puncte</strong><span>Înregistrează rapid un punctaj</span></span></button><button class="quick-action" type="button" id="quickAssessment"><span class="quick-action-icon">✦</span><span class="quick-action-copy"><strong>Evaluare nouă</strong><span>Creează un test pentru clasă</span></span></button><button class="quick-action" type="button" id="quickStats"><span class="quick-action-icon">↗</span><span class="quick-action-copy"><strong>Vezi progresul</strong><span>Analizează rezultatele clasei</span></span></button><button class="quick-action" type="button" id="quickBackup"><span class="quick-action-icon">⌃</span><span class="quick-action-copy"><strong>Creează copie</strong><span>Protejează datele catalogului</span></span></button></div></section>');document.getElementById('quickAdd').addEventListener('click',()=>openScoreModal());document.getElementById('quickAssessment').addEventListener('click',()=>showPage('assessments'));document.getElementById('quickStats').addEventListener('click',()=>showPage('stats'));document.getElementById('quickBackup').addEventListener('click',()=>backup())})();
 </script>
+<style>
+/* ===== ATLAS motion system: feedback elegant, inspirat de dashboard-urile B2B ===== */
+@keyframes atlasPointPop{0%{transform:scale(.94);box-shadow:0 0 0 0 #2289d555}45%{transform:scale(1.08);box-shadow:0 0 0 9px #2289d500}100%{transform:scale(1);box-shadow:none}}
+@keyframes atlasMetricPop{0%{opacity:.45;transform:translateY(5px)}55%{opacity:1;transform:translateY(-2px)}100%{transform:none}}
+@keyframes atlasPanelReveal{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes atlasHeroShift{0%,100%{background-position:0% 50%,0% 50%}50%{background-position:100% 50%,40% 50%}}
+@keyframes atlasNavLine{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+.hero{background-size:180% 180%,160% 160%;animation:atlasHeroShift 18s ease-in-out infinite}
+.panel,.stat-card,.quick-action{will-change:transform}.panel{transition:transform .28s cubic-bezier(.2,.8,.2,1),box-shadow .28s,border-color .28s}.panel:hover{border-color:#c6dbea;box-shadow:0 18px 42px rgba(20,55,84,.12)}
+.nav button.active{isolation:isolate}.nav button.active:before{content:"";position:absolute;left:0;top:9px;bottom:9px;width:3px;border-radius:0 4px 4px 0;background:#f5d66c;animation:atlasNavLine .28s ease both}
+.point-updated .total-badge,.point-updated .grade-badge{animation:atlasPointPop .55s cubic-bezier(.2,.8,.2,1)}
+.metric-updated{animation:atlasMetricPop .48s cubic-bezier(.2,.8,.2,1)}
+.content.enter .panel{animation:atlasPanelReveal .48s cubic-bezier(.2,.8,.2,1) backwards}.content.enter .panel:nth-of-type(2){animation-delay:.05s}.content.enter .panel:nth-of-type(3){animation-delay:.1s}
+.sync-chip[data-state=syncing] .sync-dot{animation:syncPulse .8s ease-in-out infinite}.sync-chip[data-state=synced]{transition:background .3s,border-color .3s}.sync-chip[data-state=synced]{background:#e7f7f0;border-color:#ccefe0}
+@media(prefers-reduced-motion:reduce){.hero{animation:none}.panel,.stat-card,.quick-action{will-change:auto}.point-updated .total-badge,.point-updated .grade-badge,.metric-updated,.content.enter .panel,.nav button.active:before{animation:none!important}.panel:hover{transform:none}}
+</style>
+<script>
+/* Feedback vizual după adăugarea punctelor, fără a atinge datele. */
+(function(){
+  const rows=document.getElementById('studentRows');
+  if(!rows||!window.MutationObserver)return;
+  const pulse=(el,cls)=>{if(!el)return;el.classList.remove(cls);void el.offsetWidth;el.classList.add(cls);setTimeout(()=>el.classList.remove(cls),650)};
+  new MutationObserver(list=>{list.forEach(m=>{const row=m.target.closest&&m.target.closest('tr');if(row)pulse(row,'point-updated')})}).observe(rows,{subtree:true,characterData:true,childList:true});
+  ['statPoints','statActive','statAverage'].forEach(id=>{const el=document.getElementById(id);if(!el)return;new MutationObserver(()=>pulse(el,'metric-updated')).observe(el,{childList:true,characterData:true,subtree:true})});
+})();
+</script>
 </body>
 </html>
