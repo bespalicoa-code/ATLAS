@@ -2,7 +2,7 @@
 <html lang="ro">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#0b2743">
 <meta name="description" content="ATLAS — catalog de puncte pentru Geografie, pe clase.">
 <link rel="icon" type="image/png" sizes="512x512" href="atlas-icon.png">
@@ -38,7 +38,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 Inter,ui-sans
 
 </style>
 <style>
-.auth-gate{position:fixed;inset:0;z-index:100;background:linear-gradient(135deg,#0b2743,#167d83);display:grid;place-items:center;padding:20px}.auth-card{width:min(430px,100%);background:#fff;border-radius:22px;padding:30px;box-shadow:0 25px 80px #001b3260;text-align:center}.auth-logo{width:62px;height:62px;margin:0 auto 15px;border-radius:16px;object-fit:cover}.auth-card h1{margin:0;color:#173650;font-size:24px}.auth-card p{color:#718397;font-size:13px;line-height:1.55}.google-btn{width:100%;border:1px solid #d9e4ed;border-radius:11px;background:#fff;color:#28465e;padding:12px 16px;display:flex;align-items:center;justify-content:center;gap:10px;font-weight:800;cursor:pointer}.google-btn:hover{background:#f4f8fb}.google-btn svg{width:19px;height:19px}.auth-status{min-height:18px;color:#bd4b55;font-size:11px;margin-top:13px}.auth-user{font-size:11px;color:#718397;margin-top:16px}.auth-logout{border:0;background:none;color:#1769aa;font-weight:700;cursor:pointer;margin-top:6px}.auth-config{background:#fff9eb;border:1px solid #f4e4bf;color:#836425;border-radius:10px;padding:10px;font-size:10px;line-height:1.45;text-align:left;margin-top:16px}
+.auth-gate{position:fixed;inset:0;z-index:100;background:linear-gradient(135deg,#0b2743,#167d83);display:grid;place-items:center;padding:20px;overflow:auto}.auth-card{width:min(430px,100%);background:#fff;border-radius:22px;padding:30px;box-shadow:0 25px 80px #001b3260;text-align:center}.auth-logo{width:62px;height:62px;margin:0 auto 15px;border-radius:16px;object-fit:cover}.auth-card h1{margin:0;color:#173650;font-size:24px}.auth-card p{color:#718397;font-size:13px;line-height:1.55}.google-btn{width:100%;border:1px solid #d9e4ed;border-radius:11px;background:#fff;color:#28465e;padding:12px 16px;display:flex;align-items:center;justify-content:center;gap:10px;font-weight:800;cursor:pointer}.google-btn:hover{background:#f4f8fb}.google-btn svg{width:19px;height:19px}.auth-status{min-height:18px;color:#bd4b55;font-size:11px;margin-top:13px}.auth-user{font-size:11px;color:#718397;margin-top:16px}.auth-logout{border:0;background:none;color:#1769aa;font-weight:700;cursor:pointer;margin-top:6px}.auth-config{background:#fff9eb;border:1px solid #f4e4bf;color:#836425;border-radius:10px;padding:10px;font-size:10px;line-height:1.45;text-align:left;margin-top:16px}@media(max-width:480px){.auth-gate{padding:12px}.auth-card{padding:23px 18px;border-radius:17px}.auth-card h1{font-size:20px}.auth-card p{font-size:12px}.auth-config{font-size:9px}}
 </style>
 </head>
 <body>
@@ -353,7 +353,7 @@ loadData();renderAll();renderQuiz();
 </script>
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
-import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 
 // Înlocuiește valorile de mai jos cu configurația proiectului tău Firebase.
 const firebaseConfig={apiKey:'AIzaSyAX93bTc5N0Y1Q5f1CSmQbYU9DBEKkgY7o',authDomain:'atlas-f1dfd.firebaseapp.com',projectId:'atlas-f1dfd',storageBucket:'atlas-f1dfd.firebasestorage.app',messagingSenderId:'926961747907',appId:'1:926961747907:web:6c2613c64a00626a1f9f76',measurementId:'G-XZFBE9RWLT'};
@@ -363,7 +363,7 @@ function authMessage(message){if(status)status.textContent=message}
 if(!configured){authMessage('Completează firebaseConfig pentru a activa autentificarea Google.');login.disabled=true}
 else try{
   const auth=getAuth(initializeApp(firebaseConfig)),provider=new GoogleAuthProvider();
-  login.addEventListener('click',async()=>{authMessage('Se deschide fereastra Google…');login.disabled=true;try{await signInWithPopup(auth,provider)}catch(e){authMessage('Autentificarea a eșuat. Verifică domeniul autorizat în Firebase.');login.disabled=false}});
+  login.addEventListener('click',async()=>{authMessage('Se deschide Google…');login.disabled=true;try{if(window.matchMedia('(max-width: 760px)').matches){await signInWithRedirect(auth,provider)}else{await signInWithPopup(auth,provider)}}catch(e){authMessage('Autentificarea a eșuat. Verifică domeniul autorizat în Firebase.');login.disabled=false}});
   onAuthStateChanged(auth,user=>{
     if(user){gate.style.display='none';shell.style.display='grid';const avatar=document.getElementById('classAvatar');if(avatar)avatar.textContent=(user.displayName||user.email||'U').slice(0,2).toUpperCase();}
     else{gate.style.display='grid';shell.style.display='none';login.disabled=false;authMessage('')}
