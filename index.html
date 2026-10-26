@@ -547,7 +547,7 @@ document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',
 // Fereastra «clasă» nu se închide la click lângă ea, ca să nu se piardă o listă lungă de elevi.
 document.querySelectorAll('.modal-backdrop').forEach(el=>el.addEventListener('mousedown',e=>{if(e.target===el&&el.id!=='classModal')closeModal(el.id)}));
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){document.querySelectorAll('.modal-backdrop.open').forEach(el=>closeModal(el.id));setSidebar(false);return}if(e.key==='Tab'){const m=document.querySelector('.modal-backdrop.open');if(!m)return;const f=[...m.querySelectorAll('button,input,select,textarea,[href]')].filter(x=>!x.disabled&&x.offsetParent!==null);if(!f.length)return;const first=f[0],last=f[f.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}}});
-document.addEventListener('submit',e=>{const form=e.target.closest('.inline-score');if(!form)return;e.preventDefault();const input=form.querySelector('input'),sid=form.dataset.student;if(addPoints(sid,input.value,'')){const f=[...document.querySelectorAll('.inline-score')].find(x=>x.dataset.student===sid);if(f)f.querySelector('input').focus()}});
+document.addEventListener('submit',e=>{const form=e.target.closest('.inline-score');if(!form)return;e.preventDefault();const input=form.querySelector('input'),sid=form.dataset.student,value=input.value;if(addPoints(sid,value,'')){input.value='';requestAnimationFrame(()=>{const f=[...document.querySelectorAll('.inline-score')].find(x=>x.dataset.student===sid);if(f){const next=f.querySelector('input');next.value='';next.focus()}})}});
 document.addEventListener('click',e=>{const hist=e.target.closest('[data-history]');if(hist){openStudentHistory(hist.dataset.history);return}const add=e.target.closest('[data-add]');if(add){openScoreModal(add.dataset.add);return}const undo=e.target.closest('[data-undo]');if(undo){undoLog(undo.dataset.undo);return}
   const rm=e.target.closest('[data-stu-rm]');if(rm){const row=rm.closest('.stu-edit'),on=row.classList.toggle('removed');row.querySelector('input').disabled=on;rm.innerHTML=on?restoreIcon:trashIcon;rm.title=on?'Restabilește elevul':'Elimină elevul';rm.setAttribute('aria-label',(on?'Restabilește elevul ':'Elimină elevul ')+row.querySelector('input').value)}});
 // Sincronizare între file deschise ale aceluiași browser
@@ -1476,4 +1476,3 @@ var _sp=window.showPage;window.showPage=function(p){_sp(p);if(!SUB[p])return;doc
 </script>
 </body>
 </html>
-
