@@ -1081,7 +1081,7 @@ async function loadBackend(){
 const S={be:null,user:null,unsub:null,remote:null,ready:false,paused:false,busy:false,again:false,timer:null,status:ENABLED?'connecting':'unavailable',lastSync:0,warnedSize:false};
 const STATUS_TEXT={unavailable:'',connecting:'Se conectează…',off:'Doar pe acest dispozitiv',synced:'Sincronizat',syncing:'Se sincronizează…',pending:'Modificări în așteptare',offline:'Offline',error:'Eroare de sincronizare',paused:'Alege cum sincronizezi'};
 function setStatus(s){S.status=s;renderAccount()}
-let adminEvents=[],adminUnsub=null;
+let adminEvents=[],adminUnsub=null,adminAccountEmails=[];
 function recordActivity(type,text,clsName){
   if(!S.user||!S.be||applying||typeof S.be.logActivity!=='function')return;
   S.be.logActivity({uid:S.user.uid,email:S.user.email||'',type:String(type||'change').slice(0,40),text:String(text||'').slice(0,300),cls:String(clsName||'').slice(0,80),dev:String(navigator.platform||'browser').slice(0,120)}).catch(()=>{});
@@ -1091,16 +1091,22 @@ function renderAdminActivity(){
   const q=norm(($('adminActivitySearch')||{}).value||''),type=(($('adminActivityType')||{}).value)||'';
   const rows=adminEvents.filter(x=>(!type||x.type===type)&&(!q||norm([x.email,x.text,x.cls,x.type].join(' ')).includes(q))).sort((a,b)=>{const at=a.ts&&a.ts.toMillis?a.ts.toMillis():Date.parse(a.ts||'')||0,bt=b.ts&&b.ts.toMillis?b.ts.toMillis():Date.parse(b.ts||'')||0;return bt-at});
   list.innerHTML=rows.map(x=>{const d=x.ts&&x.ts.toDate?x.ts.toDate():new Date(x.ts||0),date=d.getTime()?d.toLocaleString('ro-RO'):'În curs de sincronizare';return `<div class="admin-event"><div class="admin-event-icon">${x.type==='points'?'＋':x.type==='class'?'▦':x.type==='login'?'↪':x.type==='assessment'?'✦':'•'}</div><div class="admin-event-main"><strong>${escapeHtml(x.text||'Activitate')}</strong><span>${escapeHtml(x.email||'Cont necunoscut')}${x.cls?' · Clasa '+escapeHtml(x.cls):''}</span></div><div class="admin-event-time">${escapeHtml(date)}</div></div>`}).join('')||'<div class="admin-empty">Nu există interacțiuni pentru filtrul ales.</div>';
+  renderAdminAccounts();
 }
+function renderAdminAccounts(){
+  const box=$('adminAccounts');if(!box)return;adminAccountEmails=[...new Set(adminEvents.map(x=>String(x.email||'').trim().toLowerCase()).filter(Boolean))].sort();
+  box.innerHTML=adminAccountEmails.map((email,i)=>`<div class="admin-event"><div class="admin-event-icon">@</div><div class="admin-event-main"><strong>${escapeHtml(email)}</strong><span>Cont identificat în jurnal</span></div><button class="btn light" type="button" data-admin-reset="${i}">Trimite resetare parolă</button></div>`).join('')||'<div class="admin-empty">Nu au fost identificate încă alte conturi.</div>';
+}
+async function adminResetPassword(index){const email=adminAccountEmails[Number(index)];if(!email||!isAdmin()||!S.be)return;try{await S.be.resetPassword(email);recordActivity('settings','A solicitat resetarea parolei pentru '+email,'');showToast('Emailul de resetare a fost trimis către '+email+'.')}catch(e){showToast('Nu s-a putut trimite emailul de resetare.',true)}}
 function ensureAdminUi(){
   if($('adminPage'))return;
-  $('settingsPage').insertAdjacentHTML('afterend','<section class="page hidden" id="adminPage"><div class="panel"><div class="panel-head"><div class="panel-heading"><div class="section-icon">⌁</div><div><h2>Jurnal administrator</h2><p>Toate modificările și autentificările conturilor din aplicație.</p></div></div></div><div class="admin-toolbar"><input id="adminActivitySearch" type="search" placeholder="Caută cont, clasă sau acțiune…" aria-label="Caută în jurnal"><select id="adminActivityType" aria-label="Filtrează acțiunile"><option value="">Toate acțiunile</option><option value="login">Autentificări</option><option value="class">Clase</option><option value="points">Puncte</option><option value="assessment">Evaluări</option><option value="settings">Setări</option></select><button class="btn light" type="button" id="adminActivityRefresh">Reîmprospătează</button></div><div class="admin-activity" id="adminActivityList"></div></div></section>');
+    $('settingsPage').insertAdjacentHTML('afterend','<section class="page hidden" id="adminPage"><div class="panel"><div class="panel-head"><div class="panel-heading"><div class="section-icon">⌁</div><div><h2>Jurnal administrator</h2><p>Toate modificările și autentificările conturilor din aplicație.</p></div></div></div><div class="admin-toolbar"><input id="adminActivitySearch" type="search" placeholder="Caută cont, clasă sau acțiune…" aria-label="Caută în jurnal"><select id="adminActivityType" aria-label="Filtrează acțiunile"><option value="">Toate acțiunile</option><option value="login">Autentificări</option><option value="class">Clase</option><option value="points">Puncte</option><option value="assessment">Evaluări</option><option value="settings">Setări</option></select><button class="btn light" type="button" id="adminActivityRefresh">Reîmprospătează</button></div><div class="admin-activity" id="adminActivityList"></div></div><div class="panel"><div class="panel-head"><div class="panel-heading"><div class="section-icon">@</div><div><h2>Conturi identificate</h2><p>Poți trimite un email de resetare a parolei.</p></div></div></div><div class="admin-activity" id="adminAccounts"></div></div></section>');
   const b=document.createElement('button');b.type='button';b.dataset.page='admin';b.id='navAdmin';b.innerHTML='<svg viewBox="0 0 24 24"><path d="M4 5h16v14H4zM8 9h8M8 13h5"/></svg>Jurnal administrator';b.addEventListener('click',()=>showPage('admin'));$('navAdd').before(b);
   $('adminActivitySearch').addEventListener('input',renderAdminActivity);$('adminActivityType').addEventListener('change',renderAdminActivity);$('adminActivityRefresh').addEventListener('click',()=>{if(S.user&&S.be&&typeof S.be.listenActivity==='function'){if(adminUnsub)adminUnsub();adminUnsub=S.be.listenActivity(v=>{adminEvents=v.slice(-500);renderAdminActivity()},()=>showToast('Jurnalul nu a putut fi încărcat.',true))}});
   const oldPageInfo=window.pageInfo;window.pageInfo=function(p){return p==='admin'?['ADMINISTRARE','Jurnal administrator','Analiza tuturor interacțiunilor conturilor']:oldPageInfo(p)};
 }
 function startAdminActivity(){if(!isAdmin()||!S.be||typeof S.be.listenActivity!=='function')return;ensureAdminUi();if(adminUnsub)return;adminUnsub=S.be.listenActivity(v=>{adminEvents=v.slice(-500);renderAdminActivity()},()=>showToast('Jurnalul nu a putut fi încărcat. Verifică regulile Firestore.',true));}
-function stopAdminActivity(){if(adminUnsub){try{adminUnsub()}catch(e){}adminUnsub=null}adminEvents=[];const b=$('navAdmin');if(b)b.remove();const p=$('adminPage');if(p)p.remove();}
+function stopAdminActivity(){if(adminUnsub){try{adminUnsub()}catch(e){}adminUnsub=null}adminEvents=[];adminAccountEmails=[];const b=$('navAdmin');if(b)b.remove();const p=$('adminPage');if(p)p.remove();}
 function logLocalChange(n){if(n==='saveData')recordActivity('change','A modificat catalogul: clase, elevi sau punctaje',cls()?.name);else if(n==='saveAssessments')recordActivity('assessment','A modificat evaluările clasei',cls()?.name);else if(n==='saveSettings')recordActivity('settings','A modificat setările aplicației','')}
 function localDiffers(){const m=readMeta(),L=localState();for(const[id,v]of L)if(m.base[id]!==v.hash)return true;for(const id of Object.keys(m.base))if(!L.has(id))return true;return false}
 
@@ -1248,9 +1254,10 @@ async function start(){
 
 document.addEventListener('click',e=>{
   const t=e.target.closest('button');if(!t)return;
+  if(t.dataset.adminReset!==undefined){adminResetPassword(t.dataset.adminReset);return}
   if(t.id==='syncChip'||t.id==='navAccount'||t.id==='accIn'){
     if(t.id==='navAccount'&&typeof setSidebar==='function')setSidebar(false);
-    if(S.user){if(S.paused)openChoice();else showPage('settings')}else openAuth('login');return}
+    if(S.user){if(S.paused)openChoice();else if(isAdmin())showPage('admin');else showPage('settings')}else openAuth('login');return}
   if(t.id==='accSync'){if(S.paused)openChoice();else if(S.ready){setStatus('syncing');cycle()}else showToast('Se conectează la cont… încearcă din nou în câteva secunde.');return}
   if(t.id==='accOut'){logout();return}
   if(t.dataset.authMode){setAuthMode(t.dataset.authMode);return}
