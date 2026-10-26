@@ -383,10 +383,16 @@ const MAX_STUDENTS=200,MAX_CLASS_NAME=30,MAX_STUDENT_NAME=80;
 // Matricele se înlocuiesc mereu cu altele noi (niciodată modificate pe loc): așa cache-ul își dă seama singur când e depășit.
 let db={classes:[]},activeId=null,cache=null,currentPage='catalog',toastTimer,lastFocus=null,editingClassId=null,currentProfileSid=null;
 const ASSESS_KEY='atlas-assessments-v1', SETTINGS_KEY='atlas-settings-v1';
+const ACCOUNT_CACHE_PREFIX='atlas-account-cache-v1:';
 let assessments=readLocal(ASSESS_KEY,[]), appSettings=readLocal(SETTINGS_KEY,{dark:false,school:'',year:'2026–2027'}), quizIndex=0,quizScore=0,quizAnswered=false;
 function readLocal(k,fallback){try{return JSON.parse(localStorage.getItem(k))??fallback}catch(e){return fallback}}
-function saveAssessments(){try{localStorage.setItem(ASSESS_KEY,JSON.stringify(assessments))}catch(e){showToast('Nu s-au putut salva evaluările.',true)}}
-function saveSettings(){try{localStorage.setItem(SETTINGS_KEY,JSON.stringify(appSettings))}catch(e){} }
+function accountCacheKey(uid){return ACCOUNT_CACHE_PREFIX+String(uid||'')}
+function saveAccountSnapshot(uid){if(!uid)return;try{localStorage.setItem(accountCacheKey(uid),JSON.stringify({classes:db.classes,assessments,settings:appSettings,activeId,updatedAt:Date.now()}))}catch(e){console.warn('ATLAS local account backup:',e)}}
+function readAccountSnapshot(uid){if(!uid)return null;try{const x=JSON.parse(localStorage.getItem(accountCacheKey(uid)));return x&&Array.isArray(x.classes)?x:null}catch(e){return null}}
+function saveAssessments(){try{localStorage.setItem(ASSESS_KEY,JSON.stringify(assessments));saveAccountSnapshot(window.__ATLAS_USER_UID)}catch(e){showToast('Nu s-au putut salva evaluările.',true)}}
+function saveSettings(){try{localStorage.setItem(SETTINGS_KEY,JSON.stringify(appSettings));saveAccountSnapshot(window.__ATLAS_USER_UID)}catch(e){} }
+setInterval(()=>{if(window.__ATLAS_USER_UID)saveAccountSnapshot(window.__ATLAS_USER_UID)},15000);
+window.addEventListener('beforeunload',()=>{if(window.__ATLAS_USER_UID)saveAccountSnapshot(window.__ATLAS_USER_UID)});
 const $=id=>document.getElementById(id);
 const norm=s=>String(s??'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLocaleLowerCase('ro');
 const cleanSpaces=s=>String(s??'').replace(/\s+/g,' ').trim();
@@ -412,7 +418,7 @@ function gradeRange(grade,max){if(max<=0)return null;const start=grade===1?0:cei
 function renderGradeScale(){const max=maxTotal();$('gradingMax').textContent=`Maximul actual: ${fmt(max)} ${pl(max,'punct','puncte')}`;$('gradeScale').innerHTML=Array.from({length:10},(_,idx)=>{const grade=idx+1,range=gradeRange(grade,max);return `<div class="grade-item ${grade===10?'top':''} ${range?'':'unavailable'}"><strong>${grade}</strong><span>${range||'—'}</span></div>`}).join('');$('gradingNote').textContent=max>0?`Barem calculat acum pentru maximul de ${fmt(max)} ${pl(max,'punct','puncte')}. Elevul cu punctajul maxim primește nota 10; dacă totalul maxim al clasei se modifică, toate notele și intervalele baremului se actualizează automat.`:'Baremul se activează după introducerea punctelor. Până atunci, nota afișată pentru fiecare elev este 1.'}
 
 // ---------- Salvare, încărcare, migrare ----------
-function saveData(quiet=false){try{localStorage.setItem(STORAGE_KEY,JSON.stringify({v:2,classes:db.classes}));return true}catch(e){if(!quiet)showToast('Nu s-au putut salva datele. Creează o copie de siguranță!',true);return false}}
+function saveData(quiet=false){try{localStorage.setItem(STORAGE_KEY,JSON.stringify({v:2,classes:db.classes}));saveAccountSnapshot(window.__ATLAS_USER_UID);return true}catch(e){if(!quiet)showToast('Nu s-au putut salva datele. Creează o copie de siguranță!',true);return false}}
 function saveActive(){try{localStorage.setItem(ACTIVE_KEY,activeId)}catch(e){}}
 function readJSON(key){try{return JSON.parse(localStorage.getItem(key))}catch(e){return null}}
 function sanitizeLogs(arr,sids){const ids=new Set();return (Array.isArray(arr)?arr:[]).map(x=>{if(!x||!sids.has(x.sid))return null;const p=Number(x.points);if(!Number.isInteger(p)||p<1||p>1000)return null;let id=String(x.id||uid());if(ids.has(id))id=uid();ids.add(id);return{id,sid:x.sid,points:p,note:String(x.note||'').slice(0,300),ts:Number(x.ts)||Date.now(),date:String(x.date||'')}}).filter(Boolean)}
@@ -542,7 +548,7 @@ document.addEventListener('submit',e=>{const form=e.target.closest('.inline-scor
 document.addEventListener('click',e=>{const hist=e.target.closest('[data-history]');if(hist){openStudentHistory(hist.dataset.history);return}const add=e.target.closest('[data-add]');if(add){openScoreModal(add.dataset.add);return}const undo=e.target.closest('[data-undo]');if(undo){undoLog(undo.dataset.undo);return}
   const rm=e.target.closest('[data-stu-rm]');if(rm){const row=rm.closest('.stu-edit'),on=row.classList.toggle('removed');row.querySelector('input').disabled=on;rm.innerHTML=on?restoreIcon:trashIcon;rm.title=on?'Restabilește elevul':'Elimină elevul';rm.setAttribute('aria-label',(on?'Restabilește elevul ':'Elimină elevul ')+row.querySelector('input').value)}});
 // Sincronizare între file deschise ale aceluiași browser
-window.addEventListener('storage',e=>{if(e.key===STORAGE_KEY||e.key===BACKUP_KEY||e.key===null){loadData();renderAll()}});
+window.addEventListener('storage',e=>{if(window.__ATLAS_USER_UID)return;if(e.key===STORAGE_KEY||e.key===BACKUP_KEY||e.key===null){loadData();renderAll()}});
 
 // ---------- Scanare listă din poză (OCR în browser, Tesseract.js) ----------
 const TESS_URL='https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';
@@ -1228,6 +1234,14 @@ function wipeLocalAndReload(){
   [STORAGE_KEY,OLD_STORAGE_KEY,ASSESS_KEY,ACTIVE_KEY,BACKUP_KEY,SETTINGS_KEY,META_KEY].forEach(k=>{try{localStorage.removeItem(k)}catch(e){}});
   try{localStorage.setItem(SETTINGS_KEY,JSON.stringify({dark,school:'',year:'2026–2027'}))}catch(e){}
   location.reload()}
+function isolateLocalDataForUser(uid){
+  const meta=readMeta();
+  if(meta.uid===uid)return false;
+  const snapshot=readAccountSnapshot(uid);
+  [STORAGE_KEY,ASSESS_KEY,ACTIVE_KEY,BACKUP_KEY,META_KEY].forEach(k=>{try{localStorage.removeItem(k)}catch(e){}});
+  if(snapshot){try{localStorage.setItem(STORAGE_KEY,JSON.stringify({v:2,classes:snapshot.classes}));localStorage.setItem(ASSESS_KEY,JSON.stringify(snapshot.assessments||[]));localStorage.setItem(SETTINGS_KEY,JSON.stringify(snapshot.settings||{dark:false,school:'',year:'2026–2027'}));if(snapshot.activeId)localStorage.setItem(ACTIVE_KEY,snapshot.activeId)}catch(e){}}
+  activeId=null;cache=null;loadData();assessments=readLocal(ASSESS_KEY,[]);appSettings=readLocal(SETTINGS_KEY,{dark:false,school:'',year:'2026–2027'});return true;
+}
 async function logout(){
   const unsynced=S.user&&(S.status==='pending'||S.status==='offline'||S.paused||localDiffers());
   const msg=(unsynced?'ATENȚIE: ai modificări care nu au ajuns încă în cont. Dacă ieși acum, ele se pierd.\n\n':'')+'Ieși din cont? Datele de pe acest dispozitiv se șterg (rămân în cont și le regăsești la următoarea autentificare).';
@@ -1239,7 +1253,8 @@ async function logout(){
 function onAuth(user){
   if(S.unsub){try{S.unsub()}catch(e){}S.unsub=null}
   if(!user)stopAdminActivity();
-  S.user=user;S.remote=null;S.ready=false;S.paused=false;
+  S.user=user;window.__ATLAS_USER_UID=user&&user.uid||'';S.remote=null;S.ready=false;S.paused=false;
+  if(user)isolateLocalDataForUser(user.uid);
   if(!user){setStatus('off');
     if(!flag(localStorage,GUEST_KEY)&&!flag(sessionStorage,DISMISS_KEY))openAuth('login');
     return}
