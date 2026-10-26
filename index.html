@@ -255,6 +255,9 @@ body.dark .linkbtn{color:#7cc0f0}
 body.dark .auth-err{background:rgba(189,75,85,.18);border-color:rgba(189,75,85,.4);color:#ffb3ba}
 body.dark .auth-err.ok{background:rgba(24,133,108,.2);border-color:rgba(24,133,108,.45);color:#8fe6c6}
 </style>
+<style>
+.admin-activity{display:grid;gap:12px}.admin-toolbar{display:flex;gap:9px;align-items:center;flex-wrap:wrap;padding:16px 0}.admin-toolbar input,.admin-toolbar select{border:1px solid var(--line);border-radius:10px;padding:10px 11px;background:var(--white);color:var(--ink)}.admin-toolbar input{min-width:220px;flex:1}.admin-event{display:grid;grid-template-columns:42px minmax(0,1fr) auto;gap:12px;align-items:center;padding:13px 14px;border:1px solid var(--line);border-radius:13px;background:var(--white)}.admin-event-icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:#e8f3fb;color:var(--blue);font-size:16px}.admin-event-main{min-width:0}.admin-event-main strong{display:block;font-size:12px;color:var(--ink)}.admin-event-main span{display:block;margin-top:3px;color:var(--muted);font-size:10px;overflow-wrap:anywhere}.admin-event-time{color:var(--muted);font-size:10px;white-space:nowrap}.admin-empty{text-align:center;padding:30px;color:var(--muted);font-size:12px}
+</style>
 </head>
 <body>
 <div id="scene" aria-hidden="true"><svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg" role="presentation" focusable="false"><defs>
@@ -422,7 +425,7 @@ function loadData(){const raw=readJSON(STORAGE_KEY);let classes=raw&&Array.isArr
   if(!db.classes.some(c=>c.id===activeId)){let saved=null;try{saved=localStorage.getItem(ACTIVE_KEY)}catch(e){}activeId=db.classes.some(c=>c.id===saved)?saved:db.classes[0].id}
   if(fresh)saveData(true)}
 function showToast(message,error=false){const t=$('toast');t.textContent=message;t.classList.toggle('error',error);t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),3400)}
-function addPoints(sid,points,note=''){const p=Number(points),name=nameOf(sid);if(!name){showToast('Elev necunoscut.',true);return false}if(!Number.isInteger(p)||p<1||p>1000){showToast('Introduceți un număr întreg între 1 și 1000.',true);return false}const now=new Date();setLogs([...cls().logs,{id:uid(),sid,points:p,note:String(note||'').trim().slice(0,300),ts:now.getTime(),date:now.toLocaleString('ro-RO')}]);saveData();renderAll();showToast(`Au fost adăugate ${p} ${pl(p,'punct','puncte')} pentru ${name}.`);return true}
+function addPoints(sid,points,note=''){const p=Number(points),name=nameOf(sid);if(!name){showToast('Elev necunoscut.',true);return false}if(!Number.isInteger(p)||p<1||p>1000){showToast('Introduceți un număr întreg între 1 și 1000.',true);return false}const now=new Date();setLogs([...cls().logs,{id:uid(),sid,points:p,note:String(note||'').trim().slice(0,300),ts:now.getTime(),date:now.toLocaleString('ro-RO')}]);saveData();recordActivity('points',`A adăugat ${p} ${pl(p,'punct','puncte')} pentru ${name}${note?' · '+String(note).trim().slice(0,120):''}`,cls().name);renderAll();showToast(`Au fost adăugate ${p} ${pl(p,'punct','puncte')} pentru ${name}.`);return true}
 
 // ---------- Afișare ----------
 function renderStats(){const c=cls(),t=totals(),n=c.students.length,total=c.students.reduce((s,x)=>s+t.sum.get(x.id),0),active=c.students.filter(x=>t.sum.get(x.id)>0).length;$('statStudents').textContent=n;$('statPoints').textContent=fmt(total);$('statActive').textContent=active;$('statAverage').textContent=fmt(total/n)}
@@ -475,7 +478,7 @@ function saveClass(e){e.preventDefault();
   if(removed.size&&!confirm(`Se vor elimina ${removed.size} ${pl(removed.size,'elev','elevi')}${lost?` și ${lost} ${pl(lost,'înregistrare','înregistrări')} de puncte`:''} din clasa ${name}. Această acțiune nu poate fi refăcută automat. Continuați?`))return;
   if(old){const keepIds=new Set(kept.map(s=>s.id));db.classes=db.classes.map(c=>c===old?{...c,name,students,logs:c.logs.filter(x=>keepIds.has(x.sid))}:c)}
   else{const c={id:uid(),name,students,logs:[]};db.classes=[...db.classes,c];activeId=c.id;saveActive()}
-  saveData();closeModal('classModal');renderAll();
+  saveData();recordActivity('class',old?`A actualizat clasa ${name} (${students.length} elevi).`:`A creat clasa ${name} cu ${students.length} elevi.`,name);closeModal('classModal');renderAll();
   showToast(old?`Clasa ${name} a fost actualizată.`:`Clasa ${name} a fost creată, cu ${students.length} ${pl(students.length,'elev','elevi')}.`)}
 function deleteClass(){const c=db.classes.find(x=>x.id===editingClassId);if(!c)return;if(db.classes.length<2){showToast('Trebuie să rămână cel puțin o clasă.',true);return}
   if(!confirm(`Ștergeți definitiv clasa ${c.name} (${c.students.length} ${pl(c.students.length,'elev','elevi')}, ${c.logs.length} ${pl(c.logs.length,'înregistrare','înregistrări')})? Acțiunea nu poate fi anulată. Dacă nu ești sigur, creează mai întâi o copie de siguranță.`))return;
@@ -1067,6 +1070,8 @@ async function loadBackend(){
     resetPassword:e=>A.sendPasswordResetEmail(auth,e),
     signOut:()=>A.signOut(auth),
     listen:(uid,cb,err)=>F.onSnapshot(F.collection(fs,'users',uid,'atlas'),snap=>cb({docs:snap.docs.map(d=>({id:d.id,data:d.data()})),fromCache:snap.metadata.fromCache,pending:snap.metadata.hasPendingWrites}),err),
+    logActivity:data=>F.addDoc(F.collection(fs,'activity'),{uid:data.uid,email:data.email||'',type:data.type,text:data.text,cls:data.cls||'',dev:data.dev||'',ts:F.serverTimestamp()}),
+    listenActivity:(cb,err)=>F.onSnapshot(F.collection(fs,'activity'),snap=>cb(snap.docs.map(d=>({id:d.id,...d.data()}))),err),
     async commit(uid,ops){for(let i=0;i<ops.length;i+=400){const b=F.writeBatch(fs);ops.slice(i,i+400).forEach(o=>{const r=F.doc(fs,'users',uid,'atlas',o.id);if(o.type==='set')b.set(r,{...o.data,updatedAt:F.serverTimestamp()});else b.delete(r)});await b.commit()}}
   }}
 
@@ -1074,6 +1079,27 @@ async function loadBackend(){
 const S={be:null,user:null,unsub:null,remote:null,ready:false,paused:false,busy:false,again:false,timer:null,status:ENABLED?'connecting':'unavailable',lastSync:0,warnedSize:false};
 const STATUS_TEXT={unavailable:'',connecting:'Se conectează…',off:'Doar pe acest dispozitiv',synced:'Sincronizat',syncing:'Se sincronizează…',pending:'Modificări în așteptare',offline:'Offline',error:'Eroare de sincronizare',paused:'Alege cum sincronizezi'};
 function setStatus(s){S.status=s;renderAccount()}
+let adminEvents=[],adminUnsub=null;
+function recordActivity(type,text,clsName){
+  if(!S.user||!S.be||applying||typeof S.be.logActivity!=='function')return;
+  S.be.logActivity({uid:S.user.uid,email:S.user.email||'',type:String(type||'change').slice(0,40),text:String(text||'').slice(0,300),cls:String(clsName||'').slice(0,80),dev:String(navigator.platform||'browser').slice(0,120)}).catch(()=>{});
+}
+function renderAdminActivity(){
+  const list=$('adminActivityList');if(!list)return;
+  const q=norm(($('adminActivitySearch')||{}).value||''),type=(($('adminActivityType')||{}).value)||'';
+  const rows=adminEvents.filter(x=>(!type||x.type===type)&&(!q||norm([x.email,x.text,x.cls,x.type].join(' ')).includes(q))).sort((a,b)=>{const at=a.ts&&a.ts.toMillis?a.ts.toMillis():Date.parse(a.ts||'')||0,bt=b.ts&&b.ts.toMillis?b.ts.toMillis():Date.parse(b.ts||'')||0;return bt-at});
+  list.innerHTML=rows.map(x=>{const d=x.ts&&x.ts.toDate?x.ts.toDate():new Date(x.ts||0),date=d.getTime()?d.toLocaleString('ro-RO'):'În curs de sincronizare';return `<div class="admin-event"><div class="admin-event-icon">${x.type==='points'?'＋':x.type==='class'?'▦':x.type==='login'?'↪':x.type==='assessment'?'✦':'•'}</div><div class="admin-event-main"><strong>${escapeHtml(x.text||'Activitate')}</strong><span>${escapeHtml(x.email||'Cont necunoscut')}${x.cls?' · Clasa '+escapeHtml(x.cls):''}</span></div><div class="admin-event-time">${escapeHtml(date)}</div></div>`}).join('')||'<div class="admin-empty">Nu există interacțiuni pentru filtrul ales.</div>';
+}
+function ensureAdminUi(){
+  if($('adminPage'))return;
+  $('settingsPage').insertAdjacentHTML('afterend','<section class="page hidden" id="adminPage"><div class="panel"><div class="panel-head"><div class="panel-heading"><div class="section-icon">⌁</div><div><h2>Jurnal administrator</h2><p>Toate modificările și autentificările conturilor din aplicație.</p></div></div></div><div class="admin-toolbar"><input id="adminActivitySearch" type="search" placeholder="Caută cont, clasă sau acțiune…" aria-label="Caută în jurnal"><select id="adminActivityType" aria-label="Filtrează acțiunile"><option value="">Toate acțiunile</option><option value="login">Autentificări</option><option value="class">Clase</option><option value="points">Puncte</option><option value="assessment">Evaluări</option><option value="settings">Setări</option></select><button class="btn light" type="button" id="adminActivityRefresh">Reîmprospătează</button></div><div class="admin-activity" id="adminActivityList"></div></div></section>');
+  const b=document.createElement('button');b.type='button';b.dataset.page='admin';b.id='navAdmin';b.innerHTML='<svg viewBox="0 0 24 24"><path d="M4 5h16v14H4zM8 9h8M8 13h5"/></svg>Jurnal administrator';b.addEventListener('click',()=>showPage('admin'));$('navAdd').before(b);
+  $('adminActivitySearch').addEventListener('input',renderAdminActivity);$('adminActivityType').addEventListener('change',renderAdminActivity);$('adminActivityRefresh').addEventListener('click',()=>{if(S.user&&S.be&&typeof S.be.listenActivity==='function'){if(adminUnsub)adminUnsub();adminUnsub=S.be.listenActivity(v=>{adminEvents=v.slice(-500);renderAdminActivity()},()=>showToast('Jurnalul nu a putut fi încărcat.',true))}});
+  const oldPageInfo=window.pageInfo;window.pageInfo=function(p){return p==='admin'?['ADMINISTRARE','Jurnal administrator','Analiza tuturor interacțiunilor conturilor']:oldPageInfo(p)};
+}
+function startAdminActivity(){if(!isAdmin()||!S.be||typeof S.be.listenActivity!=='function')return;ensureAdminUi();if(adminUnsub)return;adminUnsub=S.be.listenActivity(v=>{adminEvents=v.slice(-500);renderAdminActivity()},()=>showToast('Jurnalul nu a putut fi încărcat. Verifică regulile Firestore.',true));}
+function stopAdminActivity(){if(adminUnsub){try{adminUnsub()}catch(e){}adminUnsub=null}adminEvents=[];const b=$('navAdmin');if(b)b.remove();const p=$('adminPage');if(p)p.remove();}
+function logLocalChange(n){if(n==='saveData')recordActivity('change','A modificat catalogul: clase, elevi sau punctaje',cls()?.name);else if(n==='saveAssessments')recordActivity('assessment','A modificat evaluările clasei',cls()?.name);else if(n==='saveSettings')recordActivity('settings','A modificat setările aplicației','')}
 function localDiffers(){const m=readMeta(),L=localState();for(const[id,v]of L)if(m.base[id]!==v.hash)return true;for(const id of Object.keys(m.base))if(!L.has(id))return true;return false}
 
 function renderAccount(){
@@ -1131,7 +1157,7 @@ async function cycleOnce(){
   setStatus(localDiffers()?'pending':'synced')}
 
 function onLocalChange(){if(applying||!S.user)return;if(S.ready&&!S.paused){setStatus('pending');schedule()}}
-['saveData','saveAssessments','saveSettings'].forEach(n=>{const orig=window[n];if(typeof orig!=='function')return;window[n]=function(){const r=orig.apply(this,arguments);onLocalChange();return r}});
+['saveData','saveAssessments','saveSettings'].forEach(n=>{const orig=window[n];if(typeof orig!=='function')return;window[n]=function(){const r=orig.apply(this,arguments);if(!applying)logLocalChange(n);onLocalChange();return r}});
 
 /* ---------- Prima conectare pe acest dispozitiv ---------- */
 function onSnapshot(snap){
@@ -1196,17 +1222,18 @@ async function logout(){
   const unsynced=S.user&&(S.status==='pending'||S.status==='offline'||S.paused||localDiffers());
   const msg=(unsynced?'ATENȚIE: ai modificări care nu au ajuns încă în cont. Dacă ieși acum, ele se pierd.\n\n':'')+'Ieși din cont? Datele de pe acest dispozitiv se șterg (rămân în cont și le regăsești la următoarea autentificare).';
   if(!confirm(msg))return;
-  clearTimeout(S.timer);try{await S.be.signOut()}catch(e){}
+  recordActivity('login','S-a deconectat din ATLAS','');clearTimeout(S.timer);try{await S.be.signOut()}catch(e){}
   wipeLocalAndReload()}
 
 /* ---------- Pornire ---------- */
 function onAuth(user){
   if(S.unsub){try{S.unsub()}catch(e){}S.unsub=null}
+  if(!user)stopAdminActivity();
   S.user=user;S.remote=null;S.ready=false;S.paused=false;
   if(!user){setStatus('off');
     if(!flag(localStorage,GUEST_KEY)&&!flag(sessionStorage,DISMISS_KEY))openAuth('login');
     return}
-  closeModal('authModal');setStatus('connecting');
+  closeModal('authModal');setStatus('connecting');if(isAdmin()){ensureAdminUi();startAdminActivity();recordActivity('login','S-a autentificat în ATLAS','')}
   clearTimeout(S.watch);S.watch=setTimeout(()=>{if(S.user&&!S.ready&&!S.paused){setStatus('error');showToast('Nu mă pot conecta la baza de date. Verifică în Firebase: Firestore Database creată și regulile publicate. Dezactivează și blocantul de reclame pentru acest site.',true)}},15000);
   S.unsub=S.be.listen(user.uid,onSnapshot,e=>{const c=e&&e.code||'';setStatus(c==='permission-denied'?'error':'offline');showToast(c==='permission-denied'?'Firestore a refuzat accesul. Publică regulile din firestore.rules (Firestore → Rules → Publish).':'Eroare la baza de date'+(c?' ('+c+')':'')+'. Verifică dacă Firestore Database este creată în proiectul Firebase.',true);console.error('ATLAS sync:',e)})}
 async function start(){
