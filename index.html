@@ -431,7 +431,10 @@ function loadData(){const raw=readJSON(STORAGE_KEY);let classes=raw&&Array.isArr
   if(!db.classes.some(c=>c.id===activeId)){let saved=null;try{saved=localStorage.getItem(ACTIVE_KEY)}catch(e){}activeId=db.classes.some(c=>c.id===saved)?saved:db.classes[0].id}
   if(fresh)saveData(true)}
 function showToast(message,error=false){const t=$('toast');t.textContent=message;t.classList.toggle('error',error);t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),3400)}
-function canEditPoints(){return !!S.user}
+// Punctarea funcționează ca în versiunea din arhivă și fără cont.
+// Fără autentificare datele rămân locale; după autentificare sunt sincronizate
+// în contul conectat, prin fluxul normal de sincronizare.
+function canEditPoints(){return true}
 function addPoints(sid,points,note=''){if(!canEditPoints()){showToast('Autentifică-te pentru a adăuga puncte în catalogul contului tău.',true);return false}const p=Number(points),name=nameOf(sid);if(!name){showToast('Elev necunoscut.',true);return false}if(!Number.isInteger(p)||p<1||p>1000){showToast('Introduceți un număr întreg între 1 și 1000.',true);return false}const now=new Date();setLogs([...cls().logs,{id:uid(),sid,points:p,note:String(note||'').trim().slice(0,300),ts:now.getTime(),date:now.toLocaleString('ro-RO')}]);saveData();recordActivity('points',`A adăugat ${p} ${pl(p,'punct','puncte')} pentru ${name}${note?' · '+String(note).trim().slice(0,120):''}`,cls().name);renderAll();showToast(`Au fost adăugate ${p} ${pl(p,'punct','puncte')} pentru ${name}.`);return true}
 
 // ---------- Afișare ----------
@@ -1473,3 +1476,4 @@ var _sp=window.showPage;window.showPage=function(p){_sp(p);if(!SUB[p])return;doc
 </script>
 </body>
 </html>
+
