@@ -242,6 +242,7 @@ body.lite .podium{transform:none}
 .auth-or{display:flex;align-items:center;gap:10px;margin:14px 0;color:var(--muted);font-size:11px}
 .auth-or:before,.auth-or:after{content:"";flex:1;height:1px;background:var(--line)}
 .auth-links{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:14px}
+.admin-badge{display:inline-flex;align-items:center;gap:5px;background:#fff3cf;color:#8a6110;border:1px solid #efd79a;border-radius:999px;padding:3px 8px;font-size:10px;font-weight:850;margin-left:6px}
 .linkbtn{border:0;background:none;color:var(--blue);font-weight:700;font-size:12px;padding:4px 0;text-decoration:underline;text-underline-offset:3px}
 .choice-list{display:grid;gap:10px;margin-top:14px}
 .choice-list .btn{justify-content:flex-start;text-align:left;flex-direction:column;align-items:flex-start;gap:3px;padding:13px 15px;height:auto}
@@ -1000,6 +1001,8 @@ const ATLAS_FIREBASE_CONFIG = {
 (function(){
 'use strict';
 const CFG=ATLAS_FIREBASE_CONFIG;
+const ATLAS_ADMIN_UID='Xoe7dWynfiSgHQi1Ua0dLIqwOvG2';
+const isAdmin=()=>!!(S.user&&S.user.uid===ATLAS_ADMIN_UID);
 const FB_VER='10.14.1',SDK='https://www.gstatic.com/firebasejs/'+FB_VER+'/';
 const META_KEY='atlas-sync-meta-v1',GUEST_KEY='atlas-guest-ok',DISMISS_KEY='atlas-login-dismissed';
 const MAX_DOC_BYTES=900000;                 // Firestore: 1 MiB per document
@@ -1082,7 +1085,7 @@ function renderAccount(){
   chip.classList.remove('hidden');chip.dataset.state=shown;txt.textContent=STATUS_TEXT[shown]||'';
   chip.title=S.user?('Conectat ca '+S.user.email):'Autentifică-te ca să ai datele pe orice dispozitiv';
   if(item){
-    if(S.user){const t=S.lastSync?new Date(S.lastSync).toLocaleTimeString('ro-RO',{hour:'2-digit',minute:'2-digit'}):'—';item.textContent='Conectat ca '+S.user.email+'. Datele sunt salvate în cont și pe acest dispozitiv · ultima sincronizare: '+t+'.'}
+    if(S.user){const t=S.lastSync?new Date(S.lastSync).toLocaleTimeString('ro-RO',{hour:'2-digit',minute:'2-digit'}):'—';item.innerHTML='Conectat ca '+escapeHtml(S.user.email)+'. Datele sunt salvate în cont și pe acest dispozitiv · ultima sincronizare: '+t+'.'+(isAdmin()?' <span class="admin-badge">ADMINISTRATOR</span>':'')}
     else item.textContent='Fără cont, datele rămân doar în acest browser. Autentifică-te ca să le poți deschide de pe orice alt dispozitiv (de exemplu de pe calculator).'}
   if(acts){
     acts.innerHTML=S.user?'<button class="btn light" type="button" id="accSync">Sincronizează acum</button><button class="btn danger" type="button" id="accOut">Ieși din cont</button>':'<button class="btn primary" type="button" id="accIn">Autentifică-te / Creează cont</button>'}
@@ -1417,3 +1420,4 @@ var _sp=window.showPage;window.showPage=function(p){_sp(p);if(!SUB[p])return;doc
 </script>
 </body>
 </html>
+
